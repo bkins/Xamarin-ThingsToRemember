@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:ThingsToRemember.ViewModels;assembly=ThingsToRemember"
+             
+             x:Class="ThingsToRemember.Views.EntryPage"
+             x:DataType="viewmodels:EntryViewModel"
+             >
+    
+    <StackLayout Margin="{DynamicResource PageMargin}">
+        
+        <Editor Placeholder="Title"
+                Text="{Binding Title}"
+                HeightRequest="50" >
+            <Editor.Keyboard>
+                <Keyboard x:FactoryMethod="Create">
+                    <x:Arguments>
+                        <KeyboardFlags>Suggestions,CapitalizeWord</KeyboardFlags>
+                    </x:Arguments>
+                </Keyboard>
+            </Editor.Keyboard>
+        </Editor>
+                
+        <Editor Placeholder="Text"
+                Text="{Binding Text}"
+                AutoSize="TextChanges">
+            <Editor.Keyboard>
+                <Keyboard x:FactoryMethod="Create">
+                    <x:Arguments>
+                        <KeyboardFlags>Suggestions,CapitalizeSentence</KeyboardFlags>
+                    </x:Arguments>
+                </Keyboard>
+            </Editor.Keyboard>
+        </Editor>
+        <!--TODO: move Difficulty to be right under Description.  -->
+        <!--Along with Save/Delete to be right under Difficulty -->
+        <Editor Placeholder="Date time of entry"
+                Text="{Binding CreateDateTime}"/>
+        <Editor Placeholder="Mood"
+                Text="{Binding Mood.Title}"/>
+        <Grid ColumnDefinitions="*,*">
+            <!-- Layout children in two columns -->
+            <Button Text="Save"
+                    HeightRequest="75"
+                    Clicked="OnSaveButtonClicked" />
+            <Button Grid.Column="1"
+                    Text="Delete"
+                    Clicked="OnDeleteButtonClicked"/>
+            
+        </Grid>
+
+        <BoxView   VerticalOptions="Center"
+                   HorizontalOptions="Center"
+                   HeightRequest="1"
+                   WidthRequest="200"  
+                   Color="Gray"/>
+
+    </StackLayout>
+</ContentPage>
