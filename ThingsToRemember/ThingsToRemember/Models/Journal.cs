@@ -16,7 +16,7 @@ namespace ThingsToRemember.Models
         [ForeignKey(typeof(JournalType))]
         public int JournalTypeId { get; set; }
 
-        [OneToOne(CascadeOperations = CascadeOperation.All)]
+        [OneToOne(CascadeOperations = CascadeOperation.CascadeRead | CascadeOperation.CascadeInsert)]
         public JournalType JournalType { get; set; }
 
         [OneToMany(CascadeOperations = CascadeOperation.All)]

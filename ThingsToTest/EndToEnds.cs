@@ -16,7 +16,7 @@ namespace ThingsToTest
         private readonly ITestOutputHelper _testOutputHelper;
         private static   Database          _database;
         private static readonly string DbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
-                                                           , "WorkoutDatabase_test.db3");
+                                                           , "TtrDatabase_test.db3");
         public static Database Database => _database ??= new Database(DbPath);
 
         public EndToEnds(ITestOutputHelper testOutputHelper)
@@ -52,13 +52,15 @@ namespace ThingsToTest
                               {
                                   Title = expectedJournalTypeTitle
                               };
+            
+            Database.SaveJournalType(journalType);
 
             var moodHappy = new Mood()
                             {
                                 Title = expectedMoodHappy
                               , Emoji = ":)"
                             };
-            
+
             var moodSad = new Mood()
                           {
                               Title = expectedMoodSad
@@ -77,12 +79,18 @@ namespace ThingsToTest
                             , Emoji = ":|"
                           };
 
+            Database.SaveMood(moodHappy);
+            Database.SaveMood(moodSad);
+            Database.SaveMood(moodMad);
+            Database.SaveMood(moodMeh);
+
             var entry1 = new Entry()
                          {
                              Title          = expectedEntry1Title
                            , Text           = "Test entry"
                            , CreateDateTime = DateTime.Now
                            , EntryMood      = moodHappy
+                           , MoodId         = moodHappy.Id
                          };
 
             var entry2 = new Entry()
@@ -98,7 +106,7 @@ namespace ThingsToTest
                            , CreateDateTime = DateTime.Now
                            , EntryMood      = moodMad
                          };
-            
+
             var entries = new List<Entry>
                           {
                               entry1
@@ -110,8 +118,20 @@ namespace ThingsToTest
                           {
                               Title       = expectedJournalTitle
                             , JournalType = journalType
-                            , Entries     = entries
+                            , Entries     = new List<Entry>()
                           };
+
+            foreach (var entry in entries)
+            {
+                journal.Entries.Add(entry);
+            }
+
+            //var journal = new Journal()
+            //              {
+            //                  Title       = expectedJournalTitle
+            //                , JournalType = journalType
+            //                , Entries     = entries
+            //              };
 
             var lastMinuteEntry = new Entry()
                                   {
@@ -125,12 +145,20 @@ namespace ThingsToTest
 
             Database.AddJournalWithChildren(journal);
 
-            //journal.Entries.Add(lastMinuteEntry);
-            Database.AddEntryWIthChildren(lastMinuteEntry, journal.Id);
+            Database.SaveEntry(entry1, journal.Id);
+            Database.SaveEntry(entry2, journal.Id);
+            Database.SaveEntry(entry3, journal.Id);
 
-            Database.UpdateJournal(journal);
+            journal.Entries.Add(lastMinuteEntry);
+            Database.SaveEntry(lastMinuteEntry, journal.Id);
+            
+            //Database.AddEntryWIthChildren(lastMinuteEntry, journal.Id);
 
-            var newJournal = Database.GetJournal(journal.Id);
+            //Database.UpdateJournal(journal);
+
+            var newJournals = Database.GetJournals();
+
+            var newJournal  = Database.GetJournal(journal.Id);
 
             //Assert: Add
             Assert.True(newJournal.Entries.Any());
@@ -160,10 +188,10 @@ namespace ThingsToTest
 
             Database.UpdateJournal(journal);
 
-            Database.GetJournal(journal.Id);
+            var journalWithNewTitle = Database.GetJournal(journal.Id);
 
             //Assert: Edit
-            Assert.Equal("New title", journal.Title);
+            Assert.Equal("New title", journalWithNewTitle.Title);
 
             //Act: Get
 
@@ -183,18 +211,20 @@ namespace ThingsToTest
             Assert.Contains(actualEntries, item => item.EntryMood.Title == expectedMoodMad);
             
             //Assert: Get (Entry)
-            Assert.True(actualEntry.Text == expectedEntry1Title);
+            Assert.True(actualEntry.Title == expectedEntry1Title);
             Assert.True(actualEntry.EntryMood.Title == expectedMoodHappy);
 
             //Act: Delete
+
+            var deletedJournalId = journal.Id;
+
+            Database.DeleteJournal(ref journal);
+
+            //Assert: that everything that was supposed to be deleted was, and what wasn't, wasn't
             
-            Database.DeleteJournal(journal);
-
             //Try to get the delete journal
-            //Database.GetJournal(journal.Id);
-            Assert.Throws<SequenceContainsNoElementsException>( () =>  Database.GetJournal(journal.Id));
-
-            //Assert that everything that was supposed to be deleted was, and what wasn't, wasn't
+            Assert.True(journal==null);
+            Assert.Throws<SequenceContainsNoElementsException>( () =>  Database.GetJournal(deletedJournalId));
 
             var journalTypes = Database.GetJournalTypes();
             

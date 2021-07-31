@@ -21,7 +21,7 @@ namespace ThingsToRemember.Models
         [ForeignKey(typeof(Mood))]
         public int MoodId { get; set; }
 
-        [OneToOne(CascadeOperations = CascadeOperation.All)]
+        [OneToOne(CascadeOperations = CascadeOperation.CascadeRead | CascadeOperation.CascadeInsert)]
         public Mood EntryMood { get; set; }
     }
 }

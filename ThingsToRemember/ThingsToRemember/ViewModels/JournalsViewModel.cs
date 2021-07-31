@@ -16,15 +16,21 @@ namespace ThingsToRemember.ViewModels
 
         public JournalsViewModel(bool useMockData = false)
         {
+            LoadDummyData(true);
             Journals = GetListOfAllJournals();
         }
 
         private IEnumerable<Journal> GetListOfAllJournals() => App.Database.GetJournals();
 
         
-        private async void LoadDummyData()
+        private static void LoadDummyData(bool clearDataFirst = false)
         {
-            
+            if (clearDataFirst)
+            {
+                App.Database.DropTables();
+                App.Database.CreateTables();
+            }
+
             var expectedJournalTypeTitle = "Test Journal Type";
             var expectedMoodHappy        = "Happy";
             var expectedMoodSad          = "Sad";
@@ -40,13 +46,15 @@ namespace ThingsToRemember.ViewModels
                               {
                                   Title = expectedJournalTypeTitle
                               };
+            
+            App.Database.SaveJournalType(journalType);
 
             var moodHappy = new Mood()
                             {
                                 Title = expectedMoodHappy
                               , Emoji = ":)"
                             };
-            
+
             var moodSad = new Mood()
                           {
                               Title = expectedMoodSad
@@ -65,12 +73,18 @@ namespace ThingsToRemember.ViewModels
                             , Emoji = ":|"
                           };
 
+            App.Database.SaveMood(moodHappy);
+            App.Database.SaveMood(moodSad);
+            App.Database.SaveMood(moodMad);
+            App.Database.SaveMood(moodMeh);
+
             var entry1 = new Entry()
                          {
                              Title          = expectedEntry1Title
                            , Text           = "Test entry"
                            , CreateDateTime = DateTime.Now
                            , EntryMood      = moodHappy
+                           , MoodId         = moodHappy.Id
                          };
 
             var entry2 = new Entry()
@@ -86,7 +100,7 @@ namespace ThingsToRemember.ViewModels
                            , CreateDateTime = DateTime.Now
                            , EntryMood      = moodMad
                          };
-            
+
             var entries = new List<Entry>
                           {
                               entry1
@@ -98,8 +112,20 @@ namespace ThingsToRemember.ViewModels
                           {
                               Title       = expectedJournalTitle
                             , JournalType = journalType
-                            , Entries     = entries
+                            , Entries     = new List<Entry>()
                           };
+
+            foreach (var entry in entries)
+            {
+                journal.Entries.Add(entry);
+            }
+
+            //var journal = new Journal()
+            //              {
+            //                  Title       = expectedJournalTitle
+            //                , JournalType = journalType
+            //                , Entries     = entries
+            //              };
 
             var lastMinuteEntry = new Entry()
                                   {
@@ -113,9 +139,13 @@ namespace ThingsToRemember.ViewModels
 
             App.Database.AddJournalWithChildren(journal);
 
-            journal.Entries.ToList().Add(lastMinuteEntry);
+            App.Database.SaveEntry(entry1, journal.Id);
+            App.Database.SaveEntry(entry2, journal.Id);
+            App.Database.SaveEntry(entry3, journal.Id);
 
-            App.Database.UpdateJournal(journal);
+            journal.Entries.Add(lastMinuteEntry);
+            App.Database.SaveEntry(lastMinuteEntry, journal.Id);
+            
             
         }
 

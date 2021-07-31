@@ -254,7 +254,7 @@ namespace ThingsToRemember.Services
         public void AddEntryWIthChildren(Entry entry
                                        , int   journalId)
         {
-            entry.JournalId = journalId; //BENDO: is this important?
+            entry.JournalId = journalId; //BENDO: is this needed?
 
             _journals.FirstOrDefault(item => item.Id == journalId)
                     ?.Entries.Add(entry);
@@ -313,12 +313,21 @@ namespace ThingsToRemember.Services
             
         }
 
+        public int DeleteMood(ref Mood mood)
+        {
+            throw new NotImplementedException();
+        }
+
         public int DeleteMood(Mood mood)
         {
             var oldItem = _moods.FirstOrDefault(arg => arg.Id == mood.Id);
             _moods.Remove(oldItem);
 
             return mood.Id;
+        }
+        public int DeleteJournalType(ref JournalType journalType)
+        {
+            throw new NotImplementedException();
         }
 
         public int DeleteJournalType(JournalType journalType)
@@ -328,7 +337,12 @@ namespace ThingsToRemember.Services
 
             return journalType.Id;
         }
-        
+
+        public int DeleteEntry(ref Entry entry)
+        {
+            throw new NotImplementedException();
+        }
+
         public int DeleteEntry(Entry entry)
         {
             var oldItem = _entries.FirstOrDefault(arg => arg.Id == entry.Id);
@@ -337,7 +351,7 @@ namespace ThingsToRemember.Services
             return entry.Id;
         }
 
-        public int DeleteJournal(Journal journal)
+        public int DeleteJournal(ref Journal journal)
         {
             var oldItem = journal;
 
@@ -360,7 +374,7 @@ namespace ThingsToRemember.Services
             return _journals;
         }
 
-        public Mood GetMood(int          id)
+        public Mood GetMood(int id)
         {
             return _moods.FirstOrDefault(s => s.Id == id);
         }
@@ -370,7 +384,7 @@ namespace ThingsToRemember.Services
             return _moods;
         }
 
-        public JournalType GetJournalType(int   id)
+        public JournalType GetJournalType(int id)
         {
             return _types.FirstOrDefault(s => s.Id == id);
         }

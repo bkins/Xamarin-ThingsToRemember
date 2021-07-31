@@ -51,7 +51,7 @@ namespace ThingsToTest
 
             //Delete
             
-            Database.DeleteJournal(updatedJournal);
+            Database.DeleteJournal(ref updatedJournal);
 
             Assert.Throws<SequenceContainsNoElementsException>( () => Database.GetJournal(updatedJournal.Id));
         }

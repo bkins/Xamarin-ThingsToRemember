@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SQLite;
@@ -42,6 +43,53 @@ namespace ThingsToRemember.Services
             _database.DropTable<Mood>();
         }
 
+        public void SaveJournal(Journal journal)
+        {
+            if (journal.Id == 0)
+            {
+                AddJournalWithChildren(journal);
+            }
+            else
+            {
+                UpdateJournal(journal);
+            }
+        }
+
+        public void SaveJournalType(JournalType journalType)
+        {
+            if (journalType.Id == 0)
+            {
+                AddJournalType(journalType);
+            }
+            else
+            {
+                UpdateJournalType(journalType);
+            }
+        }
+
+        public void SaveEntry(Entry entry, int journalId)
+        {
+            if (entry.Id == 0)
+            {
+                AddEntryWIthChildren(entry, journalId);
+            }
+            else
+            {
+                UpdateEntry(entry);
+            }
+        }
+
+        public void SaveMood(Mood mood)
+        {
+            if (mood.Id == 0)
+            {
+                AddMood(mood);
+            }
+            else
+            {
+                UpdateMood(mood);
+            }
+        }
     #region Adds
 
         public void AddJournalWithChildren(Journal journal)
@@ -72,7 +120,7 @@ namespace ThingsToRemember.Services
             return _database.Insert(journalType);
             
         }
-
+        
     #endregion
 
     #region Updates
@@ -80,7 +128,7 @@ namespace ThingsToRemember.Services
         public void UpdateJournal(Journal journal)
         {
             _database.UpdateWithChildren(journal);
-            
+            _database.Commit();   
         }
 
         public int UpdateMood(Mood mood)
@@ -105,7 +153,7 @@ namespace ThingsToRemember.Services
 
     #region Deletes
 
-        public int DeleteJournal(Journal journal)
+        public int DeleteJournal(ref Journal journal)
         {
             foreach (var journalEntry in journal.Entries)
             {
@@ -121,12 +169,19 @@ namespace ThingsToRemember.Services
         public int DeleteEntry(Entry entry)
         {
             var entryId = _database.Delete(entry);
+
+            return entryId;
+        }
+
+        public int DeleteEntry(ref Entry entry)
+        {
+            var entryId = _database.Delete(entry);
             entry = null;
 
             return entryId;
         }
 
-        public int DeleteMood(Mood mood)
+        public int DeleteMood(ref Mood mood)
         {
             var moodId = _database.Delete(mood);
             mood = null;
@@ -135,7 +190,7 @@ namespace ThingsToRemember.Services
             
         }
 
-        public int DeleteJournalType(JournalType journalType)
+        public int DeleteJournalType(ref JournalType journalType)
         {
             var journalTypeId = _database.Delete(journalType);
             journalType = null;
@@ -152,7 +207,10 @@ namespace ThingsToRemember.Services
         {
             try
             {
-                return _database.GetWithChildren<Journal>(id);
+                var journal = _database.GetWithChildren<Journal>(id);
+                SetJournalsEntriesWithMoods(journal);
+
+                return journal;
             }
             catch (InvalidOperationException invalidE)
             {
@@ -166,11 +224,22 @@ namespace ThingsToRemember.Services
             }
         }
 
-        public IEnumerable<Journal> GetJournals(bool forceRefresh = false)
+        public IEnumerable<Journal>  GetJournals(bool forceRefresh = false)
         {
             try
             {
-                return _database.GetAllWithChildren<Journal>();
+                //Problem:  When Getting with children, the returned Journal has its child Entry, but the Entry does not have its Mood
+                //return _database.GetAllWithChildren<Journal>();
+                //Workaround:  Get Journal (with children), Get each Entry (with children) that have that JournalId.
+
+                var journals = _database.GetAllWithChildren<Journal>();
+
+                foreach (var journal in journals)
+                {
+                    SetJournalsEntriesWithMoods(journal);
+                }
+
+                return journals;
             }
             catch (Exception e)
             {
@@ -179,7 +248,16 @@ namespace ThingsToRemember.Services
                 throw;
             }
         }
-        
+
+        private void SetJournalsEntriesWithMoods(Journal journal)
+        {
+            var entries = GetEntries()
+                         .ToList()
+                         .Where(item => item.JournalId == journal.Id);
+
+            journal.Entries = entries.ToList(); //Overwrite entries.  For they will not Moods
+        }
+
         public Entry GetEntry(int id)
         {
             try

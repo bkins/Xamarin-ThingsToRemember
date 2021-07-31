@@ -21,10 +21,11 @@ namespace ThingsToRemember.Services
         int UpdateJournalType (JournalType journalType);
         void UpdateEntry      (Entry       entry);
                    
-        int DeleteMood        (Mood        mood);
-        int DeleteJournalType (JournalType journalType);
-        int DeleteJournal     (Journal     journal);
-        int DeleteEntry       (Entry       entry);
+        int DeleteMood        (ref Mood        mood);
+        int DeleteJournalType (ref JournalType journalType);
+        int DeleteJournal     (ref Journal     journal);
+        int DeleteEntry       (ref Entry       entry);
+        int DeleteEntry       (    Entry       entry);
 
         Journal                  GetJournal      (int  id);
         IEnumerable<Journal>     GetJournals     (bool forceRefresh = false);
