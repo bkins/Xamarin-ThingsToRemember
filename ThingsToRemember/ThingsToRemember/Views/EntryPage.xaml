@@ -1,15 +1,38 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:picker="clr-namespace:Syncfusion.SfPicker.XForms;assembly=Syncfusion.SfPicker.XForms"
+             xmlns:dateTimePicker="clr-namespace:Avails.Xamarin.Controls;assembly=Avails"
+             xmlns:ListCollection="clr-namespace:System.Collections.Generic;assembly=mscorlib"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:ThingsToRemember.ViewModels;assembly=ThingsToRemember"
              
              x:Class="ThingsToRemember.Views.EntryPage"
              x:DataType="viewmodels:EntryViewModel"
              >
-    
+
+    <ContentPage.Resources>
+        <!--Define a visual state for the Selected state of the CollectionView-->
+        <Style TargetType="StackLayout">
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal" />
+                        <VisualState x:Name="Selected">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor"
+                                        Value="{DynamicResource AppPrimaryColor}" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+        </Style>
+    </ContentPage.Resources>
+
     <StackLayout Margin="{DynamicResource PageMargin}">
-        
-        <Editor Placeholder="Title"
+
+        <Editor x:Name="TitleEditor"
+                Placeholder="Title"
                 Text="{Binding Title}"
                 HeightRequest="50" >
             <Editor.Keyboard>
@@ -20,8 +43,9 @@
                 </Keyboard>
             </Editor.Keyboard>
         </Editor>
-                
-        <Editor Placeholder="Text"
+
+        <Editor x:Name="TextEditor"
+                Placeholder="Text"
                 Text="{Binding Text}"
                 AutoSize="TextChanges">
             <Editor.Keyboard>
@@ -32,28 +56,89 @@
                 </Keyboard>
             </Editor.Keyboard>
         </Editor>
-        <!--TODO: move Difficulty to be right under Description.  -->
-        <!--Along with Save/Delete to be right under Difficulty -->
-        <Editor Placeholder="Date time of entry"
-                Text="{Binding CreateDateTime}"/>
-        <Editor Placeholder="Mood"
-                Text="{Binding Mood.Title}"/>
+
+        <!--BENDO: This should be a date time picker-->
+        <!--<Label x:Name="CreateDateTimeLabel"
+                Text="{Binding CreateDateTime}"
+                >
+            <Label.GestureRecognizers>
+                <TapGestureRecognizer Tapped="CreateDateTimeLabel_OnTapped"/>
+            </Label.GestureRecognizers>
+        </Label>-->
+        
+        <!--<dateTimePicker:DateTimePicker x:Name="CreateDateTimePicker"
+                                       HorizontalOptions="StartAndExpand" 
+                                       HeaderText="Create Date/Time" 
+                                       ShowFooter="True"
+                                       IsVisible="False"
+                                       OkButtonClicked="CreateDateTimePicker_OnOkButtonClicked"
+                                       CancelButtonClicked="CreateDateTimePicker_OnCancelButtonClicked"
+                                       Margin="15,0,15,0"
+                                       />-->
+        <Grid >
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <DatePicker x:Name="CreateDatePicker"
+                        HorizontalOptions="StartAndExpand" 
+                        IsVisible="True"
+                        DateSelected="CreateDatePicker_OnDateSelected"
+                        Grid.Column="0"
+            />
+
+            <TimePicker x:Name="CreateTimePicker"
+                        Time="{Binding CreateDateTime}"
+                        HorizontalOptions="StartAndExpand"
+                        IsVisible="True"
+                        PropertyChanged="CreateTimePicker_OnPropertyChanged"
+                        Grid.Column="1"
+                        />
+                    
+        </Grid>
+        
+        <!--BENDO: This should be a Mood picker-->
+        <Label x:Name="MoodLabel"
+                Text="Tap here to select a Mood..."
+                >
+            <Label.GestureRecognizers>
+                <TapGestureRecognizer Tapped="MoodLabel_OnTapped"/>
+            </Label.GestureRecognizers>
+
+        </Label>
+
+        <picker:SfPicker x:Name="MoodPicker"
+                         HorizontalOptions="StartAndExpand" 
+                         HeaderText="Moods" 
+                         ShowFooter="True"
+                         ItemsSource="{Binding MoodEmoji}"
+                         IsVisible="False"
+                         OkButtonClicked="MoodPicker_OnOkButtonClicked"
+                         CancelButtonClicked="MoodPicker_OnCancelButtonClicked"
+                         Margin="15,0,15,0"
+                         />
+        <!--<object Margin="left,top,right,bottom"/>-->
+
         <Grid ColumnDefinitions="*,*">
             <!-- Layout children in two columns -->
-            <Button Text="Save"
+            <Button x:Name="SaveButton"
+                    Text="Save"
                     HeightRequest="75"
                     Clicked="OnSaveButtonClicked" />
-            <Button Grid.Column="1"
+            <Button x:Name="DeleteButton"
+                    Grid.Column="1"
                     Text="Delete"
                     Clicked="OnDeleteButtonClicked"/>
-            
+
         </Grid>
 
-        <BoxView   VerticalOptions="Center"
+        <!--BoxView   VerticalOptions="Center"
                    HorizontalOptions="Center"
                    HeightRequest="1"
                    WidthRequest="200"  
-                   Color="Gray"/>
+                   Color="Gray"/>-->
 
     </StackLayout>
 </ContentPage>

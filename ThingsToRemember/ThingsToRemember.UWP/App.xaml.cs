@@ -1,4 +1,7 @@
-﻿using System;
+using Syncfusion.ListView.XForms.UWP;
+using Syncfusion.SfPicker.XForms.UWP;
+using System.Reflection;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -57,7 +60,10 @@ namespace ThingsToRemember.UWP
 
                 rootFrame.NavigationFailed += OnNavigationFailed;
                 global::Xamarin.Forms.Forms.SetFlags("Shell_UWP_Experimental");
-                Xamarin.Forms.Forms.Init(e);
+List<Assembly> assembliesToInclude = new List<Assembly>();
+assembliesToInclude.Add(typeof(SfListViewRenderer).GetTypeInfo().Assembly);
+assembliesToInclude.Add(typeof(SfPickerRenderer).GetTypeInfo().Assembly);
+Xamarin.Forms.Forms.Init(e, assembliesToInclude);
 
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
                 {

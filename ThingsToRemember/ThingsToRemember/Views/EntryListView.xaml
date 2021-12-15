@@ -1,14 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-xmlns:picker="clr-namespace:Syncfusion.SfPicker.XForms;assembly=Syncfusion.SfPicker.XForms"
-xmlns:ListCollection="clr-namespace:System.Collections.Generic;assembly=mscorlib"
 xmlns:listview="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfListView.XForms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:viewmodels="clr-namespace:ThingsToRemember.ViewModels;assembly=ThingsToRemember"
-             xmlns:models="clr-namespace:ThingsToRemember.Models;assembly=ThingsToRemember"
-xmlns:views="clr-namespace:ThingsToRemember.Views;assembly=ThingsToRemember"
-x:Class="ThingsToRemember.Views.InitialPage"
-             >
+             x:Class="ThingsToRemember.Views.EntryListView">
 
     <ContentPage.Resources>
         <!--Define a visual state for the Selected state of the CollectionView-->
@@ -31,23 +25,31 @@ x:Class="ThingsToRemember.Views.InitialPage"
         <ResourceDictionary>
             <DataTemplate x:Name="ItemTemplate"
                           x:Key="ItemTemplate">
-                <Grid x:Name="ExistingJournalsGrid"
+                <Grid x:Name="ExistingEntriesGrid"
+                      ColumnDefinitions="100,*,75,25"
                       >
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
+
                     <Label Text="{Binding Title}"
-                           Grid.Row="0"
-                           FontSize="Medium"
+                           Grid.Column="0"
+                           FontSize="Small"
                            FontAttributes="Bold"
-                           Margin="10, 0, 0, 0" />
-                    <Label Text="{Binding JournalType.Title}"
-                           Grid.Row="1"
-                           FontSize="Medium"
-                           FontAttributes="Italic"
                            LineBreakMode="TailTruncation"
-                           Margin="15, -4, 0, 0" />
+                           Margin="10, 0, 0, 0" 
+                           />
+                    <Label Text="{Binding Text}"
+                           Grid.Column="1"
+                           FontSize="Small"
+                           FontAttributes="Italic"
+                           />
+                    <!--Margin="15, -4, 0, 0" -->
+                    <Label Text="{Binding CreateDateTime, StringFormat='{0:yyyy/MM/dd}'}"
+                           Grid.Column="2"
+                           FontSize="Small"
+                           />
+                    <Label Text="{Binding EntryMood}"
+                           Grid.Column="3"
+                           FontSize="Small"
+                           />
                     <!--<object Margin="left,top,right,bottom"/>-->
                 </Grid>
 
@@ -56,21 +58,13 @@ x:Class="ThingsToRemember.Views.InitialPage"
     </ContentPage.Resources>
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem x:Name="ConfigurationToolbarItem"
-                     IconImageSource="cog_black_48.png"
-                     Clicked="ConfigurationToolbarItem_OnClicked"/>
-        <ToolbarItem x:Name="AddJournalToolbarItem"
+        <ToolbarItem x:Name="AddEntryToolbarItem"
                      IconImageSource="round_add_black_48.png"
-                     Clicked="AddJournal_Clicked" 
-        />
+                     Clicked="AddEntryToolbarItem_OnClicked" 
+                     />
     </ContentPage.ToolbarItems>
 
     <StackLayout Margin="{DynamicResource PageMargin}">
-
-        <!--<Entry x:Name="Filter" 
-               Placeholder="Search (try d=1 or d>5)"
-               TextChanged="Filter_OnTextChanged">
-        </Entry>-->
 
         <listview:SfListView x:Name="ListView"
                              AutoFitMode="DynamicHeight"
@@ -80,8 +74,7 @@ x:Class="ThingsToRemember.Views.InitialPage"
                              SelectionChanged="OnSelectionChanged"
                              SwipeEnded="ListView_SwipeEnded"
                              ItemTemplate="{StaticResource ItemTemplate}"
-                             >
-
+        >
             <listview:SfListView.LeftSwipeTemplate >
                 <DataTemplate x:Name="LeftSwipeTemplate">
                     <Grid VerticalOptions="CenterAndExpand">
@@ -131,25 +124,25 @@ x:Class="ThingsToRemember.Views.InitialPage"
                 </DataTemplate>
             </listview:SfListView.LeftSwipeTemplate>
         </listview:SfListView>
-        <Grid x:Name="EditJournalGrid"
+        <Grid x:Name="EditEntryGrid"
               RowDefinitions="*,*,*"
               VerticalOptions="Start" 
-              >
+        >
 
             <Entry x:Name="JournalTitleEntry"
-                   Text="{Binding JournalToEdit.Title}"
-                   Placeholder="Journal Title"
+                   Text="{Binding EntryToEdit.Title}"
+                   Placeholder="Entry Title"
                    Grid.Row="0"
                    MinimumHeightRequest="50"
             />
 
             <Label x:Name="JournalTypeLabel"
-                   Text="{Binding JournalToEdit.JournalType.Title}"
+                   Text="{Binding EntryToEdit.Text}"
                    Grid.Row="1"
                    MinimumHeightRequest="50">
-                <Label.GestureRecognizers>
+                <!--<Label.GestureRecognizers>
                     <TapGestureRecognizer Tapped="PickJournalTypeLabel_OnTapped" />
-                </Label.GestureRecognizers>
+                </Label.GestureRecognizers>-->
             </Label>
                         
             <Button x:Name="DoneEditingButton"
@@ -159,18 +152,6 @@ x:Class="ThingsToRemember.Views.InitialPage"
                     MinimumHeightRequest="50"
             />
         </Grid>
-
-        <picker:SfPicker x:Name="JournalTypePicker"  
-                         VerticalOptions="Center" 
-                         HorizontalOptions="Center" 
-                         HeaderText="Pick a Journal Type" 
-                         HeaderBackgroundColor="{StaticResource Primary}"
-                         WidthRequest="200" 
-                         IsVisible="False"
-                         ShowFooter="True"
-                         OkButtonClicked="JournalTypePicker_OnOkButtonClicked"
-                         CancelButtonClicked="JournalTypePicker_OnCancelButtonClicked"
-                         />
-
     </StackLayout>
+
 </ContentPage>

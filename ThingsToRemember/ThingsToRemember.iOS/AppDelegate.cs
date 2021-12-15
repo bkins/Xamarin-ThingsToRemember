@@ -1,4 +1,6 @@
-﻿using System;
+using Syncfusion.ListView.XForms.iOS;
+using Syncfusion.SfPicker.XForms.iOS;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -22,7 +24,9 @@ namespace ThingsToRemember.iOS
         //
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
-            global::Xamarin.Forms.Forms.Init();
+global::Xamarin.Forms.Forms.Init();
+SfListViewRenderer.Init();
+SfPickerRenderer.Init();
             LoadApplication(new App());
 
             return base.FinishedLaunching(app, options);

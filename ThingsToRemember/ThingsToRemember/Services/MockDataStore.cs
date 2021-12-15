@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -330,6 +331,12 @@ namespace ThingsToRemember.Services
             throw new NotImplementedException();
         }
 
+        public int DeleteJournal(ref Journal journal
+                               , bool        orphanChildren = false)
+        {
+            return -1;
+        }
+
         public int DeleteJournalType(JournalType journalType)
         {
             var oldItem = _types.FirstOrDefault(arg => arg.Id == journalType.Id);
@@ -402,6 +409,16 @@ namespace ThingsToRemember.Services
         public IEnumerable<Entry> GetEntries(bool forceRefresh = false)
         {
             return _entries;
+        }
+
+        public IEnumerable GetEntriesWithMood(int moodId)
+        {
+            return _entries.Where(fields => fields.EntryMood.Id == moodId);
+        }
+
+        Mood IDataStore.AddMood(Mood mood)
+        {
+            throw new NotImplementedException();
         }
     }
 }

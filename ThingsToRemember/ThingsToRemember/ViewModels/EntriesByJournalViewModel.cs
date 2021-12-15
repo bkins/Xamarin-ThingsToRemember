@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ApplicationExceptions;
 using ThingsToRemember.Models;
 using ThingsToRemember.Services;
 
@@ -9,25 +12,24 @@ namespace ThingsToRemember.ViewModels
 {
     public class EntriesByJournalViewModel : BaseViewModel
     {
-        public IEnumerable<Entry> Entries { get; set; }
+        public IEnumerable<Entry>          Entries                 { get; set; }
+        public ObservableCollection<Entry> ObservableListOfEntries { get; set; }
 
-        private IDataStore _dataStore;
+        private readonly Journal _journal;
 
         public EntriesByJournalViewModel(int journalId, bool useMockData = false)
         {
-                //LoadDummyData();
-                        
-            Entries = GetEntriesByJournal(journalId);
-
+            _journal                = DataAccessLayer.GetJournal(journalId);
+            Title                   = $"{_journal.Title} Entries";
+            Entries                 = GetEntriesByJournal(journalId);
+            ObservableListOfEntries = new ObservableCollection<Entry>(Entries);
         }
 
         private IEnumerable<Entry> GetEntriesByJournal(int journalId)
         {
             try
             {
-                var journal = App.Database.GetJournal(journalId);
-            
-                return journal.Entries;
+                return _journal.Entries;
             }
             catch (Exception e)
             {

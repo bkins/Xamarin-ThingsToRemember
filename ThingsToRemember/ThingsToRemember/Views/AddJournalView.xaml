@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:picker="clr-namespace:Syncfusion.SfPicker.XForms;assembly=Syncfusion.SfPicker.XForms"
+             xmlns:ListCollection="clr-namespace:System.Collections.Generic;assembly=mscorlib"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:ThingsToRemember.ViewModels;assembly=ThingsToRemember"
+
+             x:DataType="viewmodels:JournalTypeViewModel"
+             x:Class="ThingsToRemember.Views.AddJournalView"
+             >
+
+    <ContentPage.Content>
+        <StackLayout HorizontalOptions="StartAndExpand">
+            <Entry
+                x:Name="JournalTitleEntry"
+                Placeholder="Journal Name"
+                FontSize="Medium"
+                HeightRequest="50"
+                IsTabStop="True"
+                ReturnType="Next"
+                TabIndex="1"
+                >
+                <Entry.Keyboard>
+                    <Keyboard x:FactoryMethod="Create">
+                        <x:Arguments>
+                            <KeyboardFlags>Suggestions,CapitalizeWord</KeyboardFlags>
+                        </x:Arguments>
+                    </Keyboard>
+                </Entry.Keyboard>
+            </Entry>
+            
+            <Label x:Name="PickJournalTypeLabel"
+                   Text="Pick a Journal Type..."
+                   FontSize="Medium"
+                   IsVisible="True">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="PickJournalTypeLabel_OnTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+
+            <picker:SfPicker x:Name="JournalTypePicker"
+                             HorizontalOptions="StartAndExpand" 
+                             HeaderText="Journal Types" 
+                             ShowFooter="True"
+                             ItemsSource="{Binding JournalTypes}"
+                             IsVisible="False"
+                             OkButtonClicked="JournalTypePicker_OnOkButtonClicked"
+                             CancelButtonClicked="JournalTypePicker_OnCancelButtonClicked"
+                             />
+
+            <Grid ColumnDefinitions="*,*">
+                <Button x:Name="SaveButton"
+                        Text="Save"
+                        Clicked="SaveButton_OnClicked"/>
+            </Grid>
+
+        </StackLayout>
+    </ContentPage.Content>
+
+</ContentPage>

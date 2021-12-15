@@ -6,25 +6,44 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="sqlite-net-pcl" Version="1.7.335" />
+    <PackageReference Include="NLog" Version="4.7.13" />
+    <PackageReference Include="sqlite-net-pcl" Version="1.8.116" />
     <PackageReference Include="SQLiteNetExtensions" Version="2.1.0" />
     <PackageReference Include="SQLiteNetExtensions.Async" Version="2.1.0" />
-    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2083" />  
+    <PackageReference Include="Syncfusion.Xamarin.SfListView" Version="19.3.0.57" />
+    <PackageReference Include="Syncfusion.Xamarin.SfPicker" Version="19.3.0.57" />
+    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2244" />  
     <PackageReference Include="Xamarin.Essentials" Version="1.7.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Avails\Avails\Avails.csproj" />
     <ProjectReference Include="..\..\ApplicationExceptions\ApplicationExceptions.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Views\AddJournal.xaml">
+    <Compile Update="Views\AddJournalView.xaml.cs">
+      <DependentUpon>AddJournalView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\EntryListView.xaml.cs">
+      <DependentUpon>EntryListView.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Views\AddJournalView.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\AddMoodView.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\ConfigurationView.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Views\EditJournal.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
-    <EmbeddedResource Update="Views\EntryList.xaml">
+    <EmbeddedResource Update="Views\EntryListView.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Views\EntryPage.xaml">

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,6 +26,12 @@ namespace ThingsToRemember.Services
         {
             _database = new SQLiteConnection(dbPath);
 
+            CreateTables();
+        }
+
+        public void ReSetData()
+        {
+            DropTables();
             CreateTables();
         }
 
@@ -92,8 +100,15 @@ namespace ThingsToRemember.Services
         }
     #region Adds
 
+        /// <summary>
+        /// Adds a new Journal with any child (entries, journal type, etc) assigned to it.
+        /// </summary>
+        /// <param name="journal">The journal to insert</param>
+        /// <exception cref="DuplicateRecordException">DuplicateRecordException</exception>
         public void AddJournalWithChildren(Journal journal)
         {
+            //ValidateJournalType(journal.JournalType);
+
             _database.InsertWithChildren(journal);
         }
 
@@ -109,19 +124,34 @@ namespace ThingsToRemember.Services
             
         }
 
-        public int AddMood(Mood mood)
+        public Mood AddMood(Mood mood)
         {
-            return _database.Insert(mood);
-            
+            _database.Insert(mood);
+
+            return _database.GetAllWithChildren<Mood>()
+                            .FirstOrDefault(fields => fields.Title == mood.Title);
+
         }
 
         public int AddJournalType(JournalType journalType)
         {
+            ValidateJournalType(journalType);
+
             return _database.Insert(journalType);
-            
         }
-        
-    #endregion
+
+        private void ValidateJournalType(JournalType journalType)
+        {
+            var types = GetJournalTypes();
+
+            if (types.Any(fields => fields.Title == journalType.Title))
+            {
+                throw new DuplicateRecordException(nameof(JournalType)
+                                                 , journalType.Title);
+            }
+        }
+
+        #endregion
 
     #region Updates
 
@@ -146,39 +176,48 @@ namespace ThingsToRemember.Services
         public void UpdateEntry(Entry entry)
         {
             _database.UpdateWithChildren(entry);
-            
         }
 
         #endregion
 
     #region Deletes
 
-        public int DeleteJournal(ref Journal journal)
+        /// <summary>
+        /// Deletes the journal from the DB.
+        /// If orphanChildren is FALSE, then the entries associated with the journal will be deleted as well.
+        /// </summary>
+        /// <param name="journal">The Journal to be deleted</param>
+        /// <param name="orphanChildren">
+        /// If True, Entries associated with the Journal will NOT be deleted.
+        /// If False (default), Entries associated with the Journal WILL be deleted.
+        /// </param>
+        /// <returns>Number of records deleted</returns>
+        public int DeleteJournal(ref Journal journal, bool orphanChildren = false)
         {
             foreach (var journalEntry in journal.Entries)
             {
                 DeleteEntry(journalEntry);
             }
 
-            var journalId = _database.Delete(journal);
+            var numberDeleted = _database.Delete(journal);
             journal = null;
 
-            return journalId;
+            return numberDeleted;
         }
-
+        
         public int DeleteEntry(Entry entry)
         {
-            var entryId = _database.Delete(entry);
+            var numberDeleted = _database.Delete(entry);
 
-            return entryId;
+            return numberDeleted;
         }
-
+        
         public int DeleteEntry(ref Entry entry)
         {
-            var entryId = _database.Delete(entry);
+            var numberDeleted = _database.Delete(entry);
             entry = null;
 
-            return entryId;
+            return numberDeleted;
         }
 
         public int DeleteMood(ref Mood mood)
@@ -203,24 +242,24 @@ namespace ThingsToRemember.Services
 
     #region Selects
 
+        /// <summary>
+        /// Gets a journal based on the id passed in
+        /// </summary>
+        /// <param name="id">The id of the journal to return</param>
+        /// <returns>The journal that has the id passed in</returns>
+        /// <exception cref="SequenceContainsNoElementsException">SequenceContainsNoElementsException</exception>
         public Journal GetJournal(int id)
         {
             try
             {
                 var journal = _database.GetWithChildren<Journal>(id);
                 SetJournalsEntriesWithMoods(journal);
-
+                
                 return journal;
             }
             catch (InvalidOperationException invalidE)
             {
                 throw new SequenceContainsNoElementsException($"Record could not be found. No record with an {nameof(id)} of {id}", nameof(Journal), invalidE);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-
-                throw;
             }
         }
 
@@ -255,7 +294,7 @@ namespace ThingsToRemember.Services
                          .ToList()
                          .Where(item => item.JournalId == journal.Id);
 
-            journal.Entries = entries.ToList(); //Overwrite entries.  For they will not Moods
+            journal.Entries = entries.ToList(); //Overwrite entries.  For they will not have Moods
         }
 
         public Entry GetEntry(int id)
@@ -290,7 +329,12 @@ namespace ThingsToRemember.Services
                 throw;
             }
         }
-        
+
+        public IEnumerable GetEntriesWithMood(int moodId)
+        {
+            return _database.GetAllWithChildren<Entry>(fields => fields.EntryMood.Id == moodId);
+        }
+
         public Mood GetMood(int id)
         {
             try
@@ -342,7 +386,7 @@ namespace ThingsToRemember.Services
                 throw;
             }
         }
-
+        
         public IEnumerable<JournalType> GetJournalTypes(bool forceRefresh = false)
         {
             try

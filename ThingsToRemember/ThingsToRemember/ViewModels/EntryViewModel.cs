@@ -8,17 +8,20 @@ namespace ThingsToRemember.ViewModels
 {
     class EntryViewModel : BaseViewModel
     {
-        public     Entry       Entry          { get; set; }
-        public new string      Title          { get; set; }
-        public     string      Text           { get; set; }
-        public     DateTime    CreateDateTime { get; set; }
-        public     Mood        Mood           { get; set; }
+        public Entry    Entry          { get; set; }
+        public string   Text           { get; set; }
+        public DateTime CreateDateTime { get; set; }
+        public Mood     Mood           { get; set; }
+        public string   MoodEmoji      => $"{Mood?.Title} {Mood?.Emoji}";
 
-        public EntryViewModel(int entryId, bool useMockData = false)
+        public EntryViewModel(int entryId
+                            , bool useMockData = false)
         {
-            //LoadDummyData();
-            
-            Entry = GetEntry(entryId);
+            Title = "Entry";
+
+            Entry = entryId == 0 ?
+                            new Entry() :
+                            GetEntry(entryId);
             
             //Bug: Entry not loading
             //BENDO: Consider swapping out the Async Sqlite NET PCL with the Sync version
@@ -38,7 +41,7 @@ namespace ThingsToRemember.ViewModels
         {
             try
             {
-                var entry = App.Database.GetEntry(entryId);
+                var entry = DataAccessLayer.GetEntry(entryId);
             
                 return entry;
             }
@@ -48,6 +51,26 @@ namespace ThingsToRemember.ViewModels
 
                 throw;
             }
+        }
+
+        public void Save(Entry entry, int journalId)
+        {
+            DataAccessLayer.SaveEntry(entry, journalId);
+        }
+
+        public void Save(int journalId)
+        {
+            DataAccessLayer.SaveEntry(Entry, journalId);
+        }
+
+        public Mood FindMood(string moodTitle)
+        {
+            return DataAccessLayer.GetMood(moodTitle);
+        }
+
+        public void Delete()
+        {
+            DataAccessLayer.DeleteEntry(Entry);
         }
     }
 }

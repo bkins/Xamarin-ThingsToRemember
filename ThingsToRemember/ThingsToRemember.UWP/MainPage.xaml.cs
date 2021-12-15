@@ -1,4 +1,5 @@
-﻿using System;
+using Syncfusion.ListView.XForms.UWP;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -19,7 +20,8 @@ namespace ThingsToRemember.UWP
     {
         public MainPage()
         {
-            this.InitializeComponent();
+this.InitializeComponent();
+SfListViewRenderer.Init();
 
             LoadApplication(new ThingsToRemember.App());
         }

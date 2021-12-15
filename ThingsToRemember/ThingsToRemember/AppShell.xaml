@@ -25,13 +25,13 @@
                 <Setter Property="Shell.TabBarTitleColor" Value="White"/>
             </Style>
             <Style TargetType="TabBar" BasedOn="{StaticResource BaseStyle}" />
-            <Style TargetType="FlyoutItem" BasedOn="{StaticResource BaseStyle}" />
+            <!--<Style TargetType="FlyoutItem" BasedOn="{StaticResource BaseStyle}" />-->
         </ResourceDictionary>
     </Shell.Resources>
 
     <TabBar>
-        <ShellContent Title="App" Icon="xamarin_logo.png" Route="InitialPage" ContentTemplate="{DataTemplate local:InitialPage}"/>
-        <ShellContent Title="About" Icon="icon_about.png" Route="AboutPage" ContentTemplate="{DataTemplate local:AboutPage}" />
+        <ShellContent Title="App" Icon="xamarin_logo.png" ContentTemplate="{DataTemplate local:InitialPage}"/>
+        <ShellContent Title="About" Icon="icon_about.png" ContentTemplate="{DataTemplate local:AboutPage}" />
         
     </TabBar>
 

@@ -1,0 +1,145 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:xForms="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfListView.XForms"
+             x:Class="ThingsToRemember.Views.ConfigurationView">
+    
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <DataTemplate x:Name="ItemTemplate"
+                          x:Key="ItemTemplate">
+                <Grid x:Name="ExistingMoodsGrid"
+                >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Label Text="{Binding Title}"
+                           Grid.Row="0"
+                           FontSize="Medium"
+                           FontAttributes="Bold"
+                           Margin="10, 0, 0, 0" />
+                    <Label Text="{Binding Emoji}"
+                           Grid.Row="1"
+                           FontSize="Medium"
+                           FontAttributes="Italic"
+                           LineBreakMode="TailTruncation"
+                           Margin="15, -4, 0, 0" />
+                    <!--<object Margin="left,top,right,bottom"/>-->
+                </Grid>
+
+            </DataTemplate>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    
+    <ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="AddMoodToolbarItem"
+                     Text="Add Mood"
+                     IconImageSource="round_add_black_48.png"
+                     Clicked="AddMood_Clicked" 
+        />
+    </ContentPage.ToolbarItems>
+
+    <ContentPage.Content>
+        <StackLayout>
+
+            <Button x:Name="ClearDataButton"
+                    Text="Clear All Data"
+                    Clicked="ClearDataButton_OnClicked"/>
+
+            <xForms:SfListView x:Name="ListView"
+                             AutoFitMode="DynamicHeight"
+                             VerticalOptions="Fill"
+                             SelectionMode="Single"
+                             AllowSwiping="True"
+                             IsScrollingEnabled="True"
+                             SwipeEnded="ListView_SwipeEnded"
+                             ItemTemplate="{StaticResource ItemTemplate}"
+                             >
+
+                <xForms:SfListView.LeftSwipeTemplate >
+                    <DataTemplate x:Name="LeftSwipeTemplate">
+                        <Grid VerticalOptions="CenterAndExpand">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0"
+                                  
+                                  HorizontalOptions="Fill"
+                                  VerticalOptions="Fill"
+                                  >
+                                <Grid VerticalOptions="CenterAndExpand"
+                                      HorizontalOptions="Center"
+                                      >
+                                    <Image x:Name="DeleteImage"
+                                           Grid.Column="0"
+                                           Grid.Row="0"
+                                           BackgroundColor="Transparent"
+                                           HeightRequest="35"
+                                           WidthRequest="35"
+                                           BindingContextChanged="LeftImage_Delete_BindingContextChanged"
+                                           Source="delete_black_18.png" 
+                                           />
+                                </Grid>
+                            </Grid>
+                            <Grid Grid.Column="1"
+                                  
+                                  HorizontalOptions="Fill"
+                                  VerticalOptions="Fill"
+                                  >
+                                <Grid VerticalOptions="CenterAndExpand"
+                                      HorizontalOptions="Center"
+                                >
+                                    <Image x:Name="EditImage"
+                                           Grid.Column="0"
+                                           Grid.Row="0"
+                                           BackgroundColor="Transparent"
+                                           HeightRequest="35"
+                                           WidthRequest="35"
+                                           BindingContextChanged="LeftImage_Edit_BindingContextChanged"
+                                           Source="edit_black_18.png" 
+                                    />
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </DataTemplate>
+                </xForms:SfListView.LeftSwipeTemplate>
+        </xForms:SfListView>
+            <Grid x:Name="EditMoodGrid"
+                  RowDefinitions="*,*,*"
+                  VerticalOptions="Start" 
+                  >
+
+                <Entry x:Name="MoodTitleEntry"
+                       Text="{Binding MoodToEdit.Title}"
+                       Placeholder="Journal Title"
+                       Grid.Row="0"
+                       MinimumHeightRequest="50"
+                       />
+                
+                <Entry x:Name="MoodEmojiEntry"
+                       Text="{Binding MoodToEdit.Emoji}"
+                       Grid.Row="1"
+                       MinimumHeightRequest="50"
+                       />
+
+                <!--<Label x:Name="JournalTypeLabel"
+                       Text="{Binding MoodToEdit.Emoji}"
+                       Grid.Row="1"
+                       MinimumHeightRequest="50">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="PickJournalTypeLabel_OnTapped" />
+                    </Label.GestureRecognizers>
+                </Label>-->
+                        
+                <Button x:Name="DoneEditingButton"
+                        Text="Done"
+                        Clicked="DoneEditingButton_OnClicked"
+                        Grid.Row="2"
+                        MinimumHeightRequest="50"
+                />
+            </Grid>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

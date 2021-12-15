@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ApplicationExceptions;
 using ThingsToRemember.Models;
 using ThingsToRemember.Services;
 
@@ -10,44 +12,58 @@ namespace ThingsToRemember.ViewModels
 {
     class JournalsViewModel : BaseViewModel
     {
-        public IEnumerable<Journal> Journals { get; set; }
-
-        private IDataStore           _dataStore;
-
+        public ObservableCollection<Journal> ObservableListOfJournals { get; set; }
+        public IEnumerable<Journal>          Journals                 { get; set; }
+        
         public JournalsViewModel(bool useMockData = false)
         {
-            LoadDummyData(true);
+            Title    = "Journals";
             Journals = GetListOfAllJournals();
+
+            RefreshListOfJournals();
         }
 
-        private IEnumerable<Journal> GetListOfAllJournals() => App.Database.GetJournals();
-
-        
-        private static void LoadDummyData(bool clearDataFirst = false)
+        public void RefreshListOfJournals()
         {
+            ObservableListOfJournals = new ObservableCollection<Journal>(DataAccessLayer.GetJournals());
+        }
+
+        private IEnumerable<Journal> GetListOfAllJournals() => DataAccessLayer.GetJournals();
+        
+        private void LoadDummyData(bool clearDataFirst = false)
+        {
+            
             if (clearDataFirst)
             {
-                App.Database.DropTables();
-                App.Database.CreateTables();
+                DataAccessLayer.ClearData();
             }
-
-            var expectedJournalTypeTitle = "Test Journal Type";
-            var expectedMoodHappy        = "Happy";
-            var expectedMoodSad          = "Sad";
-            var expectedMoodMad          = "Mad";
-            var expectedMoodMeh          = "Meh";
-            var expectedEntry1Title      = "Entry 1";
-            var expectedEntry2Title      = "Entry 2";
-            var expectedEntry3Title      = "Entry 3";
-            var expectedEntryNTitle      = "Entry n";
-            var expectedJournalTitle     = "Test Journal";
+            
+            var expectedJournalTypeTitle        = "Test Journal Type";
+            var expectedAnotherJournalTypeTitle = "Another Test Journal Type";
+            var expectedMoodHappy               = "Happy";
+            var expectedMoodSad                 = "Sad";
+            var expectedMoodMad                 = "Mad";
+            var expectedMoodMeh                 = "Meh";
+            var expectedEntry1Title             = "Entry 1";
+            var expectedEntry2Title             = "Entry 2";
+            var expectedEntry3Title             = "Entry 3";
+            var expectedEntryNTitle             = "Entry n";
+            var expectedJournalTitle            = "Test Journal";
 
             var journalType = new JournalType()
                               {
                                   Title = expectedJournalTypeTitle
                               };
             
-            App.Database.SaveJournalType(journalType);
+            //App.Database.SaveJournalType(journalType);
+
+            var anotherJournalType = new JournalType()
+                                     {
+                                         Title = expectedAnotherJournalTypeTitle
+                                     };
+
+            DataAccessLayer.SaveJournalType(anotherJournalType);
+            
 
             var moodHappy = new Mood()
                             {
@@ -73,10 +89,10 @@ namespace ThingsToRemember.ViewModels
                             , Emoji = ":|"
                           };
 
-            App.Database.SaveMood(moodHappy);
-            App.Database.SaveMood(moodSad);
-            App.Database.SaveMood(moodMad);
-            App.Database.SaveMood(moodMeh);
+            DataAccessLayer.SaveMood(moodHappy);
+            DataAccessLayer.SaveMood(moodSad);
+            DataAccessLayer.SaveMood(moodMad);
+            DataAccessLayer.SaveMood(moodMeh);
 
             var entry1 = new Entry()
                          {
@@ -137,17 +153,66 @@ namespace ThingsToRemember.ViewModels
             
             //Act: Add
 
-            App.Database.AddJournalWithChildren(journal);
+            DataAccessLayer.AddJournalWithChildren(journal);
 
-            App.Database.SaveEntry(entry1, journal.Id);
-            App.Database.SaveEntry(entry2, journal.Id);
-            App.Database.SaveEntry(entry3, journal.Id);
+            DataAccessLayer.SaveEntry(entry1
+                                    , journal.Id);
+            
+            DataAccessLayer.SaveEntry(entry2
+                                    , journal.Id);
+
+            DataAccessLayer.SaveEntry(entry3
+                                    , journal.Id);
 
             journal.Entries.Add(lastMinuteEntry);
-            App.Database.SaveEntry(lastMinuteEntry, journal.Id);
-            
+
+            DataAccessLayer.SaveEntry(lastMinuteEntry
+                                    , journal.Id);
+
             
         }
 
+        public string Delete(int index)
+        {
+            if (index > ObservableListOfJournals.Count - 1)
+            {
+                return string.Empty;
+            }
+
+            //Get the workout to be deleted
+            var journalToDelete = ObservableListOfJournals[index];
+            var journalTitle    = journalToDelete.Title;
+
+            //Remove the workout from the source list
+            ObservableListOfJournals.RemoveAt(index);
+
+            //Delete the Workout from the database
+            DataAccessLayer.DeleteJournal(ref journalToDelete);
+            
+            RefreshListOfJournals();
+
+            return journalTitle;
+        }
+
+        public Journal GetJournalToEdit(int index)
+        {
+            return index > ObservableListOfJournals.Count - 1 ?
+                           new Journal() :
+                           ObservableListOfJournals[index];
+        }
+
+        public void Save(Journal journal)
+        {
+            try
+            {
+                DataAccessLayer.SaveJournal(journal);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+
+                throw;
+            }
+        }
     }
 }

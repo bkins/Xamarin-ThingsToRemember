@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ThingsToRemember.Views.AddMoodView">
+    <ContentPage.Content>
+        <StackLayout HorizontalOptions="StartAndExpand">
+            <Entry
+                x:Name="MoodTitleEntry"
+                Placeholder="Mood Title"
+                FontSize="Medium"
+                HeightRequest="50"
+                IsTabStop="True"
+                ReturnType="Next"
+                TabIndex="1"
+                >
+                <Entry.Keyboard>
+                    <Keyboard x:FactoryMethod="Create">
+                        <x:Arguments>
+                            <KeyboardFlags>Suggestions,CapitalizeWord</KeyboardFlags>
+                        </x:Arguments>
+                    </Keyboard>
+                </Entry.Keyboard>
+            </Entry>
+            
+            <Entry x:Name="MoodEmojiEntry"
+                   Placeholder="Emoji"
+                   FontSize="Medium"
+                   IsVisible="True"
+                   />
+
+            <Grid ColumnDefinitions="*,*">
+                <Button x:Name="SaveButton"
+                        Text="Save"
+                        Clicked="SaveButton_OnClicked"/>
+            </Grid>
+
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
