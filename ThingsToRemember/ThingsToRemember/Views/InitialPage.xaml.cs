@@ -42,11 +42,12 @@ namespace ThingsToRemember.Views
 
             try
             {
-                _journalsViewModel        = new JournalsViewModel();
-                Title                     = _journalsViewModel.Title;
-                ListView.ItemsSource      = _journalsViewModel.ObservableListOfJournals;
-                ListView.IsVisible        = true;
-                EditJournalGrid.IsVisible = false;
+                _journalsViewModel              = new JournalsViewModel();
+                Title                           = _journalsViewModel.Title;
+                ListView.ItemsSource            = _journalsViewModel.ObservableListOfJournals;
+                ListView.IsVisible              = true;
+                EditJournalGrid.IsVisible       = false;
+                SetInitialImageAndTestVisibility();
             }
             catch (DuplicateRecordException duplicateRecordException)
             {
@@ -60,6 +61,12 @@ namespace ThingsToRemember.Views
                            , exception.Message
                            , "OK");
             }
+        }
+
+        private void SetInitialImageAndTestVisibility()
+        {
+            InitialImageButton.IsVisible    = ! _journalsViewModel.Journals.Any();
+            ClickHereToBeginLabel.IsVisible = InitialImageButton.IsVisible;
         }
 
         private async void OnSelectionChanged(object                    sender
@@ -253,6 +260,18 @@ namespace ThingsToRemember.Views
                                                       , EventArgs e)
         {
             await PageNavigation.NavigateTo(nameof(ConfigurationView));
+        }
+
+        private async void InitialImageButton_OnClicked(object    sender
+                                                , EventArgs e)
+        {
+            await PageNavigation.NavigateTo(nameof(AddJournalView));
+        }
+
+        private async void ClickHereToBeginLabel_OnTapped(object    sender
+                                                  , EventArgs e)
+        {
+            await PageNavigation.NavigateTo(nameof(AddJournalView));
         }
     }
 }

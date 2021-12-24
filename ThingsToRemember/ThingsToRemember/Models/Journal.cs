@@ -7,7 +7,7 @@ using SQLiteNetExtensions.Attributes;
 namespace ThingsToRemember.Models
 {
     [Table("Journal")]
-    public class Journal
+    public class Journal : JournalExtended
     {
         [PrimaryKey, AutoIncrement]
         public int    Id     { get; set; }

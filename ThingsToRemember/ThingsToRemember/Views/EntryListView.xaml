@@ -34,12 +34,15 @@ xmlns:listview="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfL
                            FontSize="Small"
                            FontAttributes="Bold"
                            LineBreakMode="TailTruncation"
+                           MaxLines="1"
                            Margin="10, 0, 0, 0" 
                            />
                     <Label Text="{Binding Text}"
                            Grid.Column="1"
                            FontSize="Small"
                            FontAttributes="Italic"
+                           LineBreakMode="TailTruncation"
+                           MaxLines="2"
                            />
                     <!--Margin="15, -4, 0, 0" -->
                     <Label Text="{Binding CreateDateTime, StringFormat='{0:yyyy/MM/dd}'}"

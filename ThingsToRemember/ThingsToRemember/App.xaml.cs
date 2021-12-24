@@ -34,7 +34,8 @@ namespace ThingsToRemember
 
         public App()
         {
-            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NTQwNTIyQDMxMzkyZTMzMmUzMGlJOVkvcndVR0JzS09neUlqQTNHYTY5Y3hPdEhYYXZaaXYwZjhuNEhPblU9");
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NTQ5NjAxQDMxMzkyZTM0MmUzMGxzOS91RnJkRzRVUzIrYjNvWTZOcjcraWJYd2NyRnNvTUpCS3ZTWVlsYWc9");
+            
             InitializeComponent();
             
             DependencyService.Register<Database>();

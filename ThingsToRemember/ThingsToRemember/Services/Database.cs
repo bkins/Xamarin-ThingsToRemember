@@ -26,28 +26,37 @@ namespace ThingsToRemember.Services
         {
             _database = new SQLiteConnection(dbPath);
 
-            CreateTables();
+            CreateUserTables();
+            CreateAppTables();
         }
 
-        public void ReSetData()
+        public void ResetAllData()
         {
-            DropTables();
-            CreateTables();
+            DropUserTables();
+            CreateUserTables();
         }
 
-        public void CreateTables()
+        public void CreateUserTables()
         {
             _database.CreateTable<Journal>();
             _database.CreateTable<Entry>();
             _database.CreateTable<JournalType>();
+        }
+
+        public void CreateAppTables()
+        {
             _database.CreateTable<Mood>();
         }
         
-        public void DropTables()
+        public void DropUserTables()
         {
             _database.DropTable<Journal>();
             _database.DropTable<Entry>();
             _database.DropTable<JournalType>();
+        }
+
+        public void DropAppTables()
+        {
             _database.DropTable<Mood>();
         }
 
@@ -333,6 +342,11 @@ namespace ThingsToRemember.Services
         public IEnumerable GetEntriesWithMood(int moodId)
         {
             return _database.GetAllWithChildren<Entry>(fields => fields.EntryMood.Id == moodId);
+        }
+        
+        public IEnumerable GetJournalsWithJournalTYpe(int journalTypeId)
+        {
+            return _database.GetAllWithChildren<Journal>(fields => fields.JournalTypeId == journalTypeId);
         }
 
         public Mood GetMood(int id)

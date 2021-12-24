@@ -32,10 +32,16 @@ namespace ThingsToRemember.Services
             return App.Database.GetEntry(entryId);
         }
 
-        public void ClearData()
+        public void ResetUserData()
         {
-            App.Database.DropTables();
-            App.Database.CreateTables();
+            App.Database.DropUserTables();
+            App.Database.CreateUserTables();
+        }
+
+        public void ResetAppData()
+        {
+            App.Database.DropAppTables();
+            App.Database.CreateAppTables();
         }
 
         public void SaveJournalType(JournalType journalType)
@@ -139,6 +145,12 @@ namespace ThingsToRemember.Services
             return Database.GetJournalTypes().FirstOrDefault(fields=>fields.Title == typeTitle);
         }
 
+        public JournalType GetJournalType(int typeId)
+        {
+            return Database.GetJournalTypes()
+                           .FirstOrDefault(fields => fields.Id == typeId);
+        }
+
         public List<Mood> GetMoods()
         {
             return Database.GetMoods()
@@ -202,6 +214,32 @@ namespace ThingsToRemember.Services
 
             return entryCount;
         }
+        
+        private int RemoveJournalTypeFromJournals(JournalType journalTypeToDelete)
+        {
+            var                  journalTypeId = journalTypeToDelete.Id;
+            IEnumerable<Journal> journalsWithJournalType;
+
+            try
+            {
+                journalsWithJournalType = Database.GetJournalsWithJournalTYpe(journalTypeId).ToList<Journal>();
+            }
+            catch (Exception )
+            {
+                return 0;
+            }
+            
+            var journalCount = 0;
+
+            foreach (var journal in journalsWithJournalType)
+            {
+                journal.JournalTypeId = 0;
+                journal.JournalType   = new JournalType();
+                journalCount++;
+            }
+
+            return journalCount;
+        }
 
         private string GetDeletedMoodMessage(int numberOfDeletedMoods
                                            , int numberOfEntriesWithMoodRemoved)
@@ -219,6 +257,35 @@ namespace ThingsToRemember.Services
             }
 
             return $"{numberOfDeletedMoods} {moodWord} was deleted, and {numberOfEntriesWithMoodRemoved} {entryWord} had that mood removed.";
+        }
+        
+        private string GetDeletedJournalTypeMessage(int numberOfDeletedJournalTypes
+                                                  , int numberOfJournalsWithJournalTypeRemoved)
+        {
+            var journalTypeWord = "journal types";
+            if (numberOfDeletedJournalTypes == 1)
+            {
+                journalTypeWord = "journal type";
+            }
+
+            var journalWord = "journal";
+            if (numberOfJournalsWithJournalTypeRemoved == 1)
+            {
+                journalWord = "journals";
+            }
+
+            return $"{numberOfDeletedJournalTypes} {journalTypeWord} was deleted, and {numberOfJournalsWithJournalTypeRemoved} {journalWord} had that mood removed.";
+        }
+
+        public string DeleteJournalType(ref JournalType journalType)
+        {
+            var journalCount  = RemoveJournalTypeFromJournals(journalType);
+            var numberDeleted = Database.DeleteJournalType(ref journalType);
+
+            journalType = null;
+
+            return GetDeletedJournalTypeMessage(numberDeleted
+                                              , journalCount);
         }
     }
 }

@@ -28,14 +28,15 @@ namespace ThingsToRemember.Services
         int DeleteEntry       (ref Entry       entry);
         int DeleteEntry       (    Entry       entry);
 
-        Journal                  GetJournal      (int   id);
-        IEnumerable<Journal>     GetJournals     (bool  forceRefresh = false);
-        Mood                     GetMood         (int   id);
-        IEnumerable<Mood>        GetMoods        (bool  forceRefresh = false);
-        JournalType              GetJournalType  (int   id);
-        IEnumerable<JournalType> GetJournalTypes (bool  forceRefresh = false);
-        Entry                    GetEntry        (int   id);
-        IEnumerable<Entry>       GetEntries      (bool  forceRefresh = false);
-        IEnumerable              GetEntriesWithMood(int moodId);
+        Journal                  GetJournal                 (int    id);
+        IEnumerable<Journal>     GetJournals                (bool   forceRefresh = false);
+        Mood                     GetMood                    (int    id);
+        IEnumerable<Mood>        GetMoods                   (bool   forceRefresh = false);
+        JournalType              GetJournalType             (int    id);
+        IEnumerable<JournalType> GetJournalTypes            (bool   forceRefresh = false);
+        Entry                    GetEntry                   (int    id);
+        IEnumerable<Entry>       GetEntries                 (bool   forceRefresh = false);
+        IEnumerable              GetEntriesWithMood         (int    moodId);
+        IEnumerable              GetJournalsWithJournalTYpe (int    journalTypeId);
     }
 }

@@ -33,8 +33,11 @@ namespace ThingsToTest
         public void FullTestOfJournal()
         {
             //Start with fresh DB
-            Database.DropTables();
-            Database.CreateTables();
+            Database.DropUserTables();
+            Database.DropAppTables();
+
+            Database.CreateUserTables();
+            Database.CreateAppTables();
 
             //Arrange
             var expectedJournalTypeTitle = "Test Journal Type";

@@ -1,13 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Application xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:system="clr-namespace:System;assembly=netstandard"
              x:Class="ThingsToRemember.App">
     <!--
         Define global resources and styles here, that apply to all pages in your app.
     -->
     <Application.Resources>
         <ResourceDictionary>
+            
+            <Color x:Key="PrimaryBackColor">#2196F3</Color>
+            <Color x:Key="PrimaryForeColor">White</Color>
             <Color x:Key="Primary">#2196F3</Color>
+
+            <x:Double x:Key="AccordionHeight">30</x:Double>
+            <x:Double x:Key="AccordionItemHeight">25></x:Double>
+            <x:Double x:Key="AccordionItemButtonWidth">50></x:Double>
+
             <Style TargetType="Button">
                 <Setter Property="TextColor" Value="White"></Setter>
                 <Setter Property="VisualStateManager.VisualStateGroups">
@@ -27,6 +36,7 @@
                     </VisualStateGroupList>
                 </Setter>
             </Style>
+
         </ResourceDictionary>        
     </Application.Resources>
 </Application>

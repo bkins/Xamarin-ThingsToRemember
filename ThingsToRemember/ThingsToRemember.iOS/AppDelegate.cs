@@ -1,3 +1,4 @@
+using Syncfusion.XForms.iOS.Accordion;
 using Syncfusion.ListView.XForms.iOS;
 using Syncfusion.SfPicker.XForms.iOS;
 using System;
@@ -25,6 +26,7 @@ namespace ThingsToRemember.iOS
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
 global::Xamarin.Forms.Forms.Init();
+SfAccordionRenderer.Init();
 SfListViewRenderer.Init();
 SfPickerRenderer.Init();
             LoadApplication(new App());

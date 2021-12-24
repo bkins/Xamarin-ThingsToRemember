@@ -416,6 +416,11 @@ namespace ThingsToRemember.Services
             return _entries.Where(fields => fields.EntryMood.Id == moodId);
         }
 
+        public IEnumerable GetJournalsWithJournalTYpe(int journalTypeId)
+        {
+            return _journals.Where(fields => fields.JournalTypeId == journalTypeId);
+        }
+
         Mood IDataStore.AddMood(Mood mood)
         {
             throw new NotImplementedException();

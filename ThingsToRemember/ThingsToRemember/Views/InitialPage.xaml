@@ -30,24 +30,38 @@ x:Class="ThingsToRemember.Views.InitialPage"
 
         <ResourceDictionary>
             <DataTemplate x:Name="ItemTemplate"
-                          x:Key="ItemTemplate">
+                          x:Key="ItemTemplate"
+                          >
                 <Grid x:Name="ExistingJournalsGrid"
+                      RowDefinitions="*,*"
+                      ColumnDefinitions="*,*,*"
                       >
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
                     <Label Text="{Binding Title}"
                            Grid.Row="0"
+                           Grid.Column="0"
                            FontSize="Medium"
                            FontAttributes="Bold"
-                           Margin="10, 0, 0, 0" />
+                           Margin="10, 0, 0, 0" 
+                           />
+                    <Label Text="{Binding EntryCount}"
+                           Grid.Row="0"
+                           Grid.Column="1"
+                           FontSize="Medium"
+                           />
+                    <Label Text="{Binding HasEntriesToRemember}"
+                           Grid.Row="0"
+                           Grid.Column="2"
+                           FontSize="Medium"
+                           />
                     <Label Text="{Binding JournalType.Title}"
                            Grid.Row="1"
+                           Grid.Column="0"
+                           Grid.ColumnSpan="3"
                            FontSize="Medium"
                            FontAttributes="Italic"
                            LineBreakMode="TailTruncation"
-                           Margin="15, -4, 0, 0" />
+                           Margin="15, -4, 0, 0" 
+                           />
                     <!--<object Margin="left,top,right,bottom"/>-->
                 </Grid>
 
@@ -71,6 +85,24 @@ x:Class="ThingsToRemember.Views.InitialPage"
                Placeholder="Search (try d=1 or d>5)"
                TextChanged="Filter_OnTextChanged">
         </Entry>-->
+        <Label x:Name="ClickHereToBeginLabel"
+               HorizontalOptions="CenterAndExpand"
+               Text="Click Here To Begin"
+               FontSize="Large"
+               FontAttributes="Bold"
+               TextColor="Black"
+               >
+            <Label.GestureRecognizers>
+                <TapGestureRecognizer Tapped="ClickHereToBeginLabel_OnTapped" />
+            </Label.GestureRecognizers>
+        </Label>
+
+        <ImageButton x:Name="InitialImageButton"
+                     Source="begin_click_black_48.png"
+                     IsVisible="False"
+                     BackgroundColor="Transparent"
+                     Clicked="InitialImageButton_OnClicked"
+                     />
 
         <listview:SfListView x:Name="ListView"
                              AutoFitMode="DynamicHeight"

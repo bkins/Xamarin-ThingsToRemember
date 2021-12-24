@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<pages:PopupPage xmlns="http://xamarin.com/schemas/2014/forms"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                 xmlns:pages="http://rotorgames.com"
+                 x:Class="ThingsToRemember.Views.EditMoodPopUp"
+                 CloseWhenBackgroundIsClicked="True"
+                 BackgroundClicked="EditMoodPopUp_OnBackgroundClicked"
+                 >
+    <StackLayout HorizontalOptions="Center" 
+                 VerticalOptions="Center"
+                 BackgroundColor="White"
+                 >
+        <Grid x:Name="EditMoodGrid"
+              RowDefinitions="*,*"
+              VerticalOptions="Start" 
+              >
+            
+            <Entry x:Name="MoodTitleEntry"
+                   Text="{Binding MoodToEdit.Title}"
+                   Placeholder="Title"
+                   Grid.Row="0"
+                   MinimumHeightRequest="50"
+            />
+
+            <Entry x:Name="MoodEmojiEntry"
+                   Text="{Binding MoodToEdit.Emoji}"
+                   Placeholder="Emoji"
+                   Grid.Row="1"
+                   MinimumHeightRequest="50"
+            />
+
+            <!--<Label x:Name="JournalTypeLabel"
+                       Text="{Binding MoodToEdit.Emoji}"
+                       Grid.Row="1"
+                       MinimumHeightRequest="50">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="PickJournalTypeLabel_OnTapped" />
+                    </Label.GestureRecognizers>
+                </Label>-->
+
+            <!--<Button x:Name="DoneEditingButton"
+                    Text="Done"
+                    Clicked="DoneEditingButton_OnClicked"
+                    Grid.Row="2"
+                    MinimumHeightRequest="50"
+            />-->
+        </Grid>
+
+    </StackLayout>
+</pages:PopupPage>

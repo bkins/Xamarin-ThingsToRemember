@@ -98,5 +98,10 @@ namespace ThingsToRemember.ViewModels
                 throw;
             }
         }
+
+        public void Save()
+        {
+            Save(Mood);
+        }
     }
 }

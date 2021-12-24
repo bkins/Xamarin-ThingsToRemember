@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<pages:PopupPage xmlns="http://xamarin.com/schemas/2014/forms"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                 xmlns:pages="http://rotorgames.com"
+                 x:Class="ThingsToRemember.Views.EditJournalTypePopUp"
+                 CloseWhenBackgroundIsClicked="True"
+                 BackgroundClicked="EditJournalTypePopUp_OnBackgroundClicked"
+                 >
+    <StackLayout HorizontalOptions="Center" 
+                 VerticalOptions="Center"
+                 BackgroundColor="White"
+                 >
+        <Grid x:Name="EditJournalTypeGrid"
+              RowDefinitions="*"
+              VerticalOptions="Start" 
+              >
+            
+            <Entry x:Name="JournalTypeTitleEntry"
+                   Text="{Binding JournalTypeToEdit.Title}"
+                   Placeholder="Title"
+                   Grid.Row="0"
+                   MinimumHeightRequest="50"
+                   />
+        </Grid>
+
+    </StackLayout>
+</pages:PopupPage>

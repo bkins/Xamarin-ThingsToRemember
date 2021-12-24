@@ -10,7 +10,7 @@ using ThingsToRemember.Services;
 
 namespace ThingsToRemember.ViewModels
 {
-    class JournalsViewModel : BaseViewModel
+    public class JournalsViewModel : BaseViewModel
     {
         public ObservableCollection<Journal> ObservableListOfJournals { get; set; }
         public IEnumerable<Journal>          Journals                 { get; set; }
@@ -25,7 +25,43 @@ namespace ThingsToRemember.ViewModels
 
         public void RefreshListOfJournals()
         {
-            ObservableListOfJournals = new ObservableCollection<Journal>(DataAccessLayer.GetJournals());
+            var journals = DataAccessLayer.GetJournals()
+                                          .ToList();
+
+            SetExtensionProperties(journals);
+
+            ObservableListOfJournals = new ObservableCollection<Journal>(journals);
+        }
+
+        private static void SetExtensionProperties(List<Journal> journals)
+        {
+            foreach (var journal in journals)
+            {
+                SetEntryCount(journal);
+
+                SetThingsToRememberCount(journal);
+            }
+        }
+
+        private static void SetThingsToRememberCount(Journal journal)
+        {
+            var thingsToRememberCount = journal.Entries.Count(fields => fields.CreateDateTime.Month == DateTime.Today.Month 
+                                                                     && fields.CreateDateTime.Day == DateTime.Today.Day);
+
+            if (thingsToRememberCount != 0)
+            {
+                journal.HasEntriesToRemember = $"TtR: {thingsToRememberCount}";
+            }
+        }
+
+        private static void SetEntryCount(Journal journal)
+        {
+            var entryCount = journal.Entries.Count;
+
+            if (entryCount != 0)
+            {
+                journal.EntryCount = $"Entries: {entryCount}";
+            }
         }
 
         private IEnumerable<Journal> GetListOfAllJournals() => DataAccessLayer.GetJournals();
@@ -35,7 +71,8 @@ namespace ThingsToRemember.ViewModels
             
             if (clearDataFirst)
             {
-                DataAccessLayer.ClearData();
+                DataAccessLayer.ResetUserData();
+                
             }
             
             var expectedJournalTypeTitle        = "Test Journal Type";
