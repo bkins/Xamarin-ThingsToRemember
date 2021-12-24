@@ -57,7 +57,7 @@ namespace ThingsToRemember.ViewModels
                                          , moodEmoji);
         }
         
-        public string Delete(int index)
+        public string DeleteMood(int index)
         {
             if (index > ObservableListOfMoods.Count - 1)
             {
@@ -70,7 +70,7 @@ namespace ThingsToRemember.ViewModels
             //Remove the workout from the source list
             ObservableListOfMoods.RemoveAt(index);
 
-            //Delete the Workout from the database
+            //DeleteMood the Workout from the database
             var deletedMoodMessage = DataAccessLayer.DeleteMood(ref moodToDelete);
             
             RefreshListOfMoods();

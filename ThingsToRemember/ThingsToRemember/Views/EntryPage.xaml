@@ -129,7 +129,7 @@
                     Clicked="OnSaveButtonClicked" />
             <Button x:Name="DeleteButton"
                     Grid.Column="1"
-                    Text="Delete"
+                    Text="DeleteMood"
                     Clicked="OnDeleteButtonClicked"/>
 
         </Grid>

@@ -341,7 +341,9 @@ namespace ThingsToRemember.Services
 
         public IEnumerable GetEntriesWithMood(int moodId)
         {
-            return _database.GetAllWithChildren<Entry>(fields => fields.EntryMood.Id == moodId);
+            return _database.GetAllWithChildren<Entry>(fields => fields              != null && 
+                                                                 fields.EntryMood    != null && 
+                                                                 fields.EntryMood.Id == moodId);
         }
         
         public IEnumerable GetJournalsWithJournalTYpe(int journalTypeId)

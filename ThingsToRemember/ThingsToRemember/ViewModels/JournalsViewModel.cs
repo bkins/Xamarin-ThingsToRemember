@@ -223,7 +223,7 @@ namespace ThingsToRemember.ViewModels
             //Remove the workout from the source list
             ObservableListOfJournals.RemoveAt(index);
 
-            //Delete the Workout from the database
+            //DeleteMood the Workout from the database
             DataAccessLayer.DeleteJournal(ref journalToDelete);
             
             RefreshListOfJournals();

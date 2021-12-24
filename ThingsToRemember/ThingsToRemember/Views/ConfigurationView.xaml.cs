@@ -144,7 +144,7 @@ namespace ThingsToRemember.Views
         
         private async void DeleteMood()
         {
-            var itemDeleted = _viewModel.MoodViewModel.Delete(SwipedMoodItem);
+            var itemDeleted = _viewModel.MoodViewModel.DeleteMood(SwipedMoodItem);
 
             await DisplayAlert("Mood Deleted"
                              , itemDeleted
@@ -279,7 +279,7 @@ namespace ThingsToRemember.Views
                 (deleteImage.Parent as View)?.GestureRecognizers
                                              .Add(new TapGestureRecognizer
                                                   {
-                                                      Command = new Command(DeleteMood)
+                                                      Command = new Command(DeleteJournalType)
                                                   });
             }
         }
