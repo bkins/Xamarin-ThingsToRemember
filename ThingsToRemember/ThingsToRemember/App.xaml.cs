@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
 using ThingsToRemember.Services;
-using ThingsToRemember.Views;
 using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
 
 namespace ThingsToRemember
 {

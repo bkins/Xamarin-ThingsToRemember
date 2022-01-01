@@ -1,10 +1,6 @@
 using Syncfusion.XForms.iOS.Accordion;
 using Syncfusion.ListView.XForms.iOS;
 using Syncfusion.SfPicker.XForms.iOS;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 using Foundation;
 using UIKit;
 

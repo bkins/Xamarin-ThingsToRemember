@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ApplicationExceptions;
+using Avails.D_Flat;
 using ThingsToRemember.Models;
-using ThingsToRemember.Services;
 
 namespace ThingsToRemember.ViewModels
 {
@@ -17,7 +14,8 @@ namespace ThingsToRemember.ViewModels
         
         public JournalsViewModel(bool useMockData = false)
         {
-            Title    = "Journals";
+            Title = "Things to Remember";
+            //Title    = "Journals";
             Journals = GetListOfAllJournals();
 
             RefreshListOfJournals();
@@ -25,44 +23,45 @@ namespace ThingsToRemember.ViewModels
 
         public void RefreshListOfJournals()
         {
-            var journals = DataAccessLayer.GetJournals()
-                                          .ToList();
+            Journals = DataAccessLayer.GetJournals()
+                                      .ToList();
 
-            SetExtensionProperties(journals);
+            //SetExtensionProperties();
 
-            ObservableListOfJournals = new ObservableCollection<Journal>(journals);
+            ObservableListOfJournals = new ObservableCollection<Journal>(Journals);
         }
 
-        private static void SetExtensionProperties(List<Journal> journals)
-        {
-            foreach (var journal in journals)
-            {
-                SetEntryCount(journal);
+        //private void SetExtensionProperties()
+        //{
+        //    foreach (var journal in Journals)
+        //    {
+        //        SetEntryCount(journal);
 
-                SetThingsToRememberCount(journal);
-            }
-        }
+        //        SetThingsToRememberCount(journal);
+        //    }
+        //}
 
-        private static void SetThingsToRememberCount(Journal journal)
-        {
-            var thingsToRememberCount = journal.Entries.Count(fields => fields.CreateDateTime.Month == DateTime.Today.Month 
-                                                                     && fields.CreateDateTime.Day == DateTime.Today.Day);
+        //private static void SetThingsToRememberCount(Journal journal)
+        //{
+        //    var thingsToRememberCount = journal.Entries.Count(fields => fields.IsTtr());
 
-            if (thingsToRememberCount != 0)
-            {
-                journal.HasEntriesToRemember = $"TtR: {thingsToRememberCount}";
-            }
-        }
+        //    journal.HasEntriesToRemember = thingsToRememberCount != 0;
 
-        private static void SetEntryCount(Journal journal)
-        {
-            var entryCount = journal.Entries.Count;
+        //    if (journal.HasEntriesToRemember)
+        //    {
+        //        journal.HasEntriesToRememberText = $"TtR: {thingsToRememberCount}";
+        //    }
+        //}
 
-            if (entryCount != 0)
-            {
-                journal.EntryCount = $"Entries: {entryCount}";
-            }
-        }
+        //private static void SetEntryCount(Journal journal)
+        //{
+        //    var entryCount = journal.Entries.Count;
+
+        //    if (entryCount != 0)
+        //    {
+        //        journal.EntryCountText = $"Entries: {entryCount}";
+        //    }
+        //}
 
         private IEnumerable<Journal> GetListOfAllJournals() => DataAccessLayer.GetJournals();
         
@@ -209,21 +208,22 @@ namespace ThingsToRemember.ViewModels
             
         }
 
-        public string Delete(int index)
+        public Journal GetJournal(int index)
+        {
+            return ObservableListOfJournals[index];
+        }
+
+        public string Delete(int index, Journal journalToDelete)
         {
             if (index > ObservableListOfJournals.Count - 1)
             {
                 return string.Empty;
             }
-
-            //Get the workout to be deleted
-            var journalToDelete = ObservableListOfJournals[index];
+            
             var journalTitle    = journalToDelete.Title;
-
-            //Remove the workout from the source list
+            
             ObservableListOfJournals.RemoveAt(index);
-
-            //DeleteMood the Workout from the database
+            
             DataAccessLayer.DeleteJournal(ref journalToDelete);
             
             RefreshListOfJournals();
@@ -250,6 +250,17 @@ namespace ThingsToRemember.ViewModels
 
                 throw;
             }
+        }
+
+        public bool AnyWithTtr()
+        {
+            return Journals.Any(fields => fields.HasEntriesToRemember);
+
+            //return DataAccessLayer.GetJournals()
+            //                      .Any(fields => fields.Entries.Any() 
+            //                                  && fields.Entries.Any(entries => entries.CreateDateTime.Date  >  DateTime.Today
+            //                                                                && entries.CreateDateTime.Month == DateTime.Today.Month 
+            //                                                                && entries.CreateDateTime.Day   == DateTime.Today.Day));
         }
     }
 }

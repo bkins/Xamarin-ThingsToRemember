@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Avails.Xamarin;
 using ThingsToRemember.Models;
@@ -60,10 +57,10 @@ namespace ThingsToRemember.Views
             ToggleJournalTypePickerVisibility();
             SelectedJournalType       = (JournalType)JournalTypePicker.SelectedItem;
 
-            if (SelectedJournalType.Title == "<Add New>")
-            {
-                await AddNewJournalType();
-            }
+            //if (SelectedJournalType.Title == "<Add New>")
+            //{
+            //    await AddNewJournalType();
+            //}
 
             Device.BeginInvokeOnMainThread(() =>
             {

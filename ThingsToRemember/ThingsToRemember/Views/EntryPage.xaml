@@ -4,8 +4,10 @@
              xmlns:dateTimePicker="clr-namespace:Avails.Xamarin.Controls;assembly=Avails"
              xmlns:ListCollection="clr-namespace:System.Collections.Generic;assembly=mscorlib"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
              xmlns:viewmodels="clr-namespace:ThingsToRemember.ViewModels;assembly=ThingsToRemember"
-             
+             xmlns:media="clr-namespace:MediaManager.Forms;assembly=MediaManager.Forms"
+
              x:Class="ThingsToRemember.Views.EntryPage"
              x:DataType="viewmodels:EntryViewModel"
              >
@@ -83,6 +85,7 @@
             </Grid.ColumnDefinitions>
 
             <DatePicker x:Name="CreateDatePicker"
+                        Date="{Binding CreateDateTime.Date}"
                         HorizontalOptions="StartAndExpand" 
                         IsVisible="True"
                         DateSelected="CreateDatePicker_OnDateSelected"
@@ -90,7 +93,7 @@
             />
 
             <TimePicker x:Name="CreateTimePicker"
-                        Time="{Binding CreateDateTime}"
+                        Time="{Binding CreateDateTime.TimeOfDay}"
                         HorizontalOptions="StartAndExpand"
                         IsVisible="True"
                         PropertyChanged="CreateTimePicker_OnPropertyChanged"
@@ -119,18 +122,95 @@
                          CancelButtonClicked="MoodPicker_OnCancelButtonClicked"
                          Margin="15,0,15,0"
                          />
-        <!--<object Margin="left,top,right,bottom"/>-->
+        <Grid x:Name="PhotoVideoGrid"
+              ColumnDefinitions="*,*,*,*"
+              RowDefinitions="90*,10*"
+              Margin="-15,0,5,0"
+              HorizontalOptions="FillAndExpand"
+              VerticalOptions="FillAndExpand"
+              >
 
+            <Image x:Name="ImageFromCamera"
+                   IsVisible="False"
+                   VerticalOptions="StartAndExpand"
+                   Aspect="AspectFit"
+                   Grid.Row="0"
+                   Grid.Column="0"
+                   Grid.ColumnSpan="2"
+                   Grid.RowSpan="2"
+                   />
+            <xct:MediaElement x:Name="VideoMediaElement"
+                              VerticalOptions="Start"
+                              Grid.Row="0"
+                              Grid.Column="2"
+                              Grid.ColumnSpan="2"
+                              />
+
+            <media:VideoView x:Name="VideoFromCamera" 
+                             IsVisible="False"
+                             VerticalOptions="Start"
+                             VideoAspect="AspectFit"
+                             Grid.Row="0"
+                             Grid.Column="2"
+                             Grid.ColumnSpan="2"
+                             />
+
+            <Label x:Name="PlayLabel"
+                   Text="Play"
+                   IsVisible="False"
+                   Grid.Row="1"
+                   Grid.Column="2"
+                   >
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="PlayLabel_OnTapped"/>
+                </Label.GestureRecognizers>
+            </Label>
+
+            <Label x:Name="StopLabel"
+                   Text="Stop"
+                   IsVisible="False"
+                   Grid.Row="1"
+                   Grid.Column="3"
+                   >
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="StopLabel_OnTapped"/>
+                </Label.GestureRecognizers>
+            </Label>
+
+        </Grid>
+
+        <!--<object Margin="left,top,right,bottom"/>-->
+        <Grid ColumnDefinitions="25*,25*"
+              HorizontalOptions="End"
+              >
+            <ImageButton x:Name="AddImageButton"
+                     Source="camera.png"
+                     HeightRequest="50"
+                     HorizontalOptions="End"
+                     Margin="0, 0, 5, 0"
+                     Grid.Column="0"
+                     Clicked="AddImageButton_OnClicked"
+                     />
+            <ImageButton x:Name="AddVideoButton"
+                         Source="videocam_black_48.png"
+                         HeightRequest="50"
+                         HorizontalOptions="End"
+                         Margin="0, 0, 0, 0"
+                         Grid.Column="1"
+                         Clicked="AddVideoButton_OnClicked"
+            />
+        </Grid>
+        
         <Grid ColumnDefinitions="*,*">
             <!-- Layout children in two columns -->
             <Button x:Name="SaveButton"
                     Text="Save"
-                    HeightRequest="75"
+                    HeightRequest="50"
                     Clicked="OnSaveButtonClicked" />
-            <Button x:Name="DeleteButton"
+            <!--<Button x:Name="DeleteButton"
                     Grid.Column="1"
                     Text="DeleteMood"
-                    Clicked="OnDeleteButtonClicked"/>
+                    Clicked="OnDeleteButtonClicked"/>-->
 
         </Grid>
 

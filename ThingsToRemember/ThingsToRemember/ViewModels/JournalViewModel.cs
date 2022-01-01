@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
+﻿using System.Linq;
 using ApplicationExceptions;
 using ThingsToRemember.Models;
-using ThingsToRemember.Services;
 
 namespace ThingsToRemember.ViewModels
 {
@@ -25,8 +20,9 @@ namespace ThingsToRemember.ViewModels
 
             Journal = new Journal
                       {
-                          Title       = journalTitle
-                        , JournalType = journalType
+                          Title         = journalTitle
+                        , JournalTypeId = journalType.Id
+                        , JournalType   = journalType
                       };
         }
 
@@ -34,7 +30,7 @@ namespace ThingsToRemember.ViewModels
         {
             if (Journal.Id == 0)
             {
-                var journals = DataAccessLayer.GetJournals(); //App.Database.GetJournals();
+                var journals = DataAccessLayer.GetJournals();
                 var journalsAlreadyExists = journals.Any(fields => fields.Title          == Journal.Title 
                                                                 && fields.JournalType.Id == Journal.JournalType.Id);
 
@@ -43,7 +39,7 @@ namespace ThingsToRemember.ViewModels
                     throw new DuplicateRecordException(nameof(Journal)
                                                      , Journal.Title);
                 }
-                DataAccessLayer.AddJournalWithChildren(Journal);
+                DataAccessLayer.AddJournal(Journal);
                 //App.Database.AddJournalWithChildren(Journal);
             }
             else

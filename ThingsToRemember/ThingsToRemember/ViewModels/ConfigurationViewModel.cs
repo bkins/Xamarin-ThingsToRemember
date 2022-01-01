@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ThingsToRemember.ViewModels
+﻿namespace ThingsToRemember.ViewModels
 {
     public class ConfigurationViewModel : BaseViewModel
     {
@@ -26,5 +22,6 @@ namespace ThingsToRemember.ViewModels
             MoodViewModel        = new MoodViewModel();
             JournalTypeViewModel = new JournalTypeViewModel();
         }
+        
     }
 }

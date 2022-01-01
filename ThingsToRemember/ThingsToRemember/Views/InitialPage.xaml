@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-xmlns:picker="clr-namespace:Syncfusion.SfPicker.XForms;assembly=Syncfusion.SfPicker.XForms"
-xmlns:ListCollection="clr-namespace:System.Collections.Generic;assembly=mscorlib"
-xmlns:listview="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfListView.XForms"
+             xmlns:picker="clr-namespace:Syncfusion.SfPicker.XForms;assembly=Syncfusion.SfPicker.XForms"
+             xmlns:ListCollection="clr-namespace:System.Collections.Generic;assembly=mscorlib"
+             xmlns:listview="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfListView.XForms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:ThingsToRemember.ViewModels;assembly=ThingsToRemember"
              xmlns:models="clr-namespace:ThingsToRemember.Models;assembly=ThingsToRemember"
-xmlns:views="clr-namespace:ThingsToRemember.Views;assembly=ThingsToRemember"
-x:Class="ThingsToRemember.Views.InitialPage"
+             xmlns:views="clr-namespace:ThingsToRemember.Views;assembly=ThingsToRemember"
+             x:Class="ThingsToRemember.Views.InitialPage"
              >
 
     <ContentPage.Resources>
@@ -27,37 +27,43 @@ x:Class="ThingsToRemember.Views.InitialPage"
                 </VisualStateGroupList>
             </Setter>
         </Style>
-
+        
         <ResourceDictionary>
+
             <DataTemplate x:Name="ItemTemplate"
                           x:Key="ItemTemplate"
                           >
                 <Grid x:Name="ExistingJournalsGrid"
-                      RowDefinitions="*,*"
-                      ColumnDefinitions="*,*,*"
+                      RowDefinitions="1,*,*"
+                      ColumnDefinitions="65*,20*,15*"
                       >
-                    <Label Text="{Binding Title}"
+                    <Label x:Name="RecordSeparatorLineLabel"
+                           BackgroundColor="Gray"
                            Grid.Row="0"
+                           Grid.ColumnSpan="3"
+                           />
+                    <Label Text="{Binding Title}"
+                           Grid.Row="1"
                            Grid.Column="0"
                            FontSize="Medium"
                            FontAttributes="Bold"
                            Margin="10, 0, 0, 0" 
                            />
                     <Label Text="{Binding EntryCount}"
-                           Grid.Row="0"
+                           Grid.Row="1"
                            Grid.Column="1"
                            FontSize="Medium"
                            />
-                    <Label Text="{Binding HasEntriesToRemember}"
-                           Grid.Row="0"
+                    <Label Text="{Binding EntriesToRememberCount}"
+                           Grid.Row="1"
                            Grid.Column="2"
                            FontSize="Medium"
                            />
                     <Label Text="{Binding JournalType.Title}"
-                           Grid.Row="1"
+                           Grid.Row="2"
                            Grid.Column="0"
                            Grid.ColumnSpan="3"
-                           FontSize="Medium"
+                           FontSize="Small"
                            FontAttributes="Italic"
                            LineBreakMode="TailTruncation"
                            Margin="15, -4, 0, 0" 
@@ -70,13 +76,23 @@ x:Class="ThingsToRemember.Views.InitialPage"
     </ContentPage.Resources>
 
     <ContentPage.ToolbarItems>
+        <!--<ToolbarItem x:Name="TtrToolbarItem"
+                     IconImageSource="icon.png"
+                     IsEnabled="False"
+                     Clicked="TtrToolbarItem_OnClicked"
+                     />-->
+        <ToolbarItem x:Name="TtrToolbarItem"
+                     Text="TtR"
+                     Clicked="TtrToolbarItem_OnClicked"
+                     />
         <ToolbarItem x:Name="ConfigurationToolbarItem"
                      IconImageSource="cog_black_48.png"
-                     Clicked="ConfigurationToolbarItem_OnClicked"/>
+                     Clicked="ConfigurationToolbarItem_OnClicked"
+                     />
         <ToolbarItem x:Name="AddJournalToolbarItem"
                      IconImageSource="round_add_black_48.png"
                      Clicked="AddJournal_Clicked" 
-        />
+                     />
     </ContentPage.ToolbarItems>
 
     <StackLayout Margin="{DynamicResource PageMargin}">
@@ -85,6 +101,9 @@ x:Class="ThingsToRemember.Views.InitialPage"
                Placeholder="Search (try d=1 or d>5)"
                TextChanged="Filter_OnTextChanged">
         </Entry>-->
+
+        <!--This Label (ClickHereToBeginLabel) and button (InitialImageButton),
+            Will display when there are no Journals-->
         <Label x:Name="ClickHereToBeginLabel"
                HorizontalOptions="CenterAndExpand"
                Text="Click Here To Begin"
@@ -93,7 +112,7 @@ x:Class="ThingsToRemember.Views.InitialPage"
                TextColor="Black"
                >
             <Label.GestureRecognizers>
-                <TapGestureRecognizer Tapped="ClickHereToBeginLabel_OnTapped" />
+                <TapGestureRecognizer Tapped="ClickHereToBegin_OnTapped" />
             </Label.GestureRecognizers>
         </Label>
 
@@ -101,8 +120,29 @@ x:Class="ThingsToRemember.Views.InitialPage"
                      Source="begin_click_black_48.png"
                      IsVisible="False"
                      BackgroundColor="Transparent"
-                     Clicked="InitialImageButton_OnClicked"
+                     Clicked="ClickHereToBegin_OnTapped"
                      />
+
+
+        <Grid x:Name="JournalColumnHeaders"
+              ColumnDefinitions="65*,20*,15*"
+              >
+            <Label x:Name="JournalsHeaderLabel"
+                   Text="Journals"
+                   FontAttributes="Bold"
+                   Grid.Column="0"
+            />
+            <Label x:Name="EntriesCountHeaderLabel"
+                   Text="Entries"
+                   FontAttributes="Bold"
+                   Grid.Column="1"
+            />
+            <Label x:Name="TtrCountHeaderLabel"
+                   Text="TtR"
+                   FontAttributes="Bold"
+                   Grid.Column="2"
+            />
+        </Grid>
 
         <listview:SfListView x:Name="ListView"
                              AutoFitMode="DynamicHeight"
@@ -136,8 +176,13 @@ x:Class="ThingsToRemember.Views.InitialPage"
                                        HeightRequest="35"
                                        WidthRequest="35"
                                        BindingContextChanged="LeftImage_Delete_BindingContextChanged"
+                                       
                                        Source="delete_black_18.png" 
-                                       />
+                                       >
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="DeleteImage_OnTapped" />
+                                    </Image.GestureRecognizers>
+                                </Image>
                             </Grid>
                         </Grid>
                         <Grid Grid.Column="1"

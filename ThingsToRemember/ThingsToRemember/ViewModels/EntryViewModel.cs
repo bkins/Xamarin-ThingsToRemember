@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 using ThingsToRemember.Models;
 
 namespace ThingsToRemember.ViewModels
@@ -52,7 +49,7 @@ namespace ThingsToRemember.ViewModels
                 throw;
             }
         }
-
+        
         public void Save(Entry entry, int journalId)
         {
             DataAccessLayer.SaveEntry(entry, journalId);

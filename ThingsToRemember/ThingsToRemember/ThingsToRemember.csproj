@@ -1,19 +1,25 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+    <ApplicationIcon>TtR.ico</ApplicationIcon>
+    <PackageIcon>ttr.png</PackageIcon>
+    <PackageIconUrl />
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="NLog" Version="4.7.13" />
+    <PackageReference Include="Plugin.MediaManager.Forms" Version="1.0.9" />
     <PackageReference Include="Rg.Plugins.Popup" Version="2.0.0.14" />
     <PackageReference Include="sqlite-net-pcl" Version="1.8.116" />
     <PackageReference Include="SQLiteNetExtensions" Version="2.1.0" />
     <PackageReference Include="SQLiteNetExtensions.Async" Version="2.1.0" />
-    <PackageReference Include="Syncfusion.Xamarin.Expander" Version="19.4.0.38" />
+    <PackageReference Include="Syncfusion.Xamarin.Expander" Version="19.4.0.40" />
     <PackageReference Include="Syncfusion.Xamarin.SfListView" Version="19.4.0.38" />
-    <PackageReference Include="Syncfusion.Xamarin.SfPicker" Version="19.4.0.38" />
+    <PackageReference Include="Syncfusion.Xamarin.SfPicker" Version="19.4.0.40" />
+    <PackageReference Include="Xam.Plugin.Media" Version="5.0.1" />
+    <PackageReference Include="Xamarin.CommunityToolkit" Version="1.3.1" />
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2291" />  
     <PackageReference Include="Xamarin.Essentials" Version="1.7.0" />
   </ItemGroup>
@@ -66,5 +72,18 @@
     <EmbeddedResource Update="Views\AddJournalTypeView.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="ttr.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Mono.Android">
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Common7\IDE\ReferenceAssemblies\Microsoft\Framework\MonoAndroid\v11.0\Mono.Android.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SQLite;
-using SQLiteNetExtensionsAsync.Extensions;
 using ThingsToRemember.Models;
 using ApplicationExceptions;
 using SQLiteNetExtensions.Extensions;
@@ -21,13 +18,46 @@ namespace ThingsToRemember.Services
     public class Database : IDataStore
     {
         private readonly SQLiteConnection _database;
-        
+        private readonly string           _path;
+
         public Database(string dbPath)
         {
             _database = new SQLiteConnection(dbPath);
+            _path     = dbPath;
 
             CreateUserTables();
             CreateAppTables();
+        }
+
+        public int GetSizeFromPageCountByPageSize()
+        {
+            var size = _database.ExecuteScalar<int>("SELECT page_count * page_size as size FROM pragma_page_count(), pragma_page_size();");
+
+            return size;
+        }
+
+        public int GetSizeFromFileInfo()
+        {
+            var size = (int) new FileInfo(_path).Length;
+
+            return size;
+        }
+
+        public string GetFilePath()
+        {
+            return _path;
+        }
+
+        public void Close()
+        {
+            _database.Close();
+        }
+
+        public string GetFileName()
+        {
+            var fileName = new FileInfo(_path).Name;
+
+            return fileName;
         }
 
         public void ResetAllData()
@@ -40,31 +70,31 @@ namespace ThingsToRemember.Services
         {
             _database.CreateTable<Journal>();
             _database.CreateTable<Entry>();
-            _database.CreateTable<JournalType>();
         }
 
         public void CreateAppTables()
         {
             _database.CreateTable<Mood>();
+            _database.CreateTable<JournalType>();
         }
         
         public void DropUserTables()
         {
             _database.DropTable<Journal>();
             _database.DropTable<Entry>();
-            _database.DropTable<JournalType>();
         }
 
         public void DropAppTables()
         {
             _database.DropTable<Mood>();
+            _database.DropTable<JournalType>();
         }
 
         public void SaveJournal(Journal journal)
         {
             if (journal.Id == 0)
             {
-                AddJournalWithChildren(journal);
+                AddJournal(journal);
             }
             else
             {
@@ -121,6 +151,13 @@ namespace ThingsToRemember.Services
             _database.InsertWithChildren(journal);
         }
 
+        public void AddEntry(Entry entry
+                           , int   journalId)
+        {
+            entry.JournalId = journalId;
+            _database.Insert(entry);
+        }
+        
         public void AddEntryWIthChildren(Entry entry
                                        , int   journalId)
         {
@@ -130,7 +167,6 @@ namespace ThingsToRemember.Services
         public int AddJournal(Journal journal)
         {
             return _database.Insert(journal);
-            
         }
 
         public Mood AddMood(Mood mood)

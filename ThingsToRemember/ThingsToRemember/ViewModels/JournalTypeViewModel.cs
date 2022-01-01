@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using ThingsToRemember.Models;
 
 namespace ThingsToRemember.ViewModels
 {
     public class JournalTypeViewModel : BaseViewModel
     {
-        //public IList<JournalType> JournalTypes => GetListOfJournalsTypesForPicker();
-        public IList<string>                     JournalTypes           => GetListOfJournalsTypesForPicker();
+        public IList<JournalType>                JournalTypes           => GetListOfJournalsTypesForPicker();
         public ObservableCollection<JournalType> ObservableJournalTypes { get; set; }
         public JournalType                       JournalType            { get; set; }
 
@@ -30,17 +27,11 @@ namespace ThingsToRemember.ViewModels
             ObservableJournalTypes = new ObservableCollection<JournalType>(DataAccessLayer.GetJournalTypesList());
         }
 
-        private List<string> GetListOfJournalsTypesForPicker()
+        private List<JournalType> GetListOfJournalsTypesForPicker()
         {
-            //ICollection<MyClass> withoutDuplicates = new HashSet<MyClass>(inputList);
-            //List<JournalType> types = DataAccessLayer.GetJournalTypesList();
-            List<string> types = DataAccessLayer.GetJournalTypeNameList();
-            //types.Add(new JournalType("<Add New>"));
-            types.Add("<Add New>");
+            var types = DataAccessLayer.GetJournalTypesList();
 
-            //return types.OrderBy(fields=>fields.Title).ToList();
-            types.Sort();
-            return types;
+            return types.OrderBy(fields => fields.Title).ToList();
         }
 
         public void AddJournalType(JournalType journalType)
@@ -48,7 +39,7 @@ namespace ThingsToRemember.ViewModels
             DataAccessLayer.AddJournalType(journalType);
         }
 
-        public JournalType FindJournalType(string typeTitle)
+        public JournalType GetJournalType(string typeTitle)
         {
             return DataAccessLayer.GetJournalType(typeTitle);
         }

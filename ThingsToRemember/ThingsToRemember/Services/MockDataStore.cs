@@ -2,8 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using ThingsToRemember.Models;
 
 namespace ThingsToRemember.Services
@@ -252,6 +250,12 @@ namespace ThingsToRemember.Services
             return journal.Id;
         }
 
+        public void AddEntry(Entry entry
+                           , int   journalId)
+        {
+            
+        }
+
         public void AddEntryWIthChildren(Entry entry
                                        , int   journalId)
         {
@@ -304,6 +308,21 @@ namespace ThingsToRemember.Services
             _entries.Remove(oldItem);
             _entries.Add(entry);
             
+        }
+
+        public void SaveJournalType(JournalType journalType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SaveJournal(Journal journal)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SaveMood(Mood mood)
+        {
+            throw new NotImplementedException();
         }
 
         public void UpdateJournal(Journal journal)
@@ -419,6 +438,51 @@ namespace ThingsToRemember.Services
         public IEnumerable GetJournalsWithJournalTYpe(int journalTypeId)
         {
             return _journals.Where(fields => fields.JournalTypeId == journalTypeId);
+        }
+
+        public void DropUserTables()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CreateUserTables()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DropAppTables()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CreateAppTables()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int GetSizeFromPageCountByPageSize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int GetSizeFromFileInfo()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetFilePath()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Close()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetFileName()
+        {
+            throw new NotImplementedException();
         }
 
         Mood IDataStore.AddMood(Mood mood)

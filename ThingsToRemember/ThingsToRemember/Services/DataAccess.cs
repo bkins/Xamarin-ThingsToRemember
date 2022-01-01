@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using ApplicationExceptions;
 using Syncfusion.DataSource.Extensions;
 using ThingsToRemember.Models;
@@ -10,11 +9,33 @@ namespace ThingsToRemember.Services
 {
     public class DataAccess
     {
-        private IDataStore Database { get; set; }
+        public  string     DatabaseLocation => GetDatabaseLocation();
+        private IDataStore Database         { get; set; }
+        public  string     DatabaseFileName => GetDatabaseFileName();
 
         public DataAccess(IDataStore database)
         {
             Database = database;
+        }
+
+        public string GetDatabaseLocation()
+        {
+            return Database.GetFilePath();
+        }
+
+        public string GetDatabaseFileName()
+        {
+            return Database.GetFileName();
+        }
+
+        public int GetDatabaseSize()
+        {
+            return Database.GetSizeFromPageCountByPageSize();
+        }
+
+        public int GetSizeFromFileInfo()
+        {
+            return Database.GetSizeFromFileInfo();
         }
 
         public IEnumerable<Journal> GetJournals()
@@ -24,39 +45,48 @@ namespace ThingsToRemember.Services
 
         public Journal GetJournal(int journalId)
         {
-            return App.Database.GetJournal(journalId);
+            if (journalId == 0)
+            {
+                return new Journal();
+            }
+            return Database.GetJournal(journalId);
         }
 
         public Entry GetEntry(int entryId)
         {
-            return App.Database.GetEntry(entryId);
+            return Database.GetEntry(entryId);
         }
 
         public void ResetUserData()
         {
-            App.Database.DropUserTables();
-            App.Database.CreateUserTables();
+            Database.DropUserTables();
+            Database.CreateUserTables();
         }
 
         public void ResetAppData()
         {
-            App.Database.DropAppTables();
-            App.Database.CreateAppTables();
+            Database.DropAppTables();
+            Database.CreateAppTables();
         }
 
         public void SaveJournalType(JournalType journalType)
         {
-            App.Database.SaveJournalType(journalType);
+            Database.SaveJournalType(journalType);
         }
 
         public void SaveMood(Mood mood)
         {
-            App.Database.SaveMood(mood);
+            Database.SaveMood(mood);
         }
 
         public void AddJournalWithChildren(Journal journal)
         {
-            App.Database.AddJournalWithChildren(journal);
+            Database.AddJournalWithChildren(journal);
+        }
+
+        public void AddJournal(Journal journal)
+        {
+            Database.AddJournal(journal);
         }
 
         public void SaveEntry(Entry entry
@@ -64,11 +94,11 @@ namespace ThingsToRemember.Services
         {
             if (entry.Id == 0)
             {
-                App.Database.AddEntryWIthChildren(entry, journalId);
+                Database.AddEntry(entry, journalId);
             }
             else
             {
-                App.Database.UpdateEntry(entry);
+                Database.UpdateEntry(entry);
             }
         }
 
@@ -76,10 +106,10 @@ namespace ThingsToRemember.Services
         {
             foreach (var journalEntry in journalToDelete.Entries)
             {
-                App.Database.DeleteEntry(journalEntry);
+                Database.DeleteEntry(journalEntry);
             }
             
-            var numberDeleted = App.Database.DeleteJournal(ref journalToDelete);
+            var numberDeleted = Database.DeleteJournal(ref journalToDelete);
             journalToDelete = null;
 
             return numberDeleted;
@@ -87,12 +117,12 @@ namespace ThingsToRemember.Services
 
         public void SaveJournal(Journal journal)
         {
-            App.Database.SaveJournal(journal);
+            Database.SaveJournal(journal);
         }
 
         public List<JournalType> GetJournalTypesList()
         {
-            return App.Database.GetJournalTypes()
+            return Database.GetJournalTypes()
                       .ToList();
         }
 
@@ -110,12 +140,12 @@ namespace ThingsToRemember.Services
 
         public void UpdateJournal(Journal journal)
         {
-            App.Database.UpdateJournal(journal);
+            Database.UpdateJournal(journal);
         }
 
         public void AddJournalType(JournalType journalType)
         {
-            App.Database.AddJournalType(journalType);
+            Database.AddJournalType(journalType);
         }
 
         public IEnumerable<Entry> GetEntries()
@@ -127,6 +157,14 @@ namespace ThingsToRemember.Services
         {
             return Database.GetMoods()
                            .FirstOrDefault(fields => fields.Title == moodTitle);
+        }
+
+        public Mood GetMood(string moodTitle
+                          , string moodEmoji)
+        {
+            return Database.GetMoods()
+                           .FirstOrDefault(fields => fields.Title == moodTitle 
+                                                  && fields.Emoji == moodEmoji);
         }
 
         public Mood GetMood(int moodId)
@@ -268,13 +306,13 @@ namespace ThingsToRemember.Services
                 journalTypeWord = "journal type";
             }
 
-            var journalWord = "journal";
+            var journalWord = "journals";
             if (numberOfJournalsWithJournalTypeRemoved == 1)
             {
-                journalWord = "journals";
+                journalWord = "journal";
             }
 
-            return $"{numberOfDeletedJournalTypes} {journalTypeWord} was deleted, and {numberOfJournalsWithJournalTypeRemoved} {journalWord} had that mood removed.";
+            return $"{numberOfDeletedJournalTypes} {journalTypeWord} was deleted, and {numberOfJournalsWithJournalTypeRemoved} {journalWord} had that journal type removed.";
         }
 
         public string DeleteJournalType(ref JournalType journalType)
@@ -287,5 +325,11 @@ namespace ThingsToRemember.Services
             return GetDeletedJournalTypeMessage(numberDeleted
                                               , journalCount);
         }
+
+        public void CloseDatabaseConnection()
+        {
+            Database.Close();
+        }
+        
     }
 }

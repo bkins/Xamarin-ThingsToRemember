@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using ThingsToRemember.ViewModels;
-using ThingsToRemember.Views;
+﻿using ThingsToRemember.Views;
 using Xamarin.Forms;
 
 namespace ThingsToRemember

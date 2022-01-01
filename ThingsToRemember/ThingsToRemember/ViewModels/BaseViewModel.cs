@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using ThingsToRemember.Models;
 using ThingsToRemember.Services;
-using Xamarin.Forms;
 
 namespace ThingsToRemember.ViewModels
 {

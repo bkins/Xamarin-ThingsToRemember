@@ -300,7 +300,7 @@
                         </accordion:AccordionItem.Header>
                         <accordion:AccordionItem.Content>
 
-                            <Grid RowDefinitions="*,*">
+                            <Grid RowDefinitions="*,*,*">
 
                                 <Button x:Name="ClearDataButton"
                                         Grid.Row="0"
@@ -315,6 +315,20 @@
                                         Text="Clear Application Data"
                                         Clicked="ClearApplicationDataButton_OnClicked"
                                         Margin="0, 0, 0, 0"
+                                        HorizontalOptions="Center"
+                                        />
+
+                                <Button x:Name="BackUpDbButton"
+                                        Grid.Row="2"
+                                        Text="Backup Database"
+                                        Clicked="BackUpDbButton_OnClicked"
+                                        HorizontalOptions="Center"
+                                        />
+                                
+                                <Button x:Name="RestoreDbButton"
+                                        Grid.Row="3"
+                                        Text="Restore Database"
+                                        Clicked="RestoreDbButton_OnClicked"
                                         HorizontalOptions="Center"
                                         />
 

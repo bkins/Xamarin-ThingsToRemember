@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using ApplicationExceptions;
-using Avails.D_Flat;
 using Avails.Xamarin;
-using InsAndOuts.Services;
-using Rg.Plugins.Popup.Extensions;
-using Syncfusion.ListView.XForms;
 using ThingsToRemember.Models;
 using ThingsToRemember.ViewModels;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using SwipeEndedEventArgs = Syncfusion.ListView.XForms.SwipeEndedEventArgs;
+using Android.App;
+using Application = Android.App.Application;
+using StringBuilder = System.Text.StringBuilder;
 
 namespace ThingsToRemember.Views
 {
@@ -23,16 +22,46 @@ namespace ThingsToRemember.Views
         public int  SwipedMoodItem        { get; set; }
         public int  SwipedJournalTypeItem { get; set; }
 
-        public  Mood                   MoodToEdit        { get; set; }
-        public  JournalType            JournalTypeToEdit { get; set; }
+        public  Mood        MoodToEdit        { get; set; }
+        public  JournalType JournalTypeToEdit { get; set; }
 
-        private ConfigurationViewModel _viewModel        { get; set; }
+        private ConfigurationViewModel  _viewModel      { get; set; }
+        private BackupDatabaseViewModel BackupViewModel { get; set; }
+
+        public string BackupFolderPath => GetBackupDestinationPath();
+
+        private static string GetBackupDestinationPath()
+        {
+            var backupFolder = Path.Combine("storage"
+                                          , "emulated"
+                                          , "0"
+                                          , "Download"
+                                          , "BackupDb");
+
+            if ( ! Directory.Exists(backupFolder))
+            {
+                Directory.CreateDirectory(backupFolder);
+            }
+
+            return backupFolder;
+
+            //return Path.Combine(Application.Context
+            //                               .GetExternalFilesDir()
+            //                               .AbsolutePath
+            //                               .Replace(AppInfo.PackageName
+            //                                      , string.Empty
+            //                                       ) ?? 
+            //                    string.Empty
+            //                  , "BackupDbs");
+        }
 
         public ConfigurationView()
         {
             InitializeComponent();
 
             _viewModel = new ConfigurationViewModel();
+            // /data/user/0/BackupDbs
+            BackupViewModel = new BackupDatabaseViewModel(BackupFolderPath);
         }
         
         protected override void OnAppearing()
@@ -41,13 +70,16 @@ namespace ThingsToRemember.Views
 
             try
             {
-                _viewModel             = new ConfigurationViewModel();
-                Title                  = "Configuration";
-                MoodsListView.ItemsSource   = _viewModel.MoodViewModel.ObservableListOfMoods;
-                MoodsListView.IsVisible     = true;
-                EditMoodGrid.IsVisible = false;
+                Title = "Configuration";
 
+                _viewModel             = new ConfigurationViewModel();
+                
+                MoodsListView.ItemsSource        = _viewModel.MoodViewModel.ObservableListOfMoods;
                 JournalTypesListView.ItemsSource = _viewModel.JournalTypeViewModel.ObservableJournalTypes;
+                
+                MoodsListView.IsVisible = true;
+                EditMoodGrid.IsVisible  = false;
+
             }
             catch (DuplicateRecordException duplicateRecordException)
             {
@@ -116,6 +148,9 @@ namespace ThingsToRemember.Views
             if (userWouldLikeToClear)
             {
                 _viewModel.ClearAppData();
+
+                MoodsListView.ItemsSource        = _viewModel.MoodViewModel.ObservableListOfMoods;
+                JournalTypesListView.ItemsSource = _viewModel.JournalTypeViewModel.ObservableJournalTypes;
             }
             else
             {
@@ -314,6 +349,122 @@ namespace ThingsToRemember.Views
                 
                 PageCommunication.Instance.Clear();
             }
+        }
+        async Task<string> PickAndShow(PickOptions options)
+        {
+            try
+            {
+                var result = await FilePicker.PickAsync(options);
+                
+                return result.FileName;
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Cancelled or Error"
+                                 , ex.Message
+                                 , "OK");
+            }
+    
+            return null;
+        }
+
+        private async void BackupDatabase()
+        {
+            var backedUpFileNameAndPath = BackupViewModel.Backup();
+            
+            await DisplayAlert("DB Backed Up"
+                             , GetBackedUpMessageText(backedUpFileNameAndPath)
+                             , "OK");
+
+        }
+
+        private static string GetBackedUpMessageText(string backedUpFileNameAndPath)
+        {
+            var message = new StringBuilder();
+            message.AppendLine("The database was backed up to:");
+            message.AppendLine(backedUpFileNameAndPath);
+            
+            return message.ToString();
+        }
+
+        private async void RestoreDatabase()
+        {
+            var restoreOk = await DisplayAlert("Database Restore"
+                                             , GetRestoredMessageText()
+                                             , "OK"
+                                             , "Canel");
+
+            if (! restoreOk)
+                return;
+
+            var fileToRestore = await PickAndShow(PickOptions.Default);
+
+            if ( ! await GetPermissions())
+            {
+                return;
+            }
+
+            try
+            {
+                BackupViewModel.Restore(fileToRestore);
+            }
+            catch (UnauthorizedAccessException  accessException)
+            {
+                await DisplayAlert("Error"
+                                 , accessException.Message
+                                 , "OK");
+            }
+        }
+
+        private string GetRestoredMessageText()
+        {
+            var message = new StringBuilder();
+            message.AppendLine($"The restore process will look in the folder {BackupFolderPath} for the database to restore from.");
+            message.AppendLine("Select the version the database file to restore.");
+            message.AppendLine("Tap Cancel to cnacel the restore process");
+
+            return message.ToString();
+        }
+
+        private async Task<bool> GetPermissions()
+        {
+            var status = await CheckAndRequestPermissionAsync(new Permissions.StorageRead());
+            if (status != PermissionStatus.Granted)
+            {
+                // Notify user permission was denied
+                return false;
+            }
+            
+            status = await CheckAndRequestPermissionAsync(new Permissions.StorageWrite());
+            if (status != PermissionStatus.Granted)
+            {
+                // Notify user permission was denied
+                return false;
+            }
+
+            return true;
+        }
+        public async Task<PermissionStatus> CheckAndRequestPermissionAsync<T>(T permission)
+        where T : Permissions.BasePermission
+        {
+            var status = await permission.CheckStatusAsync();
+            if (status != PermissionStatus.Granted)
+            {
+                status = await permission.RequestAsync();
+            }
+
+            return status;
+        }
+        private void BackUpDbButton_OnClicked(object    sender
+                                            , EventArgs e)
+        {
+            BackupDatabase();
+        }
+
+        private void RestoreDbButton_OnClicked(object    sender
+                                             , EventArgs e)
+        {
+            RestoreDatabase();
         }
     }
 }

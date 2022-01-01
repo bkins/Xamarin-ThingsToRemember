@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using ThingsToRemember.Models;
 
 namespace ThingsToRemember.ViewModels
@@ -37,10 +36,10 @@ namespace ThingsToRemember.ViewModels
         private List<string> GetMoodsForPicker()
         {
             var listOfAllMoods = DataAccessLayer.GetMoods();
-            var listForPicker  = new List<string>
-                                 {
-                                     "<Add New>"
-                                 };
+            var listForPicker  = new List<string>();
+                                 //{
+                                 //    "<Add New>"
+                                 //};
 
             foreach (var mood in listOfAllMoods.Where(mood => ! listForPicker.Contains(mood.ToStringWithText())))
             {
@@ -83,6 +82,13 @@ namespace ThingsToRemember.ViewModels
             return index > ObservableListOfMoods.Count - 1 ?
                            new Mood() :
                            ObservableListOfMoods[index];
+        }
+
+        public Mood GetMood(string title
+                           , string emoji)
+        {
+            return DataAccessLayer.GetMood(title
+                                         , emoji);
         }
 
         public void Save(Mood mood)

@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using SQLite;
+﻿using SQLite;
 
 namespace ThingsToRemember.Models
 {
     public class JournalExtended
     {
-        [Ignore]
-        public string EntryCount           { get; set; }
-        [Ignore]
-        public string HasEntriesToRemember { get; set; }
+        //[Ignore]
+        //public string EntryCountText               { get; set; }
+        //[Ignore]
+        //public string HasEntriesToRememberText { get; set; }
+        //[Ignore]
+        //public bool HasEntriesToRemember       { get; set; }
+
+
     }
 }

@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using ApplicationExceptions;
-using Avails;
 using Avails.D_Flat;
 using Avails.Xamarin;
 using Syncfusion.ListView.XForms;
@@ -12,7 +8,6 @@ using ThingsToRemember.Models;
 using ThingsToRemember.ViewModels;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
-using Entry = ThingsToRemember.Models.Entry;
 using SwipeEndedEventArgs = Syncfusion.ListView.XForms.SwipeEndedEventArgs;
 
 namespace ThingsToRemember.Views
@@ -20,14 +15,12 @@ namespace ThingsToRemember.Views
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class InitialPage : ContentPage
     {
-        public  int               SwipedItem { get; set; }
         private JournalsViewModel _journalsViewModel;
         
-        public Journal JournalToEdit { get; set; }
+        public int                  SwipedItem           { get; set; }
+        public Journal              JournalToEdit        { get; set; }
         public JournalTypeViewModel JournalTypeViewModel { get; private set; }
-
-        //public string Title { get; set; }
-
+        
         public InitialPage()
         {
             InitializeComponent();
@@ -42,12 +35,17 @@ namespace ThingsToRemember.Views
 
             try
             {
-                _journalsViewModel              = new JournalsViewModel();
-                Title                           = _journalsViewModel.Title;
-                ListView.ItemsSource            = _journalsViewModel.ObservableListOfJournals;
-                ListView.IsVisible              = true;
-                EditJournalGrid.IsVisible       = false;
-                SetInitialImageAndTestVisibility();
+                _journalsViewModel        = new JournalsViewModel();
+                Title                     = _journalsViewModel.Title;
+                ListView.ItemsSource      = _journalsViewModel.ObservableListOfJournals;
+                ListView.IsVisible        = true;
+                EditJournalGrid.IsVisible = false;
+
+                JournalTypeViewModel.RefreshListOfJournalTypes();
+
+                SetInitialImageAndTextVisibility();
+                
+                TtrToolbarItem.IsEnabled      = _journalsViewModel.AnyWithTtr();
             }
             catch (DuplicateRecordException duplicateRecordException)
             {
@@ -63,10 +61,11 @@ namespace ThingsToRemember.Views
             }
         }
 
-        private void SetInitialImageAndTestVisibility()
+        private void SetInitialImageAndTextVisibility()
         {
             InitialImageButton.IsVisible    = ! _journalsViewModel.Journals.Any();
             ClickHereToBeginLabel.IsVisible = InitialImageButton.IsVisible;
+            JournalColumnHeaders.IsVisible  = ! InitialImageButton.IsVisible;
         }
 
         private async void OnSelectionChanged(object                    sender
@@ -156,6 +155,7 @@ namespace ThingsToRemember.Views
             ListView.IsVisible              = ! ListView.IsVisible;
             EditJournalGrid.IsVisible       = ! EditJournalGrid.IsVisible;
             AddJournalToolbarItem.IsEnabled = ! AddJournalToolbarItem.IsEnabled;
+            JournalColumnHeaders.IsVisible  = ! JournalColumnHeaders.IsVisible;
         }
 
         private void Edit(object obj)
@@ -163,7 +163,18 @@ namespace ThingsToRemember.Views
             JournalToEdit = _journalsViewModel.GetJournalToEdit(SwipedItem);
             SetEditFields();
 
-            ToggleEditView();
+            EditJournalGrid.IsVisible       = true;
+            ListView.IsVisible              = false;
+            JournalColumnHeaders.IsVisible  = false;
+            AddJournalToolbarItem.IsEnabled = false;
+            
+            ListView.ResetSwipe();
+
+            //BENDO: In some cases, this is being called twice, causing the ToggleEditView to be called twice:
+            //The first time shows the EditJournalGrid and hides/disables the appropriate elements, but then the second time it undoes that.
+            //The above, explicit setting of the visibility/enable properties, works, but still need to prevent this method from being called twice.
+            
+            //ToggleEditView();
         }
 
         private void SetEditFields()
@@ -172,25 +183,39 @@ namespace ThingsToRemember.Views
             JournalTypeLabel.Text  = JournalToEdit.JournalType?.Title;
         }
 
-        private void Delete()
+        private async void Delete()
         {
+            //BENDO: Prevent deleting of multiple journal.
             //I had a time when I clicked to delete a journal and all journals were deleted.  
             //I am not sure how that was possible, but
-            //BENDO: Prevent deleting of multiple journal.  Maybe a confirm before deleting?
+            //Maybe a confirm before deleting will be enough?
+            //At least that will show if/when multiple are being deleted.
+            
+            var journalToDelete = _journalsViewModel.GetJournal(SwipedItem);
 
-            var itemDeleted = _journalsViewModel.Delete(SwipedItem);
+            var userChoice = await DisplayAlert("Are you sure?"
+                                              , $"You are about to delete the journal: '{journalToDelete.Title}'. " 
+                                              + "Are you sure you would like to proceed?"
+                                              , "Yes"
+                                              , "No");
 
-            if (itemDeleted.IsNullEmptyOrWhitespace())
+            if (userChoice)
             {
-                Logger.WriteLine("Journal could not be deleted.  Please try again."
-                               , Category.Warning);
+                var itemDeleted = _journalsViewModel.Delete(SwipedItem, journalToDelete);
+
+                if (itemDeleted.IsNullEmptyOrWhitespace())
+                {
+                    Logger.WriteLine("Journal could not be deleted.  Please try again."
+                                   , Category.Warning);
+                }
+
+                ListView.ItemsSource = _journalsViewModel.ObservableListOfJournals;
+
+                Logger.WriteLine($"Deleted Journal: {itemDeleted} deleted."
+                               , Category.Information);
+
             }
-
-            ListView.ItemsSource = _journalsViewModel.ObservableListOfJournals;
-
-            Logger.WriteLine($"Deleted Journal: {itemDeleted} deleted."
-                           , Category.Information);
-
+            
             ListView.ResetSwipe();
         }
 
@@ -206,6 +231,7 @@ namespace ThingsToRemember.Views
             JournalTypePickerVisible(false);
 
             _journalsViewModel.RefreshListOfJournals();
+
             ListView.ItemsSource = _journalsViewModel.ObservableListOfJournals;
         }
 
@@ -234,7 +260,7 @@ namespace ThingsToRemember.Views
         {
             var selectedTypeTitle = JournalTypePicker.SelectedItem.ToString();
 
-            JournalToEdit.JournalType = JournalTypeViewModel.FindJournalType(selectedTypeTitle);
+            JournalToEdit.JournalType = JournalTypeViewModel.GetJournalType(selectedTypeTitle);
 
             //JournalToEdit.JournalType = JournalTypeViewModel.JournalTypes
             //                                                .FirstOrDefault(fields => fields.Title == selectedTypeTitle);
@@ -261,17 +287,36 @@ namespace ThingsToRemember.Views
         {
             await PageNavigation.NavigateTo(nameof(ConfigurationView));
         }
-
-        private async void InitialImageButton_OnClicked(object    sender
-                                                , EventArgs e)
-        {
-            await PageNavigation.NavigateTo(nameof(AddJournalView));
-        }
-
-        private async void ClickHereToBeginLabel_OnTapped(object    sender
+        
+        private async void ClickHereToBegin_OnTapped(object    sender
                                                   , EventArgs e)
         {
-            await PageNavigation.NavigateTo(nameof(AddJournalView));
+            if ( ! JournalTypeViewModel.ObservableJournalTypes.Any())
+            {
+                await DisplayAlert("Add Journal Type"
+                                 , "Before you can add a Journal you must enter a/some Journal Types.  Please do that now."
+                                 , "OK");
+
+                await PageNavigation.NavigateTo(nameof(ConfigurationView));
+            }
+            else
+            {
+                await PageNavigation.NavigateTo(nameof(AddJournalView));
+            }
+        }
+
+        private async void TtrToolbarItem_OnClicked(object    sender
+                                            , EventArgs e)
+        {
+            await PageNavigation.NavigateTo(nameof(EntryListView)
+                                          , nameof(EntryListView.ShowTtr)
+                                          , "YES");
+        }
+
+        private void DeleteImage_OnTapped(object    sender
+                                                 , EventArgs e)
+        {
+            Delete();
         }
     }
 }

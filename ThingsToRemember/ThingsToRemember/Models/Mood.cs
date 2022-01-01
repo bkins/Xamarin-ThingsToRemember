@@ -1,5 +1,4 @@
 ﻿using SQLite;
-using Xamarin.Forms;
 
 namespace ThingsToRemember.Models
 {
