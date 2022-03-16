@@ -9,7 +9,7 @@ namespace ThingsToRemember.ViewModels
     public class BaseViewModel : INotifyPropertyChanged
     {
         public DataAccess DataAccess;
-    
+        
         public DataAccess DataAccessLayer
         {
             get => DataAccess = DataAccess ?? new DataAccess(App.Database);

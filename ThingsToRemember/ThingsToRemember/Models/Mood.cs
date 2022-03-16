@@ -13,11 +13,17 @@ namespace ThingsToRemember.Models
         public override string ToString()
         {
             return $"{Emoji}";
+            // return ToStringComplete();
         }
 
         public string ToStringWithText()
         {
             return $"{Title} {ToString()}";
+        }
+
+        public string ToStringComplete()
+        {
+            return $"{Id} {Title} {Emoji}";
         }
     }
 }

@@ -11,8 +11,7 @@ namespace ThingsToRemember.Views
         {
             InitializeComponent();
 
-            ViewModel              = new AboutViewModel();
-
+            ViewModel = new AboutViewModel();
         }
 
         protected override void OnAppearing()

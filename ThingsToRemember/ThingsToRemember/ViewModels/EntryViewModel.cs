@@ -64,10 +64,6 @@ namespace ThingsToRemember.ViewModels
         {
             return DataAccessLayer.GetMood(moodTitle);
         }
-
-        public void Delete()
-        {
-            DataAccessLayer.DeleteEntry(Entry);
-        }
+        
     }
 }

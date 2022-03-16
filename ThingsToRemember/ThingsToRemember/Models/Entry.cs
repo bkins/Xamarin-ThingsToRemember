@@ -34,9 +34,9 @@ namespace ThingsToRemember.Models
             ImageFileName  = string.Empty;
         }
 
-        public bool IsTtr()
+        public bool IsTtr(DateTime dateTimeNow)
         {
-            return CreateDateTime.IsDateOnThisDayInThePast();
+            return CreateDateTime.IsDateOnPassedInDate(dateTimeNow);  //.IsDateOnThisDayInThePast();
 
             //BENDO:  THis is logic is duplicated in the JournalsViewModel as well.  Make in only one place!
             //return CreateDateTime.Date  <  DateTime.Today

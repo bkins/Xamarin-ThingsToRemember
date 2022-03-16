@@ -16,7 +16,7 @@ namespace ThingsToTest
         private static   Database          _database;
         private static readonly string DbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
                                                            , "TtrDatabase_test.db3");
-        public static Database Database => _database ??= new Database(DbPath);
+        public static Database Database => _database ?? new Database(DbPath);
 
         public EndToEnds(ITestOutputHelper testOutputHelper)
         {

@@ -157,6 +157,11 @@ namespace ThingsToRemember.Services
             entry.JournalId = journalId;
             _database.Insert(entry);
         }
+
+        public void AddEntry(Entry entry)
+        {
+            _database.Insert(entry);
+        }
         
         public void AddEntryWIthChildren(Entry entry
                                        , int   journalId)
@@ -454,6 +459,10 @@ namespace ThingsToRemember.Services
         }
 
     #endregion
-        
+
+        public void BackupDatabase()
+        {
+            
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using SQLite;
 using SQLiteNetExtensions.Attributes;
@@ -13,18 +14,31 @@ namespace ThingsToRemember.Models
         public string Title  { get; set; }
 
         #region Ignored Properties
+        
+        [Ignore]
+        private DateTime DateTimeNow { get; set; }
 
         [Ignore]
-        public int    EntryCount     => Entries.Count;
-        [Ignore]
-        public string EntryCountText => $"Entries: {EntryCount}";
+        public int EntriesToRememberCount => GetEntriesToRememberCount(DateTimeNow);
+        public bool HasEntriesToRemember => GetHasEntriesToRemember(DateTimeNow);
 
         [Ignore]
-        public int EntriesToRememberCount => Entries.Count(fields => fields.IsTtr());
-        [Ignore]
-        public string HasEntriesToRememberText => $"TtR: {EntriesToRememberCount}";
-        [Ignore]
-        public bool   HasEntriesToRemember     => Entries.Any(fields => fields.IsTtr());
+        public int EntriesCount => GetEntriesCount();
+
+        private int GetEntriesCount()
+        {
+            return Entries.Count();
+        }
+
+        public int GetEntriesToRememberCount(DateTime dateTimeNow)
+        {
+            return Entries.Count(fields => fields.IsTtr(dateTimeNow));
+        }
+
+        public bool GetHasEntriesToRemember(DateTime dateTimeNow)
+        {
+            return Entries.Any(fields => fields.IsTtr(dateTimeNow));
+        }
 
         #endregion
 
@@ -36,7 +50,21 @@ namespace ThingsToRemember.Models
 
         [OneToMany(CascadeOperations = CascadeOperation.All)]
         public List<Entry> Entries { get; set; }
-        
+
+        public Journal()
+        {
+            DateTimeNow = DateTime.Now;
+        }
+
+        public Journal(DateTime dateTimeNow)
+        {
+            DateTimeNow = dateTimeNow;
+        }
+
+        public override string ToString()
+        {
+            return $"{Title} ({Id})";
+        }
     }
     
 }

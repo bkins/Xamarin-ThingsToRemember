@@ -3,19 +3,16 @@
              xmlns:accordion="clr-namespace:Syncfusion.XForms.Accordion;assembly=Syncfusion.Expander.XForms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:xForms="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfListView.XForms"
-             xmlns:viewmodels="clr-namespace:ThingsToRemember.ViewModels;assembly=ThingsToRemember"
              x:Class="ThingsToRemember.Views.ConfigurationView">
 
     <ContentPage.Resources>
         <ResourceDictionary>
             <DataTemplate x:Name="ItemTemplate"
-                          x:Key="ItemTemplate">
+                          x:Key="ItemTemplate"
+                          >
                 <Grid x:Name="ExistingMoodsGrid"
-                >
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
+                      RowDefinitions="*,*"
+                      >
                     <Label Text="{Binding Title}"
                            Grid.Row="0"
                            FontSize="Medium"
@@ -50,14 +47,6 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <!--<ContentPage.ToolbarItems>
-        <ToolbarItem x:Name="AddMoodToolbarItem"
-                     Text="Add Mood"
-                     IconImageSource="round_add_black_48.png"
-                     Clicked="AddMood_Clicked" 
-        />
-    </ContentPage.ToolbarItems>-->
-
     <ContentPage.Content>
         <StackLayout>
 
@@ -70,16 +59,11 @@
 
                 <accordion:SfAccordion.Items>
 
-                    <accordion:AccordionItem x:Name="MoodsAccordionItem"
-                                             >
+                    <accordion:AccordionItem x:Name="MoodsAccordionItem">
 
                         <accordion:AccordionItem.Header>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="50" />
-                                </Grid.ColumnDefinitions>
-
+                            <Grid Grid.ColumnDefinitions="*,50">
+                                
                                 <Label x:Name="MoodsHeaderLabel"
                                        Grid.Column="0"
                                        BackgroundColor="{StaticResource Primary}"
@@ -108,7 +92,7 @@
                         </accordion:AccordionItem.Header>
 
                         <accordion:AccordionItem.Content>
-                            <!--BENDO: Add Moods SFListView here-->
+                            
                             <xForms:SfListView x:Name="MoodsListView"
                                                AutoFitMode="DynamicHeight"
                                                VerticalOptions="Fill"
@@ -121,13 +105,11 @@
 
                                 <xForms:SfListView.LeftSwipeTemplate >
                                     <DataTemplate x:Name="LeftSwipeTemplate">
-                                        <Grid VerticalOptions="CenterAndExpand">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
+                                        <Grid VerticalOptions="CenterAndExpand"
+                                              ColumnDefinitions="*,*"
+                                              >
+
                                             <Grid Grid.Column="0"
-                                                  
                                                   HorizontalOptions="Fill"
                                                   VerticalOptions="Fill"
                                                   >
@@ -146,13 +128,12 @@
                                                 </Grid>
                                             </Grid>
                                             <Grid Grid.Column="1"
-                                                  
                                                   HorizontalOptions="Fill"
                                                   VerticalOptions="Fill"
                                                   >
                                                 <Grid VerticalOptions="CenterAndExpand"
                                                       HorizontalOptions="Center"
-                                                >
+                                                      >
                                                     <Image x:Name="EditImage"
                                                            Grid.Column="0"
                                                            Grid.Row="0"
@@ -161,7 +142,7 @@
                                                            WidthRequest="35"
                                                            BindingContextChanged="LeftImage_EditMood_BindingContextChanged"
                                                            Source="edit_black_18.png" 
-                                                    />
+                                                           />
                                                 </Grid>
                                             </Grid>
                                         </Grid>
@@ -178,12 +159,7 @@
                     <accordion:AccordionItem x:Name="JournalTypesAccordionItem">
 
                         <accordion:AccordionItem.Header>
-                            <Grid>
-
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="50" />
-                                </Grid.ColumnDefinitions>
+                            <Grid ColumnDefinitions="*,50">
 
                                 <Label x:Name="JournalTypeLabel"
                                        Grid.Column="0"
@@ -208,7 +184,6 @@
                                         HorizontalOptions="FillAndExpand"
                                         Clicked="AddJournalTypeButton_OnClicked" 
                                         />
-
                             </Grid>
 
                         </accordion:AccordionItem.Header>
@@ -226,13 +201,11 @@
 
                                 <xForms:SfListView.LeftSwipeTemplate >
                                     <DataTemplate x:Name="JournalTypeLeftSwipeTemplate">
-                                        <Grid VerticalOptions="CenterAndExpand">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
+                                        <Grid VerticalOptions="CenterAndExpand"
+                                              ColumnDefinitions="*,*"
+                                              >
+                                            
                                             <Grid Grid.Column="0"
-                                                  
                                                   HorizontalOptions="Fill"
                                                   VerticalOptions="Fill"
                                                   >
@@ -251,13 +224,12 @@
                                                 </Grid>
                                             </Grid>
                                             <Grid Grid.Column="1"
-                                                  
                                                   HorizontalOptions="Fill"
                                                   VerticalOptions="Fill"
                                                   >
                                                 <Grid VerticalOptions="CenterAndExpand"
                                                       HorizontalOptions="Center"
-                                                >
+                                                      >
                                                     <Image x:Name="EditImage"
                                                            Grid.Column="0"
                                                            Grid.Row="0"
@@ -266,7 +238,7 @@
                                                            WidthRequest="35"
                                                            BindingContextChanged="LeftImage_EditJournalType_BindingContextChanged"
                                                            Source="edit_black_18.png" 
-                                                    />
+                                                           />
                                                 </Grid>
                                             </Grid>
                                         </Grid>
@@ -294,13 +266,13 @@
                                        HeightRequest="{StaticResource AccordionHeight}"
                                        VerticalTextAlignment="Center"
                                        HorizontalTextAlignment="Start" 
-                                />
+                                       />
 
                             </Grid>
                         </accordion:AccordionItem.Header>
                         <accordion:AccordionItem.Content>
 
-                            <Grid RowDefinitions="*,*,*">
+                            <Grid RowDefinitions="*,*,*,*,*">
 
                                 <Button x:Name="ClearDataButton"
                                         Grid.Row="0"
@@ -331,7 +303,18 @@
                                         Clicked="RestoreDbButton_OnClicked"
                                         HorizontalOptions="Center"
                                         />
-
+                                <Button x:Name="FixJournalTypes"
+                                        Grid.Row="4"
+                                        Text="Fix Journal Types"
+                                        Clicked="FixJournalTypes_OnClicked"
+                                        HorizontalOptions="Center"
+                                        />
+                                <Button x:Name="CleanupMoods"
+                                        Grid.Row="5"
+                                        Text="Cleanup Moods"
+                                        Clicked="CleanupMoods_OnClicked"
+                                        HorizontalOptions="Center"
+                                        />
                             </Grid>
 
                         </accordion:AccordionItem.Content>
@@ -344,6 +327,7 @@
             <ContentView x:Name="EditMoodsContentView">
 
                 <Grid x:Name="EditMoodGrid"
+                      ColumnDefinitions="*,*"
                       RowDefinitions="*,*,*"
                       VerticalOptions="Start" 
                       >
@@ -351,25 +335,24 @@
                     <Entry x:Name="MoodTitleEntry"
                            Text="{Binding MoodToEdit.Title}"
                            Placeholder="Journal Title"
+                           Grid.Column="0"
+                           Grid.ColumnSpan="2"
                            Grid.Row="0"
                            MinimumHeightRequest="50"
                           />
 
                     <Entry x:Name="MoodEmojiEntry"
                            Text="{Binding MoodToEdit.Emoji}"
+                           Grid.Column="0"
                            Grid.Row="1"
                            MinimumHeightRequest="50"
                            />
-
-                    <!--<Label x:Name="JournalTypeLabel"
-                           Text="{Binding MoodToEdit.Emoji}"
+                    <Entry x:Name="MoodIdEntry"
+                           Text="{Binding MoodToEdit.Id}"
+                           Grid.Column="2"
                            Grid.Row="1"
-                           MinimumHeightRequest="50">
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="PickJournalTypeLabel_OnTapped" />
-                        </Label.GestureRecognizers>
-                    </Label>-->
-
+                           MinimumHeightRequest="50"
+                           />
                     <Button x:Name="DoneEditingButton"
                             Text="Done"
                             Clicked="DoneEditingButton_OnClicked"

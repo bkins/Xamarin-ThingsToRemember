@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using ApplicationExceptions;
 using Syncfusion.DataSource.Extensions;
@@ -9,7 +10,7 @@ namespace ThingsToRemember.Services
 {
     public class DataAccess
     {
-        public  string     DatabaseLocation => GetDatabaseLocation();
+        public  string     DatabaseLocation => GetDatabaseFolderPath();
         private IDataStore Database         { get; set; }
         public  string     DatabaseFileName => GetDatabaseFileName();
 
@@ -23,6 +24,13 @@ namespace ThingsToRemember.Services
             return Database.GetFilePath();
         }
 
+        public string GetDatabaseFolderPath()
+        {
+            var folderPath = Database.GetFilePath();
+            folderPath = Path.GetDirectoryName(folderPath);
+
+            return folderPath;
+        }
         public string GetDatabaseFileName()
         {
             return Database.GetFileName();
@@ -122,8 +130,9 @@ namespace ThingsToRemember.Services
 
         public List<JournalType> GetJournalTypesList()
         {
-            return Database.GetJournalTypes()
-                      .ToList();
+            var journalTypes = Database.GetJournalTypes()
+                                       .ToList();
+            return journalTypes;
         }
 
         public List<string> GetJournalTypeNameList()
@@ -173,9 +182,12 @@ namespace ThingsToRemember.Services
                            .FirstOrDefault(fields => fields.Id == moodId);
         }
 
-        public void DeleteEntry(Entry entry)
+        public int DeleteEntry(ref Entry entryToDelete)
         {
-            Database.DeleteEntry(entry);
+            var numberDeleted = Database.DeleteEntry(ref entryToDelete);
+            entryToDelete = null;
+
+            return numberDeleted;
         }
 
         public JournalType GetJournalType(string typeTitle)
@@ -330,6 +342,7 @@ namespace ThingsToRemember.Services
         {
             Database.Close();
         }
+
         
     }
 }

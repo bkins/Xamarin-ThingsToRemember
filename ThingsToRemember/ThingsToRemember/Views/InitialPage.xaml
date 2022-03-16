@@ -1,12 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:picker="clr-namespace:Syncfusion.SfPicker.XForms;assembly=Syncfusion.SfPicker.XForms"
-             xmlns:ListCollection="clr-namespace:System.Collections.Generic;assembly=mscorlib"
              xmlns:listview="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfListView.XForms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:viewmodels="clr-namespace:ThingsToRemember.ViewModels;assembly=ThingsToRemember"
-             xmlns:models="clr-namespace:ThingsToRemember.Models;assembly=ThingsToRemember"
-             xmlns:views="clr-namespace:ThingsToRemember.Views;assembly=ThingsToRemember"
              x:Class="ThingsToRemember.Views.InitialPage"
              >
 
@@ -45,19 +41,19 @@
                     <Label Text="{Binding Title}"
                            Grid.Row="1"
                            Grid.Column="0"
-                           FontSize="Medium"
+                           FontSize="Small"
                            FontAttributes="Bold"
                            Margin="10, 0, 0, 0" 
                            />
-                    <Label Text="{Binding EntryCount}"
+                    <Label Text="{Binding EntriesCount}"
                            Grid.Row="1"
                            Grid.Column="1"
-                           FontSize="Medium"
+                           FontSize="Small"
                            />
                     <Label Text="{Binding EntriesToRememberCount}"
                            Grid.Row="1"
                            Grid.Column="2"
-                           FontSize="Medium"
+                           FontSize="Small"
                            />
                     <Label Text="{Binding JournalType.Title}"
                            Grid.Row="2"
@@ -76,11 +72,6 @@
     </ContentPage.Resources>
 
     <ContentPage.ToolbarItems>
-        <!--<ToolbarItem x:Name="TtrToolbarItem"
-                     IconImageSource="icon.png"
-                     IsEnabled="False"
-                     Clicked="TtrToolbarItem_OnClicked"
-                     />-->
         <ToolbarItem x:Name="TtrToolbarItem"
                      Text="TtR"
                      Clicked="TtrToolbarItem_OnClicked"
@@ -96,11 +87,6 @@
     </ContentPage.ToolbarItems>
 
     <StackLayout Margin="{DynamicResource PageMargin}">
-
-        <!--<Entry x:Name="Filter" 
-               Placeholder="Search (try d=1 or d>5)"
-               TextChanged="Filter_OnTextChanged">
-        </Entry>-->
 
         <!--This Label (ClickHereToBeginLabel) and button (InitialImageButton),
             Will display when there are no Journals-->
@@ -122,28 +108,36 @@
                      BackgroundColor="Transparent"
                      Clicked="ClickHereToBegin_OnTapped"
                      />
-
-
+        
         <Grid x:Name="JournalColumnHeaders"
               ColumnDefinitions="65*,20*,15*"
+              RowDefinitions="Auto"
               >
             <Label x:Name="JournalsHeaderLabel"
                    Text="Journals"
                    FontAttributes="Bold"
                    Grid.Column="0"
-            />
+                   />
             <Label x:Name="EntriesCountHeaderLabel"
                    Text="Entries"
                    FontAttributes="Bold"
                    Grid.Column="1"
-            />
-            <Label x:Name="TtrCountHeaderLabel"
-                   Text="TtR"
-                   FontAttributes="Bold"
-                   Grid.Column="2"
-            />
+                   >
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="EntriesColumnHeader_OnTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+                <Label x:Name="TtrCountHeaderLabel"
+                       Text="TtR"
+                       FontAttributes="Bold"
+                       Grid.Column="2">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="TtRColumnHeader_OnTapped" />
+                </Label.GestureRecognizers>
+            </Label>
         </Grid>
-
+        
+        <!-- Swipe row menu -->
         <listview:SfListView x:Name="ListView"
                              AutoFitMode="DynamicHeight"
                              VerticalOptions="Fill"
@@ -153,16 +147,14 @@
                              SwipeEnded="ListView_SwipeEnded"
                              ItemTemplate="{StaticResource ItemTemplate}"
                              >
-
+        
             <listview:SfListView.LeftSwipeTemplate >
                 <DataTemplate x:Name="LeftSwipeTemplate">
-                    <Grid VerticalOptions="CenterAndExpand">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                    
+                    <Grid VerticalOptions="CenterAndExpand"
+                          ColumnDefinitions="*,*"
+                          >
                         <Grid Grid.Column="0"
-                              
                               HorizontalOptions="Fill"
                               VerticalOptions="Fill"
                               >
@@ -176,8 +168,7 @@
                                        HeightRequest="35"
                                        WidthRequest="35"
                                        BindingContextChanged="LeftImage_Delete_BindingContextChanged"
-                                       
-                                       Source="delete_black_18.png" 
+                                       Source="delete_black_18.png"
                                        >
                                     <Image.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="DeleteImage_OnTapped" />
@@ -186,13 +177,12 @@
                             </Grid>
                         </Grid>
                         <Grid Grid.Column="1"
-                              
                               HorizontalOptions="Fill"
                               VerticalOptions="Fill"
                               >
                             <Grid VerticalOptions="CenterAndExpand"
                                   HorizontalOptions="Center"
-                            >
+                                  >
                                 <Image x:Name="EditImage"
                                        Grid.Column="0"
                                        Grid.Row="0"
@@ -200,41 +190,45 @@
                                        HeightRequest="35"
                                        WidthRequest="35"
                                        BindingContextChanged="LeftImage_Edit_BindingContextChanged"
-                                       Source="edit_black_18.png" 
-                                />
+                                       Source="edit_black_18.png"
+                                       />
                             </Grid>
                         </Grid>
                     </Grid>
                 </DataTemplate>
             </listview:SfListView.LeftSwipeTemplate>
         </listview:SfListView>
+        
+        <!-- Journal List -->
         <Grid x:Name="EditJournalGrid"
               RowDefinitions="*,*,*"
-              VerticalOptions="Start" 
+              VerticalOptions="Start"
               >
-
+            
+            <!-- MinimumHeightRequest="50" -->
             <Entry x:Name="JournalTitleEntry"
                    Text="{Binding JournalToEdit.Title}"
                    Placeholder="Journal Title"
                    Grid.Row="0"
-                   MinimumHeightRequest="50"
+                   
             />
-
+        
             <Label x:Name="JournalTypeLabel"
                    Text="{Binding JournalToEdit.JournalType.Title}"
                    Grid.Row="1"
-                   MinimumHeightRequest="50">
+                   
+                   >
                 <Label.GestureRecognizers>
                     <TapGestureRecognizer Tapped="PickJournalTypeLabel_OnTapped" />
                 </Label.GestureRecognizers>
             </Label>
-                        
+        
             <Button x:Name="DoneEditingButton"
                     Text="Done"
                     Clicked="DoneEditingButton_OnClicked"
                     Grid.Row="2"
-                    MinimumHeightRequest="50"
-            />
+                    
+                    />
         </Grid>
 
         <picker:SfPicker x:Name="JournalTypePicker"  
@@ -248,6 +242,32 @@
                          OkButtonClicked="JournalTypePicker_OnOkButtonClicked"
                          CancelButtonClicked="JournalTypePicker_OnCancelButtonClicked"
                          />
+
+        <StackLayout Orientation="Horizontal">
+
+            <!--This will only display when in Debug mode-->
+            <Grid x:Name="NowDateTimeGrid"
+                  ColumnDefinitions="*,*,*"
+                  RowDefinitions="Auto"
+                  IsVisible="False"
+                  VerticalOptions="CenterAndExpand"
+                  Margin="0, -25, 0, 5"
+                  >
+            
+                <DatePicker x:Name="NowDatePicker"
+                            Grid.Column="0"
+                            VerticalOptions="StartAndExpand"
+                            />
+                
+                <Button x:Name="ApplyTimeHopButton"
+                        Text="Apply"
+                        Grid.Column="2"
+                        VerticalOptions="Start"
+                        Clicked="ApplyTimeHopButton_OnClicked"
+                        />
+            </Grid>
+
+        </StackLayout>
 
     </StackLayout>
 </ContentPage>

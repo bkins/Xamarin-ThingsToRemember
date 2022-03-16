@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Avails.D_Flat;
 using Avails.Xamarin;
+using ThingsToRemember.Services;
 
 namespace ThingsToRemember.ViewModels
 {
@@ -14,9 +16,15 @@ namespace ThingsToRemember.ViewModels
 
         private BackupRestoreDatabase BackupRestorer   { get; set; }
 
-        public BackupDatabaseViewModel(string destinationPath)
+        public BackupDatabaseViewModel(string destinationPath = "")
         {
             BackupLocation = destinationPath;
+            
+            if (destinationPath.IsNullEmptyOrWhitespace())
+            {
+                BackupLocation = Path.Combine(DatabaseLocation
+                                            , "Backups");
+            }
 
             BackupRestorer = new BackupRestoreDatabase(DatabaseLocation
                                                      , BackupLocation);
@@ -24,14 +32,35 @@ namespace ThingsToRemember.ViewModels
 
         public string Backup()
         {
-             var backedUpFileNameAndPath = BackupRestorer.Backup(DatabaseName);
+            //DataAccessLayer.BackupDatabase();
+            
+            var backedUpFileNameAndPath = BackupRestorer.Backup(DatabaseName);
 
-             return backedUpFileNameAndPath;
+            return backedUpFileNameAndPath;
         }
 
         public void Restore(string fileToRestoreFileName)
         {
-            BackupRestorer.Restore(fileToRestoreFileName);
+            //BackupRestorer.Restore(fileToRestoreFileName);
+            var destinationDatabase = App.BackupDatabase;
+            
+            destinationDatabase.RestoreDatabaseFromDestination();
+        }
+
+        public string BackupDataFromSource()
+        {
+            var destinationDatabase = App.BackupDatabase;
+            
+            destinationDatabase.BackupDatabaseFromSource();
+
+            return destinationDatabase.GetFilePath();
+        }
+
+        public void Restore()
+        {
+            var destinationDatabase = App.BackupDatabase;
+            
+            destinationDatabase.RestoreDatabaseFromDestination();
         }
     }
 }

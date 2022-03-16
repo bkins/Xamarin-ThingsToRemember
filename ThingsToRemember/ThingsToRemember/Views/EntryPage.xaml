@@ -31,103 +31,100 @@
         </Style>
     </ContentPage.Resources>
 
+    <ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="PreviousEntryToolbarItem"
+                     IconImageSource="baseline_arrow_upward_black_48.png"
+                     Clicked="PreviousEntryToolbarItem_OnClicked"
+        />
+        <ToolbarItem x:Name="NextEntryToolbarItem"
+                     IconImageSource="baseline_arrow_downward_black_48.png"
+                     Clicked="NextEntryToolbarItem_OnClicked"
+        />
+    </ContentPage.ToolbarItems>
+
     <StackLayout Margin="{DynamicResource PageMargin}">
-
-        <Editor x:Name="TitleEditor"
-                Placeholder="Title"
-                Text="{Binding Title}"
-                HeightRequest="50" >
-            <Editor.Keyboard>
-                <Keyboard x:FactoryMethod="Create">
-                    <x:Arguments>
-                        <KeyboardFlags>Suggestions,CapitalizeWord</KeyboardFlags>
-                    </x:Arguments>
-                </Keyboard>
-            </Editor.Keyboard>
-        </Editor>
-
-        <Editor x:Name="TextEditor"
-                Placeholder="Text"
-                Text="{Binding Text}"
-                AutoSize="TextChanges">
-            <Editor.Keyboard>
-                <Keyboard x:FactoryMethod="Create">
-                    <x:Arguments>
-                        <KeyboardFlags>Suggestions,CapitalizeSentence</KeyboardFlags>
-                    </x:Arguments>
-                </Keyboard>
-            </Editor.Keyboard>
-        </Editor>
-
-        <!--BENDO: This should be a date time picker-->
-        <!--<Label x:Name="CreateDateTimeLabel"
-                Text="{Binding CreateDateTime}"
-                >
-            <Label.GestureRecognizers>
-                <TapGestureRecognizer Tapped="CreateDateTimeLabel_OnTapped"/>
-            </Label.GestureRecognizers>
-        </Label>-->
-        
-        <!--<dateTimePicker:DateTimePicker x:Name="CreateDateTimePicker"
-                                       HorizontalOptions="StartAndExpand" 
-                                       HeaderText="Create Date/Time" 
-                                       ShowFooter="True"
-                                       IsVisible="False"
-                                       OkButtonClicked="CreateDateTimePicker_OnOkButtonClicked"
-                                       CancelButtonClicked="CreateDateTimePicker_OnCancelButtonClicked"
-                                       Margin="15,0,15,0"
-                                       />-->
-        <Grid >
-
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+        <!--The RowDefinitions for The media [4] are set dynamically-->
+        <!-- See ShowHideMediaGrid()-->
+        <!--                   0     1   2     3    4    5     6-->
+        <!--                 Title Text D/T  Mood  Med  MedB Save-->
+        <Grid x:Name="MainGrid"
+              RowDefinitions="7*,  25*, 8*,  10*,  33*, 10*, 7*"  
+              ColumnDefinitions="*, *"
+              >
+            <ScrollView Orientation="Both">
+                <Editor x:Name="TitleEditor"
+                        Placeholder="Title"
+                        Text="{Binding Title}"
+                        HeightRequest="50" 
+                        HorizontalOptions="StartAndExpand"
+                        Grid.Row="0"
+                        Grid.ColumnSpan="2"
+                        >
+                    <Editor.Keyboard>
+                        <Keyboard x:FactoryMethod="Create" >
+                            <x:Arguments>
+                                <KeyboardFlags>Suggestions,CapitalizeWord</KeyboardFlags>
+                            </x:Arguments>
+                        </Keyboard>
+                    </Editor.Keyboard>
+                </Editor>
+            
+            </ScrollView>
+            <Editor x:Name="TextEditor"
+                    Placeholder="Text"
+                    Text="{Binding Text}"
+                    AutoSize="TextChanges"
+                    Grid.Row="1"
+                    Grid.ColumnSpan="2"
+                    >
+                <Editor.Keyboard>
+                    <Keyboard x:FactoryMethod="Create">
+                        <x:Arguments>
+                            <KeyboardFlags>Suggestions,CapitalizeSentence</KeyboardFlags>
+                        </x:Arguments>
+                    </Keyboard>
+                </Editor.Keyboard>
+            </Editor>
 
             <DatePicker x:Name="CreateDatePicker"
                         Date="{Binding CreateDateTime.Date}"
-                        HorizontalOptions="StartAndExpand" 
+                        HorizontalOptions="Start" 
                         IsVisible="True"
                         DateSelected="CreateDatePicker_OnDateSelected"
+                        Grid.Row="2"
                         Grid.Column="0"
-            />
+                        />
 
             <TimePicker x:Name="CreateTimePicker"
                         Time="{Binding CreateDateTime.TimeOfDay}"
                         HorizontalOptions="StartAndExpand"
                         IsVisible="True"
                         PropertyChanged="CreateTimePicker_OnPropertyChanged"
+                        Grid.Row="2"
                         Grid.Column="1"
-                        />
-                    
-        </Grid>
-        
-        <!--BENDO: This should be a Mood picker-->
-        <Label x:Name="MoodLabel"
-                Text="Tap here to select a Mood..."
-                >
-            <Label.GestureRecognizers>
-                <TapGestureRecognizer Tapped="MoodLabel_OnTapped"/>
-            </Label.GestureRecognizers>
+                        /> 
+            
+            <Label x:Name="MoodLabel"
+                   Text="Tap here to select a Mood..."
+                   FontSize="Medium"
+                   Grid.Row="3"
+                   Grid.ColumnSpan="2"
+                    >
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="MoodLabel_OnTapped"/>
+                </Label.GestureRecognizers>
 
-        </Label>
-
-        <picker:SfPicker x:Name="MoodPicker"
-                         HorizontalOptions="StartAndExpand" 
-                         HeaderText="Moods" 
-                         ShowFooter="True"
-                         ItemsSource="{Binding MoodEmoji}"
-                         IsVisible="False"
-                         OkButtonClicked="MoodPicker_OnOkButtonClicked"
-                         CancelButtonClicked="MoodPicker_OnCancelButtonClicked"
-                         Margin="15,0,15,0"
-                         />
-        <Grid x:Name="PhotoVideoGrid"
-              ColumnDefinitions="*,*,*,*"
-              RowDefinitions="90*,10*"
-              Margin="-15,0,5,0"
+            </Label>
+            
+            <!-- Margin="-15,0,5,0" -->
+            <Grid x:Name="PhotoVideoGrid"
+              ColumnDefinitions="Auto,*,*,*"
+              RowDefinitions="10*,10*"
+              
               HorizontalOptions="FillAndExpand"
               VerticalOptions="FillAndExpand"
+              Grid.Row="4"
+              Grid.ColumnSpan="2"
               >
 
             <Image x:Name="ImageFromCamera"
@@ -178,42 +175,49 @@
             </Label>
 
         </Grid>
-
-        <!--<object Margin="left,top,right,bottom"/>-->
-        <Grid ColumnDefinitions="25*,25*"
-              HorizontalOptions="End"
-              >
-            <ImageButton x:Name="AddImageButton"
-                     Source="camera.png"
-                     HeightRequest="50"
-                     HorizontalOptions="End"
-                     Margin="0, 0, 5, 0"
-                     Grid.Column="0"
-                     Clicked="AddImageButton_OnClicked"
-                     />
-            <ImageButton x:Name="AddVideoButton"
-                         Source="videocam_black_48.png"
-                         HeightRequest="50"
-                         HorizontalOptions="End"
-                         Margin="0, 0, 0, 0"
-                         Grid.Column="1"
-                         Clicked="AddVideoButton_OnClicked"
-            />
-        </Grid>
-        
-        <Grid ColumnDefinitions="*,*">
-            <!-- Layout children in two columns -->
+            <Grid ColumnDefinitions="25*,75*"
+                  HorizontalOptions="End"
+                  Grid.Row="5"
+            >
+                <ImageButton x:Name="AddImageButton"
+                             Source="camera.png"
+                             HeightRequest="50"
+                             HorizontalOptions="Start"
+                             Margin="0, 0, 0, 0"
+                             Grid.Column="0"
+                             Clicked="AddImageButton_OnClicked"
+                />
+                <ImageButton x:Name="AddVideoButton"
+                             Source="videocam_black_48.png"
+                             HeightRequest="50"
+                             HorizontalOptions="End"
+                             Grid.Column="1"
+                             Clicked="AddVideoButton_OnClicked"
+                />
+            </Grid>
             <Button x:Name="SaveButton"
                     Text="Save"
                     HeightRequest="50"
-                    Clicked="OnSaveButtonClicked" />
-            <!--<Button x:Name="DeleteButton"
-                    Grid.Column="1"
-                    Text="DeleteMood"
-                    Clicked="OnDeleteButtonClicked"/>-->
-
+                    Clicked="OnSaveButtonClicked" 
+                    Grid.Row="6"
+                    Grid.ColumnSpan="2"
+                    />
         </Grid>
-
+        
+        <picker:SfPicker x:Name="MoodPicker"
+                         HorizontalOptions="StartAndExpand" 
+                         HeaderText="Moods" 
+                         ShowFooter="True"
+                         ItemsSource="{Binding MoodEmoji}"
+                         IsVisible="False"
+                         OkButtonClicked="MoodPicker_OnOkButtonClicked"
+                         CancelButtonClicked="MoodPicker_OnCancelButtonClicked"
+                         Margin="15,0,15,0"
+                         />
+        
+        <!--<object Margin="left,top,right,bottom"/>-->
+        
+        
         <!--BoxView   VerticalOptions="Center"
                    HorizontalOptions="Center"
                    HeightRequest="1"

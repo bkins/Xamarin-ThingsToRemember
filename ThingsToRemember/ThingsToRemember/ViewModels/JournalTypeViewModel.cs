@@ -61,13 +61,13 @@ namespace ThingsToRemember.ViewModels
                 return string.Empty;
             }
             
-            //Get the workout to be deleted
+            //Get the journal type to be deleted
             var journalTypeToDelete = ObservableJournalTypes[index];
             
-            //Remove the workout from the source list
+            //Remove the journal type from the source list
             ObservableJournalTypes.RemoveAt(index);
 
-            //DeleteMood the Workout from the database
+            //DeleteMood the journal type from the database
             var deletedMoodMessage = DataAccessLayer.DeleteJournalType(ref journalTypeToDelete);
             
             RefreshListOfJournalTypes();

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using ApplicationExceptions;
 using Avails.D_Flat;
 using Avails.Xamarin;
+using Avails.Xamarin.Controls;
 using Syncfusion.ListView.XForms;
 using ThingsToRemember.Models;
 using ThingsToRemember.ViewModels;
@@ -20,13 +22,18 @@ namespace ThingsToRemember.Views
         public int                  SwipedItem           { get; set; }
         public Journal              JournalToEdit        { get; set; }
         public JournalTypeViewModel JournalTypeViewModel { get; private set; }
-        
+        public DateTime             NowForTtr            { get; set; }
+
         public InitialPage()
         {
             InitializeComponent();
             JournalTypeViewModel = new JournalTypeViewModel();
             
             JournalTypePicker.ItemsSource = JournalTypeViewModel.JournalTypes;
+
+#if DEBUG
+            NowDateTimeGrid.IsVisible = true;
+#endif
         }
 
         protected override void OnAppearing()
@@ -35,17 +42,7 @@ namespace ThingsToRemember.Views
 
             try
             {
-                _journalsViewModel        = new JournalsViewModel();
-                Title                     = _journalsViewModel.Title;
-                ListView.ItemsSource      = _journalsViewModel.ObservableListOfJournals;
-                ListView.IsVisible        = true;
-                EditJournalGrid.IsVisible = false;
-
-                JournalTypeViewModel.RefreshListOfJournalTypes();
-
-                SetInitialImageAndTextVisibility();
-                
-                TtrToolbarItem.IsEnabled      = _journalsViewModel.AnyWithTtr();
+                RefreshPage(DateTime.Now);
             }
             catch (DuplicateRecordException duplicateRecordException)
             {
@@ -61,53 +58,40 @@ namespace ThingsToRemember.Views
             }
         }
 
-        private void SetInitialImageAndTextVisibility()
+        private void RefreshPage(DateTime dateTimeNow)
         {
-            InitialImageButton.IsVisible    = ! _journalsViewModel.Journals.Any();
+            _journalsViewModel   = new JournalsViewModel();
+            Title                = _journalsViewModel.Title;
+            ListView.ItemsSource = _journalsViewModel.ObservableListOfJournals;
+
+            ListView.IsVisible        = true;
+            EditJournalGrid.IsVisible = false;
+
+            JournalTypeViewModel.RefreshListOfJournalTypes();
+
+            SetInitialImageAndTextVisibility();
+
+            TtrToolbarItem.IsEnabled = _journalsViewModel.AnyWithTtr(dateTimeNow);
+        }
+
+        private void SetInitialImageAndTextVisibility(bool refreshJournalList = false)
+        {
+            if (refreshJournalList)
+            {
+                _journalsViewModel.RefreshListOfJournals();
+            }
+
+            InitialImageButton.IsVisible    = ! _journalsViewModel.ObservableListOfJournals.Any();
             ClickHereToBeginLabel.IsVisible = InitialImageButton.IsVisible;
             JournalColumnHeaders.IsVisible  = ! InitialImageButton.IsVisible;
         }
-
-        private async void OnSelectionChanged(object                    sender
-                                            , SelectionChangedEventArgs e)
-        {
-            var journal = (Journal) e.CurrentSelection?.FirstOrDefault();
-
-            if (journal == null)
-                return;
-
-            //var path = $"{nameof(EntryListView)}?{nameof(EntryListView.JournalId)}={journal.Id}";
-            //await Shell.Current.GoToAsync(path);
-
-            await PageNavigation.NavigateTo(nameof(EntryListView)
-                                          , nameof(EntryListView.JournalId)
-                                          , journal.Id.ToString());
-        }
-
+        
         private async void AddJournal_Clicked(object    sender
                                               , EventArgs e)
         {
             await PageNavigation.NavigateTo(nameof(AddJournalView));
         }
-
-        private void EditImageButton_OnClicked(object    sender
-                                             , EventArgs e)
-        {
-            var itemData         = (ImageButton)sender;
-            //var commandParameter = itemData.CommandParameter;
-
-            if (!(itemData.CommandParameter is JournalViewModel selectedJournal))
-                return;
-
-            //PageNavigation.NavigateTo(nameof(AddJournal), nameof(AddJournal.JournalId), (Journal) )
-        }
-
-        private void DeleteImageButton_OnClicked(object    sender
-                                               , EventArgs e)
-        {
-            
-        }
-
+        
         private async void OnSelectionChanged(object                        sender
                                       , ItemSelectionChangedEventArgs e)
         {
@@ -169,12 +153,6 @@ namespace ThingsToRemember.Views
             AddJournalToolbarItem.IsEnabled = false;
             
             ListView.ResetSwipe();
-
-            //BENDO: In some cases, this is being called twice, causing the ToggleEditView to be called twice:
-            //The first time shows the EditJournalGrid and hides/disables the appropriate elements, but then the second time it undoes that.
-            //The above, explicit setting of the visibility/enable properties, works, but still need to prevent this method from being called twice.
-            
-            //ToggleEditView();
         }
 
         private void SetEditFields()
@@ -185,31 +163,19 @@ namespace ThingsToRemember.Views
 
         private async void Delete()
         {
-            //BENDO: Prevent deleting of multiple journal.
-            //I had a time when I clicked to delete a journal and all journals were deleted.  
-            //I am not sure how that was possible, but
-            //Maybe a confirm before deleting will be enough?
-            //At least that will show if/when multiple are being deleted.
-            
             var journalToDelete = _journalsViewModel.GetJournal(SwipedItem);
 
             var userChoice = await DisplayAlert("Are you sure?"
-                                              , $"You are about to delete the journal: '{journalToDelete.Title}'. " 
-                                              + "Are you sure you would like to proceed?"
+                                              , GetAreYouSureYouWouldLikeToProceedMessage(journalToDelete)
                                               , "Yes"
                                               , "No");
 
             if (userChoice)
             {
-                var itemDeleted = _journalsViewModel.Delete(SwipedItem, journalToDelete);
-
-                if (itemDeleted.IsNullEmptyOrWhitespace())
-                {
-                    Logger.WriteLine("Journal could not be deleted.  Please try again."
-                                   , Category.Warning);
-                }
+                var itemDeleted = DeleteSwipedItem(journalToDelete);
 
                 ListView.ItemsSource = _journalsViewModel.ObservableListOfJournals;
+                SetInitialImageAndTextVisibility();
 
                 Logger.WriteLine($"Deleted Journal: {itemDeleted} deleted."
                                , Category.Information);
@@ -217,6 +183,29 @@ namespace ThingsToRemember.Views
             }
             
             ListView.ResetSwipe();
+        }
+
+        private static string GetAreYouSureYouWouldLikeToProceedMessage(Journal journalToDelete)
+        {
+            var message = new StringBuilder();
+            message.AppendLine($"You are about to delete the journal: '{journalToDelete.Title}'.");
+            message.AppendLine("Are you sure you would like to proceed?");
+
+            return message.ToString();
+        }
+
+        private string DeleteSwipedItem(Journal journalToDelete)
+        {
+            var itemDeleted = _journalsViewModel.Delete(SwipedItem
+                                                      , journalToDelete);
+
+            if (itemDeleted.IsNullEmptyOrWhitespace())
+            {
+                Logger.WriteLine("Journal could not be deleted.  Please try again."
+                               , Category.Warning);
+            }
+
+            return itemDeleted;
         }
 
         private void DoneEditingButton_OnClicked(object    sender
@@ -261,10 +250,7 @@ namespace ThingsToRemember.Views
             var selectedTypeTitle = JournalTypePicker.SelectedItem.ToString();
 
             JournalToEdit.JournalType = JournalTypeViewModel.GetJournalType(selectedTypeTitle);
-
-            //JournalToEdit.JournalType = JournalTypeViewModel.JournalTypes
-            //                                                .FirstOrDefault(fields => fields.Title == selectedTypeTitle);
-
+            
             JournalTypeLabel.Text = selectedTypeTitle;
 
             JournalTypePickerVisible(false);
@@ -310,13 +296,35 @@ namespace ThingsToRemember.Views
         {
             await PageNavigation.NavigateTo(nameof(EntryListView)
                                           , nameof(EntryListView.ShowTtr)
-                                          , "YES");
+                                          , "YES"
+                                          , nameof(EntryListView.DateTimeNow)
+                                          , NowDatePicker.Date.ToShortDateString());
         }
 
         private void DeleteImage_OnTapped(object    sender
                                                  , EventArgs e)
         {
             Delete();
+        }
+
+        private void ApplyTimeHopButton_OnClicked(object    sender
+                                                , EventArgs e)
+        {
+            TtrToolbarItem.IsEnabled = _journalsViewModel.AnyWithTtr(NowDatePicker.Date);
+            
+        }
+
+        private void TtRColumnHeader_OnTapped(object    sender
+                                                 , EventArgs e)
+        {
+            Logger.WriteLineToToastForced("Number of entries that occurred on this day some amount of years ago for each Journal."
+                                        , Category.Information);
+        }
+
+        private void EntriesColumnHeader_OnTapped(object    sender
+                                                 , EventArgs e)
+        {
+            Logger.WriteLineToToastForced("Number of entries for each Journal.", Category.Information);
         }
     }
 }

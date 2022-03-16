@@ -2,7 +2,9 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
 xmlns:listview="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfListView.XForms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="ThingsToRemember.Views.EntryListView">
+xmlns:viewModels="clr-namespace:ThingsToRemember.ViewModels;assembly=ThingsToRemember"
+xmlns:views="clr-namespace:ThingsToRemember.Views;assembly=ThingsToRemember"
+x:Class="ThingsToRemember.Views.EntryListView">
 
     <ContentPage.Resources>
         <!--Define a visual state for the Selected state of the CollectionView-->
@@ -27,10 +29,18 @@ xmlns:listview="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfL
                           x:Key="ItemTemplate">
                 <Grid x:Name="ExistingEntriesGrid"
                       ColumnDefinitions="20*,54*,21*,5*"
+                      RowDefinitions="1,*"
                       >
 
+                    <Label x:Name="RecordSeparatorLineLabel"
+                           BackgroundColor="Gray"
+                           Grid.Row="0"
+                           Grid.ColumnSpan="4"
+                           Margin="0, 0, 0, 0" 
+                           />
                     <Label Text="{Binding Title}"
                            Grid.Column="0"
+                           Grid.Row="1"
                            FontSize="Small"
                            FontAttributes="Bold"
                            LineBreakMode="TailTruncation"
@@ -39,6 +49,7 @@ xmlns:listview="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfL
                            />
                     <Label Text="{Binding Text}"
                            Grid.Column="1"
+                           Grid.Row="1"
                            FontSize="Small"
                            FontAttributes="Italic"
                            LineBreakMode="TailTruncation"
@@ -47,10 +58,12 @@ xmlns:listview="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfL
                     <!--Margin="15, -4, 0, 0" -->
                     <Label Text="{Binding CreateDateTime, StringFormat='{0:yyyy/MM/dd}'}"
                            Grid.Column="2"
+                           Grid.Row="1"
                            FontSize="Small"
                            />
                     <Label Text="{Binding EntryMood}"
                            Grid.Column="3"
+                           Grid.Row="1"
                            FontSize="Small"
                            />
                     <!--<object Margin="left,top,right,bottom"/>-->
@@ -76,15 +89,16 @@ xmlns:listview="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfL
                              AllowSwiping="True"
                              SelectionChanged="OnSelectionChanged"
                              SwipeEnded="ListView_SwipeEnded"
+                             SwipeStarted="ListView_OnSwipeStarted"
                              ItemTemplate="{StaticResource ItemTemplate}"
         >
             <listview:SfListView.LeftSwipeTemplate >
                 <DataTemplate x:Name="LeftSwipeTemplate">
-                    <Grid VerticalOptions="CenterAndExpand">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                    <Grid ColumnDefinitions="*,*,*"
+                          VerticalOptions="CenterAndExpand"
+                          x:DataType="views:EntryListView"
+                          >
+                        
                         <Grid Grid.Column="0"
                               
                               HorizontalOptions="Fill"
@@ -105,7 +119,6 @@ xmlns:listview="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfL
                             </Grid>
                         </Grid>
                         <Grid Grid.Column="1"
-                              
                               HorizontalOptions="Fill"
                               VerticalOptions="Fill"
                               >
@@ -123,23 +136,51 @@ xmlns:listview="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfL
                                 />
                             </Grid>
                         </Grid>
+                        <Grid Grid.Column="2"
+                              HorizontalOptions="Fill"
+                              VerticalOptions="Fill"
+                              >
+                            <Grid VerticalOptions="CenterAndExpand"
+                                  HorizontalOptions="Center"
+                                  >
+                                <ImageButton x:Name="MoveImage"
+                                       Grid.Column="0"
+                                       Grid.Row="0"
+                                       BackgroundColor="Transparent"
+                                       HeightRequest="35"
+                                       WidthRequest="35"
+                                       Clicked="MoveImage_OnClicked"
+                                       Source="arrow_circle_right_black_24dp.png" 
+                                       />
+                            </Grid>
+                        </Grid>
+
                     </Grid>
                 </DataTemplate>
             </listview:SfListView.LeftSwipeTemplate>
         </listview:SfListView>
+        
+        <Picker x:Name="SelectJournalToMoveToPicker"
+                Title="Choose a Journal to Move this Entry to:"
+                ItemsSource="{Binding Journals}"
+                IsVisible="False"
+                SelectedIndexChanged="SelectJournalToMoveToPicker_OnSelectedIndexChanged">
+                
+        </Picker>
+        
         <Grid x:Name="EditEntryGrid"
               RowDefinitions="*,*,*"
               VerticalOptions="Start" 
         >
 
-            <Entry x:Name="JournalTitleEntry"
+            <Entry x:Name="EntryTitleEntry"
                    Text="{Binding EntryToEdit.Title}"
                    Placeholder="Entry Title"
                    Grid.Row="0"
                    MinimumHeightRequest="50"
             />
 
-            <Label x:Name="JournalTypeLabel"
+            <Label x:Name="EntryTypeLabel"
                    Text="{Binding EntryToEdit.Text}"
                    Grid.Row="1"
                    MinimumHeightRequest="50">

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using Avails.D_Flat;
@@ -9,10 +10,11 @@ using Avails.Xamarin;
 using MediaManager;
 using Plugin.Media;
 using Plugin.Media.Abstractions;
-using ThingsToRemember.Models;
+using Syncfusion.DataSource.Extensions;
 using ThingsToRemember.ViewModels;
 using Xamarin.CommunityToolkit.Core;
 using Xamarin.Forms;
+using Xamarin.Forms.Internals;
 using Xamarin.Forms.Xaml;
 using Entry = Xamarin.Forms.Entry;
 using SelectionChangedEventArgs = Syncfusion.SfPicker.XForms.SelectionChangedEventArgs;
@@ -21,17 +23,20 @@ namespace ThingsToRemember.Views
 {
     [QueryProperty(nameof(EntryId), nameof(EntryId))]
     [QueryProperty(nameof(JournalId), nameof(JournalId))]
+    [QueryProperty(nameof(ShowTtr), nameof(ShowTtr))]
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class EntryPage : ContentPage, INotifyPropertyChanged,  IQueryAttributable
     {
         public string EntryId       { get; set; }
         public bool   LeftToGetData { get; set; }
+        public string ShowTtr       { get; set; }
+        
 
+        public  string        JournalId      { get; set; }
+        private MoodViewModel _moodViewModel { get; set; }
 
-        public  string        JournalId     { get; set; }
-        private  MoodViewModel _moodViewModel { get; set; }
-
-        private EntryViewModel _entryViewModel;
+        private EntryViewModel            _entryViewModel;
+        private EntriesByJournalViewModel _entriesViewModel;
         
         private readonly string _personalFolder = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
 
@@ -52,48 +57,62 @@ namespace ThingsToRemember.Views
             {
                 EntryId   = HttpUtility.UrlDecode(query[nameof(EntryId)]);
                 JournalId = HttpUtility.UrlDecode(query[nameof(JournalId)]);
-
-                _entryViewModel       = new EntryViewModel(int.Parse(EntryId));
-                Title                 = _entryViewModel.Title;
-
-                SetDateTimePickers();
-
-                if (_entryViewModel.Entry.EntryMood != null)
-                {
-                    MoodLabel.Text = _entryViewModel.Entry.EntryMood.ToStringWithText();
-                }
+                ShowTtr   = HttpUtility.UrlDecode(query[nameof(ShowTtr)]);
                 
-                BindingContext  = _entryViewModel;
+                var entryIntId   = int.Parse(EntryId);
+                var journalIntId = int.Parse(JournalId);
 
-                //Load image, if one exists
-                if (_entryViewModel.Entry.Image.Length > 0)
-                {
-                    ImageFromCamera.IsVisible = true;
-                    //var imageStream = new MemoryStream(_entryViewModel.Entry.Image);
-                    ImageFromCamera.Source = ImageSource.FromStream(() => new MemoryStream(_entryViewModel.Entry.Image));
-                }
-
-                if (_entryViewModel.Entry.VideoFileName.HasValue())
-                {
-                    
-                    VideoFromCamera.Source = MediaSource.FromFile(_entryViewModel.Entry.VideoFileName);
-                    //VideoMediaElement.IsVisible = true;
-                    //var videoStream = new MemoryStream(_entryViewModel.Entry.Video);
-                    //VideoMediaElement.Source = videoStream;
-
-                    VideoFromCamera.IsVisible = true;
-                    PlayLabel.IsVisible       = true;
-                    StopLabel.IsVisible       = true;
-
-                    //VideoFromCamera.Source = MediaManager.CrossMediaManager
-                }
+                _entriesViewModel = new EntriesByJournalViewModel(journalIntId
+                                                                , DateTime.Now
+                                                                , ShowTtr.IsTrue());
+                LoadEntry(entryIntId);
             }
             catch (Exception e)
             {
                 var messsage = e.Message; 
             }
-            
+        }
 
+        private void LoadEntry(int entryIntId)
+        {
+            _entryViewModel = new EntryViewModel(entryIntId);
+
+            Title = _entryViewModel.Title;
+
+            SetDateTimePickers();
+
+            if (_entryViewModel.Entry.EntryMood != null)
+            {
+                MoodLabel.Text = _entryViewModel.Entry.EntryMood.ToStringWithText();
+            }
+
+            BindingContext = _entryViewModel;
+
+            //Load image, if one exists
+            if (_entryViewModel.Entry.Image.Length > 0)
+            {
+                //var imageStream = new MemoryStream(_entryViewModel.Entry.Image);
+                ImageFromCamera.Source = ImageSource.FromStream(() => new MemoryStream(_entryViewModel.Entry.Image));
+            }
+
+            ImageFromCamera.IsVisible = _entryViewModel.Entry.Image.Length > 0;
+            
+            if (_entryViewModel.Entry.VideoFileName.HasValue())
+            {
+                VideoFromCamera.Source = MediaSource.FromFile(_entryViewModel.Entry.VideoFileName);
+
+                //VideoMediaElement.IsVisible = true;
+                //var videoStream = new MemoryStream(_entryViewModel.Entry.Video);
+                //VideoMediaElement.Source = videoStream;
+
+                //VideoFromCamera.Source = MediaManager.CrossMediaManager
+            }
+            
+            VideoFromCamera.IsVisible = _entryViewModel.Entry.VideoFileName.HasValue();
+            PlayLabel.IsVisible       = _entryViewModel.Entry.VideoFileName.HasValue();
+            StopLabel.IsVisible       = _entryViewModel.Entry.VideoFileName.HasValue();
+            
+            ShowHideMediaGrid();
         }
 
         private void RefreshMoodPicker()
@@ -122,11 +141,84 @@ namespace ThingsToRemember.Views
         {
             base.OnAppearing();
 
-            RefreshMoodPicker();    
+            RefreshMoodPicker();
+            
+            ShowHideMediaGrid();
         }
 
+        private void ShowHideMediaGrid()
+        {
+            var entryHasAnyMedia = _entryViewModel.Entry.ImageFileName.HasValue()
+                                || _entryViewModel.Entry.VideoFileName.HasValue();
+
+            PhotoVideoGrid.IsVisible = entryHasAnyMedia;
+            
+            //Dynamically set the size of the grid that holds the media
+            if (entryHasAnyMedia)
+            {
+                MainGrid.RowDefinitions[1] = new RowDefinition
+                                             {
+                                                 Height = new GridLength(25
+                                                                       , GridUnitType.Star)
+                                             };
+
+                MainGrid.RowDefinitions[4] = new RowDefinition
+                                             {
+                                                 Height = new GridLength(33
+                                                                       , GridUnitType.Star)
+                                             };
+            }
+            else
+            {
+                MainGrid.RowDefinitions[1] = new RowDefinition
+                                             {
+                                                 Height = new GridLength(28
+                                                                       , GridUnitType.Star)
+                                             };
+                
+                MainGrid.RowDefinitions[4] = new RowDefinition
+                                             {
+                                                 Height = new GridLength(0
+                                                                       , GridUnitType.Star)
+                                             };
+            }
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+
+            // Device.BeginInvokeOnMainThread(async () =>
+            // {
+            //     if (await DisplayAlert("Save First?"
+            //                          , "Would you like to save any changes before leaving?"
+            //                          , "Yes", "No"))
+            //     {
+            //         await SaveEntry();
+            //     }
+            // });
+            // 
+            //         
+            // PageNavigation.NavigateTo(nameof(EntryListView));
+            // 
+            base.OnBackButtonPressed();
+            return true;
+        }
+        
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            
+            // Logger.WriteLineToToastForced("Entry Saved.", Category.Information);
+            //
+            // SaveEntry().ConfigureAwait(false);
+        }
         private async void OnSaveButtonClicked(object    sender
-                                       , EventArgs e)
+                                             , EventArgs e)
+        {
+            await SaveEntry();
+        }
+
+        private async Task SaveEntry()
         {
             var theJournalId = int.Parse(JournalId);
 
@@ -140,7 +232,6 @@ namespace ThingsToRemember.Views
                 {
                     UpdateExistingEntry(theJournalId);
                 }
-                
             }
             catch (Exception exception)
             {
@@ -148,8 +239,6 @@ namespace ThingsToRemember.Views
                                  , exception.Message
                                  , "OK");
             }
-            
-            await PageNavigation.NavigateBackwards();
         }
 
         private void UpdateExistingEntry(int theJournalId)
@@ -163,59 +252,47 @@ namespace ThingsToRemember.Views
             {
                 var moodTitle = MoodLabel.Text.Split(' ')[0];
                 var newMood   = _entryViewModel.FindMood(moodTitle);
+
+                if (newMood == null)
+                {
+                    Logger.WriteLineToToastForced("Select a Mood to save the entry!", Category.Warning);
+                    return;
+                }
                 _entryViewModel.Entry.EntryMood = newMood;
             }
 
             _entryViewModel.Save(theJournalId);
         }
 
-        private void SaveNewEntry(int theJournalId)
+        private async void SaveNewEntry(int theJournalId)
         {
-            //var newEntry = new Models.Entry
-            //               {
-            //                   Title          = TitleEditor.Text
-            //                 , Text           = TextEditor.Text
-            //                 , CreateDateTime = DateTime.Parse($"{CreateDatePicker.Date.ToShortDateString()} {CreateTimePicker.Time.ToShortForm()}")
-            //                 , EntryMood = new Mood
-            //                               {
-            //                                   Emoji = MoodLabel.Text.Split(' ')[1]
-            //                                 , Title = MoodLabel.Text.Split(' ')[0]
-            //                               }
-            //               };
-
-            //_entryViewModel.Save(newEntry
-            //                   , theJournalId);
-
             _entryViewModel.Entry.Title           = TitleEditor.Text;
             _entryViewModel.Entry.Text            = TextEditor.Text;
             _entryViewModel.Entry.CreateDateTime  = DateTime.Parse($"{CreateDatePicker.Date.ToShortDateString()} {CreateTimePicker.Time.ToShortForm()}");
 
-            _entryViewModel.Entry.EntryMood = _moodViewModel.GetMood(MoodLabel.Text.Split(' ')[0]
-                                                                   , MoodLabel.Text.Split(' ')[1]);
+            var mood = _moodViewModel.GetMood(MoodLabel.Text.Split(' ')[0]
+                                            , MoodLabel.Text.Split(' ')[1]);
+
+            if (mood == null)
+            {
+                Logger.WriteLineToToastForced("Select a Mood to save the entry", Category.Warning);
+                return;
+            }
+            
+            _entryViewModel.Entry.EntryMood = mood;
+            _entryViewModel.Entry.MoodId    = mood.Id;
+
             //Photo and Video are added to the view model's entry when they are added to the page.
 
             _entryViewModel.Save(int.Parse(JournalId));
-        }
-
-        private async void OnDeleteButtonClicked(object    sender
-                                               , EventArgs e)
-        {
-            if (EntryId != "0")
-            {
-                _entryViewModel.Delete();
-            }
-
             await PageNavigation.NavigateBackwards();
         }
-
+        
         private void ShowMoodPicker(bool show)
         {
             TitleEditor.IsVisible         = ! show;
             TextEditor.IsVisible          = ! show;
-            //CreateDateLabel.IsVisible = ! show;
             SaveButton.IsVisible          = ! show;
-            //DeleteButton.IsVisible        = ! show;
-
             MoodPicker.IsVisible           = show;
         }
 
@@ -225,7 +302,6 @@ namespace ThingsToRemember.Views
             TextEditor.IsVisible   = ! show;
             MoodLabel.IsVisible    = ! show;
             SaveButton.IsVisible   = ! show;
-            //DeleteButton.IsVisible = ! show;
             
         }
         private void MoodLabel_OnTapped(object    sender
@@ -234,22 +310,12 @@ namespace ThingsToRemember.Views
             ShowMoodPicker(true);
         }
 
-        private async void MoodPicker_OnOkButtonClicked(object                    sender
+        private void MoodPicker_OnOkButtonClicked(object                    sender
                                                 , SelectionChangedEventArgs e)
         {
-            var  selectMood  = (string)MoodPicker.SelectedItem;
-
-            //if (selectMood == "<Add New>")
-            //{
-            //    await PageNavigation.NavigateTo(nameof(AddMoodView));
-            //}
-            //else
-            //{
-            //    var moodViewModel = new MoodViewModel(selectMood.Split(' ')[0]);
-            //    _entryViewModel.Entry.EntryMood = moodViewModel.Mood;
-            //}
-
+            var selectMood    = (string)MoodPicker.SelectedItem;
             var moodViewModel = new MoodViewModel(selectMood.Split(' ')[0]);
+
             _entryViewModel.Entry.EntryMood = moodViewModel.Mood;
 
             MoodLabel.Text = _entryViewModel.Entry.EntryMood.ToStringWithText();
@@ -268,19 +334,7 @@ namespace ThingsToRemember.Views
         {
             ShowCreateDateTimePicker(true);
         }
-
-        //private void CreateDatePicker_OnOkButtonClicked(object                    sender
-        //                                                  , SelectionChangedEventArgs e)
-        //{
-        //    ShowCreateDateTimePicker(false);
-        //}
-
-        //private void CreateDateTimePicker_OnCancelButtonClicked(object                    sender
-        //                                                      , SelectionChangedEventArgs e)
-        //{
-        //    ShowCreateDateTimePicker(false);
-        //}
-
+        
         private void CreateDatePicker_OnDateSelected(object               sender
                                                        , DateChangedEventArgs e)
         {
@@ -312,7 +366,6 @@ namespace ThingsToRemember.Views
                 if (await WasFileReturnedFromCamera(photo))
                 {
                     AddImageButton.IsEnabled = true;
-
                     return; 
                 }
 
@@ -328,7 +381,7 @@ namespace ThingsToRemember.Views
                 ImageFromCamera.IsVisible = true;
 
                 _entryViewModel.Entry.ImageFileName = $"Entry{_entryViewModel.Entry.Id}.jpg";
-                LeftToGetData                 = false;
+                LeftToGetData = false;
             }
             catch (ObjectDisposedException disposedException)
             {
@@ -345,6 +398,8 @@ namespace ThingsToRemember.Views
             finally
             {
                 AddImageButton.IsEnabled = true;
+                
+                ShowHideMediaGrid();
             }
         }
         
@@ -466,6 +521,8 @@ namespace ThingsToRemember.Views
             finally
             {
                 AddImageButton.IsEnabled = true;
+                
+                ShowHideMediaGrid();
             }
         }
 
@@ -479,6 +536,53 @@ namespace ThingsToRemember.Views
                                       , EventArgs e)
         {
             CrossMediaManager.Current.Stop();
+        }
+
+        private void PreviousEntryToolbarItem_OnClicked(object    sender
+                                                      , EventArgs e)
+        {
+            var entries            = _entriesViewModel.Entries.ToArray();
+            var maxIndex           = entries.Length - 1;
+            var previousEntryIndex = maxIndex;
+            
+            for (var i = maxIndex; i >= 0; i--)
+            {
+                if (entries[i].Id == _entryViewModel.Entry.Id)
+                {
+                    previousEntryIndex = --i;
+
+                    if (previousEntryIndex < 0)        
+                        previousEntryIndex = maxIndex;
+                    if (previousEntryIndex > maxIndex) 
+                        previousEntryIndex = 0;
+                    
+                    break;
+                }
+            }
+
+            var nextEntry = entries[previousEntryIndex]; 
+            
+            LoadEntry(nextEntry.Id);
+        }
+
+        private void NextEntryToolbarItem_OnClicked(object    sender
+                                                  , EventArgs e)
+        {
+            var nextEntryIndex = 0;
+            var entries        = _entriesViewModel.GetArrayOfEntries(); //.Entries.ToArray();
+            
+            for (int i = 0; i < entries.Length-1; i++)
+            {
+                if (entries[i].Id == _entryViewModel.Entry.Id)
+                {
+                    nextEntryIndex = ++i;
+                    break;
+                }
+            }
+
+            var nextEntry = entries[nextEntryIndex]; 
+            
+            LoadEntry(nextEntry.Id);
         }
     }
 }

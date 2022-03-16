@@ -485,6 +485,11 @@ namespace ThingsToRemember.Services
             throw new NotImplementedException();
         }
 
+        public void BackupDatabase()
+        {
+            throw new NotImplementedException();
+        }
+
         Mood IDataStore.AddMood(Mood mood)
         {
             throw new NotImplementedException();

@@ -51,5 +51,6 @@ namespace ThingsToRemember.Services
         string GetFilePath();
         void   Close();
         string GetFileName();
+        
     }
 }

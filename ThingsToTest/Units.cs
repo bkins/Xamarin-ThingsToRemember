@@ -8,7 +8,7 @@ namespace ThingsToTest
     public class Units : IClassFixture<TestsFixture>
     {
         private readonly ITestOutputHelper _testOutputHelper;
-        public static    MockDataStore     Database => new();
+        public static    MockDataStore     Database => new MockDataStore();
         public Units(ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;

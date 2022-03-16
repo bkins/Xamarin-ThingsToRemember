@@ -51,44 +51,19 @@ namespace ThingsToRemember.Views
             JournalTypePicker.IsVisible    = ! JournalTypePicker.IsVisible;
         }
 
-        private async void JournalTypePicker_OnOkButtonClicked(object                    sender
-                                                             , SelectionChangedEventArgs e)
+        private void JournalTypePicker_OnOkButtonClicked(object                    sender
+                                                       , SelectionChangedEventArgs e)
         {
             ToggleJournalTypePickerVisibility();
-            SelectedJournalType       = (JournalType)JournalTypePicker.SelectedItem;
-
-            //if (SelectedJournalType.Title == "<Add New>")
-            //{
-            //    await AddNewJournalType();
-            //}
-
+            SelectedJournalType = (JournalType)JournalTypePicker.SelectedItem;
+            
             Device.BeginInvokeOnMainThread(() =>
             {
                 PickJournalTypeLabel.Text = SelectedJournalType?.Title;
             });
             
         }
-
-        private async Task AddNewJournalType()
-        {
-            var typeName = await DisplayPromptAsync("Add New Journal Type"
-                                                  , "Name of new type:"
-                                                  , "OK"
-                                                  , "Cancel"
-                                                  , "Type Name"
-                                                  , -1
-                                                  , Keyboard.Create(KeyboardFlags.CapitalizeWord)
-                                                  , string.Empty)
-                                  .ConfigureAwait(false);
-
-            JournalTypeViewModel.AddJournalType(new JournalType
-                                                {
-                                                    Title = typeName
-                                                });
-
-            SelectedJournalType.Title = typeName;
-        }
-
+        
         private void JournalTypePicker_OnCancelButtonClicked(object                    sender
                                                            , SelectionChangedEventArgs e)
         {

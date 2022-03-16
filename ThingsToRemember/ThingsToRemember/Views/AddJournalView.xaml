@@ -1,10 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:picker="clr-namespace:Syncfusion.SfPicker.XForms;assembly=Syncfusion.SfPicker.XForms"
-             xmlns:ListCollection="clr-namespace:System.Collections.Generic;assembly=mscorlib"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:ThingsToRemember.ViewModels;assembly=ThingsToRemember"
-
              x:DataType="viewmodels:JournalTypeViewModel"
              x:Class="ThingsToRemember.Views.AddJournalView"
              >
@@ -51,7 +49,8 @@
             <Grid ColumnDefinitions="*,*">
                 <Button x:Name="SaveButton"
                         Text="Save"
-                        Clicked="SaveButton_OnClicked"/>
+                        Clicked="SaveButton_OnClicked"
+                        />
             </Grid>
 
         </StackLayout>

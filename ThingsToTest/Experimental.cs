@@ -12,17 +12,28 @@ namespace ThingsToTest
     /// <summary>
     /// This is for trying things out or exploring how to do things
     /// </summary>
-    public class Experimental : IClassFixture<TestsFixture>
+    public class Experimental : IClassFixture<TestsFixture>, IDisposable
     {
         private readonly ITestOutputHelper _testOutputHelper;
         private static   Database          _database;
         private static readonly string     DbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
                                                                       , "WorkoutDatabase_test.db3");
-        public static    Database          Database => _database ??= new Database(DbPath);
+        public static Database Database { get; set; }//=> _database ?? new Database(DbPath);
+
         public Experimental(ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
             _testOutputHelper.WriteLine($"Database path: {DbPath}");
+            
+            Database = _database ?? new Database(DbPath);
+            
+            Database.DropUserTables();
+            Database.DropAppTables();
+            
+            Database.CreateUserTables();
+            Database.CreateAppTables();
+            
+            
         }
 
         [Fact]
@@ -53,7 +64,7 @@ namespace ThingsToTest
             
             Database.DeleteJournal(ref updatedJournal);
 
-            Assert.Throws<SequenceContainsNoElementsException>( () => Database.GetJournal(updatedJournal.Id));
+            Assert.Throws<NullReferenceException>( () => Database.GetJournal(updatedJournal.Id));
         }
 
         [Fact]
@@ -75,13 +86,36 @@ namespace ThingsToTest
             journal.JournalType = journalType;
             Database.UpdateJournal(journal);
 
-            Assert.True(await Task.FromResult(true));
+            var final = await Task.FromResult(true);
+            Assert.True(final);
         }
 
         [Fact]
         public void GetAllJournals()
         {
             var journals = Database.GetJournals();
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (_database != null)
+                {
+                    _database.DropUserTables();                    
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~Experimental()
+        {
+            Dispose(false);
         }
     }
     

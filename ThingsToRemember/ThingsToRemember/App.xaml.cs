@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using Avails.Xamarin;
+using Avails.Xamarin.Interfaces;
 using ThingsToRemember.Services;
 using Xamarin.Forms;
 
@@ -9,6 +11,23 @@ namespace ThingsToRemember
     {
         #region "Properties"
 
+        private static BackupDatabase _backupDatabase;
+
+        public static BackupDatabase BackupDatabase
+        {
+            get
+            {
+                if (_backupDatabase ==null)
+                {
+                    var path = Path.Combine(DependencyService.Get<IDependencyService>()
+                                                             .GetExternalStorage()
+                                          , "ThingsToRemember.db3");
+                    _backupDatabase = new BackupDatabase(path, Database);
+                }
+
+                return _backupDatabase;
+            }
+        }
         private static Database _database;
 
         public static Database Database
@@ -38,6 +57,9 @@ namespace ThingsToRemember
             
             DependencyService.Register<Database>();
             DependencyService.Register<MockDataStore>();
+
+            Logger.WriteToToast = false;
+            
             MainPage = new AppShell();
         }
 
