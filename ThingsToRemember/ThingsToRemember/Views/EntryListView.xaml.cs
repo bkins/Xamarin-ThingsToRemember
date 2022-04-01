@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Web;
 using Avails.D_Flat;
 using Avails.Xamarin;
 using Syncfusion.ListView.XForms;
-using ThingsToRemember.Models;
 using ThingsToRemember.Services;
 using ThingsToRemember.ViewModels;
 using Xamarin.Forms;
@@ -34,8 +31,10 @@ namespace ThingsToRemember.Views
         private MoodViewModel             _moodViewModel;
         private JournalsViewModel         _journalsViewModel;
         
-        public System.Collections.IList Journals { get; set; }
-        
+        public System.Collections.IList Journals       { get;  set; }
+        public bool                     ShowEmptyTrash { get;  set; }
+        public bool                     ShowAddEntry   { get ; set ; }
+
         public EntryListView()
         {
             InitializeComponent();
@@ -81,15 +80,17 @@ namespace ThingsToRemember.Views
 
             _journalsViewModel                      = new JournalsViewModel(JournalId);
             Journals                                = _journalsViewModel.JournalsToMoveTo;
-            //SelectJournalToMoveToPicker.ItemsSource = new ObservableCollection<string>(Journals); //new[] { (IEnumerable)Journals };
             
+            ShowHideToolbarItems();
+        }
 
-            // var testEntries = _entriesViewModel.Entries;
+        private void ShowHideToolbarItems()
+        {
+            ShowEmptyTrash = Title == $"{SystemJournalGenerator.Trash} Entries";
+            ShowAddEntry   = Title == $"{SystemJournalGenerator.Archive} Entries";
 
-            // var testMood    = testEntries.FirstOrDefault(fields => fields.EntryMood != null)
-            //                             ?.EntryMood;
-
-            //var moodAsString = testMood.ToString();
+            EmptyTrashToolbarItem.IsVisible = ShowEmptyTrash;
+            AddEntryToolbarItem.IsVisible   = ! ShowEmptyTrash && ! ShowAddEntry;
         }
 
         private void RefreshEntryListView()
@@ -98,7 +99,7 @@ namespace ThingsToRemember.Views
             //     _entriesViewModel.ObservableListOfTtrEntries.OrderByDescending(fields => fields.CreateDateTime) :
             //     _entriesViewModel.ObservableListOfEntries.OrderByDescending(fields => fields.CreateDateTime);
 
-            ListView.ItemsSource = _entriesViewModel.GetObservableEntries(ShowTtr.IsTrue());
+            ListView.ItemsSource = _entriesViewModel.GetObservableEntries(DateTime.Parse(DateTimeNow));
         }
 
         protected override void OnAppearing()
@@ -180,7 +181,7 @@ namespace ThingsToRemember.Views
             {
                 var itemDeleted = DeleteSwipedItem(entryToDelete);
 
-                ListView.ItemsSource = _entriesViewModel.GetObservableEntries(ShowTtr.IsTrue());
+                ListView.ItemsSource = _entriesViewModel.GetObservableEntries(DateTime.Parse(DateTimeNow));
                 SetInitialImageAndTextVisibility();
 
                 Logger.WriteLine($"Deleted Entry: {itemDeleted} deleted."
@@ -210,9 +211,6 @@ namespace ThingsToRemember.Views
         
         private string DeleteSwipedItem(Entry entryToDelete)
         {
-            // var itemDeleted = _entriesViewModel.Delete(SwipedItem
-            //                                          , entryToDelete);
-            
             var itemDeleted = _entriesViewModel.Delete(entryToDelete, DateTime.Parse(DateTimeNow));
             
             if (itemDeleted.IsNullEmptyOrWhitespace())
@@ -250,16 +248,10 @@ namespace ThingsToRemember.Views
             AddEntryToolbarItem.IsEnabled = ! AddEntryToolbarItem.IsEnabled;
         }
 
-        // private void Edit(object obj)
-        // {
-        //     ToggleEditView();
-        // }
         private void DoneEditingButton_OnClicked(object    sender
                                                , EventArgs e)
         {
-            
             ToggleEditView();
-
         }
 
         private async void SelectJournalToMoveToPicker_OnSelectedIndexChanged(object    sender
@@ -267,7 +259,11 @@ namespace ThingsToRemember.Views
         {
             //BENDO: handle when cancel is pressed on picker: reset swipe
             SelectJournalToMoveToPicker.IsVisible = false;
-            
+
+            if (SelectJournalToMoveToPicker.SelectedItem == null)
+            {
+                return;
+            }
             var confirm = await DisplayAlert("Journal Picked"
                              , $"Moving '{SwipedItem.Title}' to {SelectJournalToMoveToPicker.SelectedItem}"
                              , "Yes", "No");
@@ -293,8 +289,22 @@ namespace ThingsToRemember.Views
         private void MoveImage_OnClicked(object    sender
                                        , EventArgs e)
         {
-            // SelectJournalToMoveToPicker.IsVisible = true;
             SelectJournalToMoveToPicker.Focus();
+        }
+
+        private async void EmptyTrashToolbarItem_OnClicked(object    sender
+                                                   , EventArgs e)
+        {
+            var confirm = await DisplayAlert("Empty Trash"
+                                           , $"You are about to permanently delete {_entriesViewModel.Entries.Count()} entries.{Environment.NewLine} Are you sure?"
+                                           , "Yes"
+                                           , "No");
+
+            if (confirm)
+            {
+                _entriesViewModel.DeleteAll(DateTime.Parse(DateTimeNow));
+            }
+
         }
     }
 }

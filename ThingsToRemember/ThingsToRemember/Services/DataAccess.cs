@@ -48,7 +48,9 @@ namespace ThingsToRemember.Services
 
         public IEnumerable<Journal> GetJournals()
         {
-            return Database.GetJournals();
+            var journals = Database.GetJournals();
+
+            return journals;
         }
 
         public Journal GetJournal(int journalId)

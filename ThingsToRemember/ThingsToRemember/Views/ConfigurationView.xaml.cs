@@ -345,7 +345,7 @@ namespace ThingsToRemember.Views
 
         private async void BackupDatabase()
         {
-            var destinationPath = BackupViewModel.BackupDataFromSource();
+            var destinationPath = BackupDatabaseViewModel.BackupDataFromSource();
 
             await DisplayAlert("Backup Complete"
                              , GetBackedUpMessageText(destinationPath)
@@ -388,7 +388,7 @@ namespace ThingsToRemember.Views
             try
             {
                 // BackupViewModel.Restore(fileToRestore);
-                BackupViewModel.Restore();
+                BackupDatabaseViewModel.Restore();
             }
             catch (UnauthorizedAccessException  accessException)
             {
@@ -458,6 +458,12 @@ namespace ThingsToRemember.Views
                                           , EventArgs e)
         {
             ViewModel.CleanupMoods();
+        }
+
+        private void AssignOriginalJournalIds_OnClicked(object    sender
+                                                      , EventArgs e)
+        {
+            ViewModel.AssignOriginalJournalIds();
         }
     }
 }

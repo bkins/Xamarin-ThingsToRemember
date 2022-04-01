@@ -44,12 +44,14 @@
                            FontSize="Small"
                            FontAttributes="Bold"
                            Margin="10, 0, 0, 0" 
-                           />
-                    <Label Text="{Binding EntriesCount}"
-                           Grid.Row="1"
-                           Grid.Column="1"
-                           FontSize="Small"
-                           />
+                           >
+                        
+                    </Label>
+                        <Label Text="{Binding EntriesCount}"
+                               Grid.Row="1"
+                               Grid.Column="1"
+                               FontSize="Small"
+                        />
                     <Label Text="{Binding EntriesToRememberCount}"
                            Grid.Row="1"
                            Grid.Column="2"
@@ -210,8 +212,8 @@
                    Text="{Binding JournalToEdit.Title}"
                    Placeholder="Journal Title"
                    Grid.Row="0"
-                   
-            />
+                   >
+            </Entry>
         
             <Label x:Name="JournalTypeLabel"
                    Text="{Binding JournalToEdit.JournalType.Title}"
@@ -227,7 +229,6 @@
                     Text="Done"
                     Clicked="DoneEditingButton_OnClicked"
                     Grid.Row="2"
-                    
                     />
         </Grid>
 

@@ -21,8 +21,9 @@ namespace ThingsToRemember.ViewModels
             Title = "Things to Remember";
             //Journals = GetListOfAllJournals();
             JournalIdToExclude = "0";
-            
+
             RefreshListOfJournals();
+
         }
 
         public JournalsViewModel(string excludedJournalId)

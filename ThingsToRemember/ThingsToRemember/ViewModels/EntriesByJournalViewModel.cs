@@ -9,11 +9,9 @@ namespace ThingsToRemember.ViewModels
 {
     public class EntriesByJournalViewModel : BaseViewModel
     {
-        public  IEnumerable<Entry>          Entries                    { get; set; }
-        private IEnumerable<Entry>          ttrEntries                 { get; set; }
-        private ObservableCollection<Entry> ObservableListOfEntries    { get; set; }
-        private ObservableCollection<Entry> ObservableListOfTtrEntries { get; set; }
-        public  bool                        ForTtRs                    { get; set; }
+        public  IEnumerable<Entry>          Entries                 { get; private set; }
+        private ObservableCollection<Entry> _observableListOfEntries { get; set; }
+        private bool                        _forTtRs                 { get; }
         
         private Journal                     _journal;
 
@@ -26,7 +24,7 @@ namespace ThingsToRemember.ViewModels
 
             SetTitle();
 
-            ForTtRs = forTtRs;
+            _forTtRs = forTtRs;
 
             Entries = GetEntriesByJournal(dateTimeNow);
 
@@ -35,33 +33,33 @@ namespace ThingsToRemember.ViewModels
 
         private void LoadAppropriateEntries(DateTime dateTimeNow)
         {
-            if (ForTtRs)
+            if (_forTtRs)
             {
                 Entries = DataAccessLayer.GetEntries()
                                          .Where(fields => fields.IsTtr(dateTimeNow));
 
-                ObservableListOfEntries = new ObservableCollection<Entry>(Entries);
+                _observableListOfEntries = new ObservableCollection<Entry>(Entries);
             }
             else
             {
                 Entries = GetEntriesByJournal(dateTimeNow
                                             , forceRefresh: true);
                 
-                ObservableListOfEntries = new ObservableCollection<Entry>(Entries.ToList());
+                _observableListOfEntries = new ObservableCollection<Entry>(Entries.ToList());
             }
         }
 
         private void SetTitle()
         {
-            Title = _journal.Title == null ?
-                            "TtR Entries" :
-                            $"{_journal?.Title} Entries";
+            Title = _forTtRs ?
+                        "TtR Entries" :
+                        $"{_journal?.Title} Entries";
         }
 
         private IEnumerable<Entry> GetEntriesByJournal(DateTime dateTimeNow
                                                      , bool forceRefresh = false)
         {
-            if (ForTtRs 
+            if (_forTtRs 
              && ! forceRefresh)
             {
                 LoadAppropriateEntries(dateTimeNow);
@@ -78,22 +76,15 @@ namespace ThingsToRemember.ViewModels
             {
                 _journal = DataAccessLayer.GetJournal(_journal.Id);
             }
+            
             return _journal.Entries.OrderByDescending(entry=>entry.CreateDateTime);
         }
 
-        // public string Delete(int   index
-        //                    , Entry entryToDelete)
         public string Delete(Entry entryToDelete, DateTime dateTimeNow)
         {
-            // if (index > ObservableListOfEntries.Count - 1)
-            // {
-            //     return string.Empty;
-            // }
-            
             var entryTitle = entryToDelete.Title;
 
-            ObservableListOfEntries.Remove(entryToDelete);
-            // ObservableListOfEntries.RemoveAt(index);
+            _observableListOfEntries.Remove(entryToDelete);
             
             DataAccessLayer.DeleteEntry(ref entryToDelete);
             
@@ -104,40 +95,42 @@ namespace ThingsToRemember.ViewModels
 
         public void RefreshListOfEntries(DateTime dateTimeNow)
         {
-            // Entries = DataAccessLayer.GetEntries()
-            //                          .ToList();
-            
             Entries = GetEntriesByJournal(dateTimeNow, forceRefresh: true);
             
-            //SetExtensionProperties();
             LoadAppropriateEntries(dateTimeNow);
-            // ObservableListOfEntries = new ObservableCollection<Entry>(Entries);
         }
 
         public void MoveEntry(Entry swipedItem
-                             , int newJournalId)
+                            , int newJournalId)
         {
             swipedItem.JournalId = newJournalId;
             DataAccessLayer.SaveEntry(swipedItem, newJournalId);
         }
 
-        public object GetObservableEntries(bool isTtR)
+        public object GetObservableEntries(DateTime dateTimeNow)
         {
-            return ObservableListOfEntries.OrderByDescending(fields => fields.CreateDateTime);
+            if(_observableListOfEntries is null)
+            {
+                LoadAppropriateEntries(dateTimeNow);
+            }
+            return _observableListOfEntries.OrderByDescending(fields => fields.CreateDateTime);
         }
 
         public Entry[] GetArrayOfEntries()
         {
             return Entries.ToArray();
+        }
 
-            // var ttrArray = ttrEntries.ToArray();
-            // var array    = Entries.ToArray();
-            //
-            // return isTtR ?
-            //     ttrArray :
-            //     array;
-
-
+        public void DeleteAll(DateTime dateTimeNow)
+        {
+            foreach (var entry in Entries)
+            {
+                var entryToDelete = entry;
+                DataAccessLayer.DeleteEntry(ref entryToDelete);
+                
+            }
+                //BENDO: It appears RefreshListOfEntries is not refreshing the list after delete
+                RefreshListOfEntries(dateTimeNow);
         }
     }
 }

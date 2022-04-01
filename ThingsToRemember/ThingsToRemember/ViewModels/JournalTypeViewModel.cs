@@ -2,15 +2,17 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using ThingsToRemember.Models;
+using ThingsToRemember.Services;
 
 namespace ThingsToRemember.ViewModels
 {
     public class JournalTypeViewModel : BaseViewModel
     {
-        public IList<JournalType>                JournalTypes           => GetListOfJournalsTypesForPicker();
-        public ObservableCollection<JournalType> ObservableJournalTypes { get; set; }
-        public JournalType                       JournalType            { get; set; }
-
+        public IList<JournalType>                JournalTypes             => GetListOfJournalsTypesForPicker();
+        public ObservableCollection<JournalType> ObservableJournalTypes   { get; set; }
+        public JournalType                       JournalType              { get; set; }
+        public bool                              IncludeSystemJournalType { get; set; }
+        
         public JournalTypeViewModel()
         {
             JournalType = new JournalType();
@@ -24,12 +26,21 @@ namespace ThingsToRemember.ViewModels
 
         public void RefreshListOfJournalTypes()
         {
-            ObservableJournalTypes = new ObservableCollection<JournalType>(DataAccessLayer.GetJournalTypesList());
+            var journalTypes = DataAccessLayer.GetJournalTypesList()
+                                              .Where(type=>type.Title 
+                                                        != SystemJournalGenerator.SystemJournalTypeTitle).ToList();
+
+            if (IncludeSystemJournalType)
+            {
+                journalTypes = DataAccessLayer.GetJournalTypesList();
+            }
+            
+            ObservableJournalTypes = new ObservableCollection<JournalType>(journalTypes);
         }
 
         private List<JournalType> GetListOfJournalsTypesForPicker()
         {
-            var types = DataAccessLayer.GetJournalTypesList();
+            var types = ObservableJournalTypes;
 
             return types.OrderBy(fields => fields.Title).ToList();
         }

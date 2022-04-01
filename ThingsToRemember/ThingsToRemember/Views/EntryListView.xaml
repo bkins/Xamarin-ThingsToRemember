@@ -1,10 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
+
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-xmlns:listview="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfListView.XForms"
+             xmlns:listview="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfListView.XForms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-xmlns:viewModels="clr-namespace:ThingsToRemember.ViewModels;assembly=ThingsToRemember"
-xmlns:views="clr-namespace:ThingsToRemember.Views;assembly=ThingsToRemember"
-x:Class="ThingsToRemember.Views.EntryListView">
+             xmlns:viewModels="clr-namespace:ThingsToRemember.ViewModels;assembly=ThingsToRemember"
+             xmlns:views="clr-namespace:ThingsToRemember.Views;assembly=ThingsToRemember"
+             xmlns:controls="clr-namespace:Avails.Xamarin.Controls;assembly=Avails"
+             x:Class="ThingsToRemember.Views.EntryListView">
 
     <ContentPage.Resources>
         <!--Define a visual state for the Selected state of the CollectionView-->
@@ -26,44 +28,51 @@ x:Class="ThingsToRemember.Views.EntryListView">
 
         <ResourceDictionary>
             <DataTemplate x:Name="ItemTemplate"
-                          x:Key="ItemTemplate">
+                          x:Key="ItemTemplate"
+                          >
                 <Grid x:Name="ExistingEntriesGrid"
-                      ColumnDefinitions="20*,54*,21*,5*"
-                      RowDefinitions="1,*"
+                      ColumnDefinitions="68*,25*,7*"
+                      RowDefinitions="1,Auto,Auto"
                       >
 
                     <Label x:Name="RecordSeparatorLineLabel"
                            BackgroundColor="Gray"
                            Grid.Row="0"
-                           Grid.ColumnSpan="4"
+                           Grid.ColumnSpan="3"
                            Margin="0, 0, 0, 0" 
                            />
-                    <Label Text="{Binding Title}"
+                    <Label x:Name="TitleLabel"
+                           Text="{Binding Title}"
                            Grid.Column="0"
                            Grid.Row="1"
+                           Grid.ColumnSpan="3"
                            FontSize="Small"
                            FontAttributes="Bold"
                            LineBreakMode="TailTruncation"
                            MaxLines="1"
-                           Margin="10, 0, 0, 0" 
+                           Margin="5, 0, 0, 0" 
                            />
-                    <Label Text="{Binding Text}"
-                           Grid.Column="1"
-                           Grid.Row="1"
+                    <Label x:Name="TextLabel"
+                           Text="{Binding Text}"
+                           Grid.Column="0"
+                           Grid.Row="2"
                            FontSize="Small"
                            FontAttributes="Italic"
                            LineBreakMode="TailTruncation"
                            MaxLines="2"
+                           Margin="10, 0, 0, 0" 
                            />
                     <!--Margin="15, -4, 0, 0" -->
-                    <Label Text="{Binding CreateDateTime, StringFormat='{0:yyyy/MM/dd}'}"
-                           Grid.Column="2"
-                           Grid.Row="1"
+                    <Label x:Name="CreateDateLabel"
+                           Text="{Binding CreateDateTime, StringFormat='{0:yyyy/MM/dd}'}"
+                           Grid.Column="1"
+                           Grid.Row="2"
                            FontSize="Small"
                            />
-                    <Label Text="{Binding EntryMood}"
-                           Grid.Column="3"
-                           Grid.Row="1"
+                    <Label x:Name="MoodLabel"
+                           Text="{Binding EntryMood}"
+                           Grid.Column="2"
+                           Grid.Row="2"
                            FontSize="Small"
                            />
                     <!--<object Margin="left,top,right,bottom"/>-->
@@ -74,10 +83,15 @@ x:Class="ThingsToRemember.Views.EntryListView">
     </ContentPage.Resources>
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem x:Name="AddEntryToolbarItem"
-                     IconImageSource="round_add_black_48.png"
-                     Clicked="AddEntryToolbarItem_OnClicked" 
-                     />
+        <controls:BindableToolbarItem x:Name="EmptyTrashToolbarItem"
+                                      IconImageSource="delete_outline_white_18.png"
+                                      IsVisible="{Binding ShowEmptyTrash}"
+                                      Clicked="EmptyTrashToolbarItem_OnClicked"
+                                      />
+        <controls:BindableToolbarItem x:Name="AddEntryToolbarItem"
+                                      IconImageSource="round_add_black_48.png"
+                                      Clicked="AddEntryToolbarItem_OnClicked" 
+                                      />
     </ContentPage.ToolbarItems>
 
     <StackLayout Margin="{DynamicResource PageMargin}">

@@ -9,14 +9,15 @@ namespace ThingsToRemember.Models
     public class Entry
     {
         [PrimaryKey, AutoIncrement]
-        public int Id                  { get; set; }
-        public string   Title          { get; set; }
-        public string   Text           { get; set; }
-        public DateTime CreateDateTime { get; set; }
-        public byte[]   Image          { get; set; }
-        public string   ImageFileName  { get; set; }
-        public byte[]   Video          { get; set; }
-        public string   VideoFileName  { get; set; }
+        public int Id { get;                     set; }
+        public string   Title             { get; set; }
+        public string   Text              { get; set; }
+        public DateTime CreateDateTime    { get; set; }
+        public byte[]   Image             { get; set; }
+        public string   ImageFileName     { get; set; }
+        public byte[]   Video             { get; set; }
+        public string   VideoFileName     { get; set; }
+        public int      OriginalJournalId { get; set; }
         
         [ForeignKey(typeof(Journal))]
         public int JournalId { get; set; }

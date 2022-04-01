@@ -4,9 +4,9 @@ using System.Text;
 using ApplicationExceptions;
 using Avails.D_Flat;
 using Avails.Xamarin;
-using Avails.Xamarin.Controls;
 using Syncfusion.ListView.XForms;
 using ThingsToRemember.Models;
+using ThingsToRemember.Services;
 using ThingsToRemember.ViewModels;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
@@ -15,7 +15,7 @@ using SwipeEndedEventArgs = Syncfusion.ListView.XForms.SwipeEndedEventArgs;
 namespace ThingsToRemember.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class InitialPage : ContentPage
+    public partial class InitialPage
     {
         private JournalsViewModel _journalsViewModel;
         
@@ -27,6 +27,9 @@ namespace ThingsToRemember.Views
         public InitialPage()
         {
             InitializeComponent();
+            
+            SystemJournalGenerator.Generate();
+            
             JournalTypeViewModel = new JournalTypeViewModel();
             
             JournalTypePicker.ItemsSource = JournalTypeViewModel.JournalTypes;
@@ -72,6 +75,7 @@ namespace ThingsToRemember.Views
             SetInitialImageAndTextVisibility();
 
             TtrToolbarItem.IsEnabled = _journalsViewModel.AnyWithTtr(dateTimeNow);
+            
         }
 
         private void SetInitialImageAndTextVisibility(bool refreshJournalList = false)
@@ -111,6 +115,7 @@ namespace ThingsToRemember.Views
         private void LeftImage_Delete_BindingContextChanged(object    sender
                                                           , EventArgs e)
         {
+            
             if (sender is Image deleteImage)
             {
                 (deleteImage.Parent as View)?.GestureRecognizers
@@ -142,9 +147,19 @@ namespace ThingsToRemember.Views
             JournalColumnHeaders.IsVisible  = ! JournalColumnHeaders.IsVisible;
         }
 
-        private void Edit(object obj)
+        private async void Edit(object obj)
         {
             JournalToEdit = _journalsViewModel.GetJournalToEdit(SwipedItem);
+            
+            if (JournalToEdit.JournalType.Title == SystemJournalGenerator.SystemJournalTypeTitle)
+            {
+                await DisplayAlert("System Journals"
+                                 , "System Journals cannot be edited."
+                                 , "OK");
+                ListView.ResetSwipe();
+                return;
+            }
+            
             SetEditFields();
 
             EditJournalGrid.IsVisible       = true;
@@ -165,6 +180,15 @@ namespace ThingsToRemember.Views
         {
             var journalToDelete = _journalsViewModel.GetJournal(SwipedItem);
 
+            if (journalToDelete.JournalType.Title == SystemJournalGenerator.SystemJournalTypeTitle)
+            {
+                await DisplayAlert("System Journals"
+                                 , "System Journals cannot be deleted."
+                                 , "OK");
+                ListView.ResetSwipe();
+                return;
+            }
+            
             var userChoice = await DisplayAlert("Are you sure?"
                                               , GetAreYouSureYouWouldLikeToProceedMessage(journalToDelete)
                                               , "Yes"

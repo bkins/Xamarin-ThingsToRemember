@@ -48,321 +48,335 @@
     </ContentPage.Resources>
 
     <ContentPage.Content>
-        <StackLayout>
+        <ScrollView>
+            
+            <StackLayout>
 
-            <accordion:SfAccordion x:Name="Accordion"
-                                   ExpandMode="SingleOrNone"
-                                   VerticalOptions="StartAndExpand"
-                                   DynamicSizeMode="Content"
-                                   Margin="0, 10, 0, 0"
-                                   >
+                <accordion:SfAccordion x:Name="Accordion"
+                                       ExpandMode="SingleOrNone"
+                                       VerticalOptions="StartAndExpand"
+                                       DynamicSizeMode="Content"
+                                       Margin="0, 10, 0, 0"
+                                       >
 
-                <accordion:SfAccordion.Items>
+                    <accordion:SfAccordion.Items>
 
-                    <accordion:AccordionItem x:Name="MoodsAccordionItem">
+                        <accordion:AccordionItem x:Name="MoodsAccordionItem">
 
-                        <accordion:AccordionItem.Header>
-                            <Grid Grid.ColumnDefinitions="*,50">
+                            <accordion:AccordionItem.Header>
+                                <Grid Grid.ColumnDefinitions="*,50">
+                                    
+                                    <Label x:Name="MoodsHeaderLabel"
+                                           Grid.Column="0"
+                                           BackgroundColor="{StaticResource Primary}"
+                                           TextColor="{StaticResource PrimaryForeColor}"
+                                           Text="Moods"
+                                           FontAttributes="Bold"
+                                           FontSize="Medium"
+                                           HeightRequest="{StaticResource AccordionHeight}"
+                                           VerticalTextAlignment="Center"
+                                           HorizontalTextAlignment="Start" 
+                                           />
+
+                                    <Button x:Name="AddMoodButton"
+                                            Grid.Column="1"
+                                            Text="+"
+                                            FontAttributes="Bold"
+                                            FontSize="Small"
+                                            Margin="0, -5, 0, 0"
+                                            HeightRequest="{StaticResource AccordionHeight}"
+                                            VerticalOptions="FillAndExpand"
+                                            HorizontalOptions="FillAndExpand"
+                                            Clicked="AddMoodButton_OnClicked" 
+                                            />
+                                    <!--<object Margin="left,top,right,bottom"/>-->
+                                </Grid>
+                            </accordion:AccordionItem.Header>
+
+                            <accordion:AccordionItem.Content>
                                 
-                                <Label x:Name="MoodsHeaderLabel"
-                                       Grid.Column="0"
-                                       BackgroundColor="{StaticResource Primary}"
-                                       TextColor="{StaticResource PrimaryForeColor}"
-                                       Text="Moods"
-                                       FontAttributes="Bold"
-                                       FontSize="Medium"
-                                       HeightRequest="{StaticResource AccordionHeight}"
-                                       VerticalTextAlignment="Center"
-                                       HorizontalTextAlignment="Start" 
-                                       />
+                                <xForms:SfListView x:Name="MoodsListView"
+                                                   AutoFitMode="DynamicHeight"
+                                                   VerticalOptions="Fill"
+                                                   SelectionMode="Single"
+                                                   AllowSwiping="True"
+                                                   IsScrollingEnabled="True"
+                                                   SwipeEnded="ListView_SwipeMoodEnded"
+                                                   ItemTemplate="{StaticResource ItemTemplate}"
+                                                   >
 
-                                <Button x:Name="AddMoodButton"
-                                        Grid.Column="1"
-                                        Text="+"
-                                        FontAttributes="Bold"
-                                        FontSize="Small"
-                                        Margin="0, -5, 0, 0"
-                                        HeightRequest="{StaticResource AccordionHeight}"
-                                        VerticalOptions="FillAndExpand"
-                                        HorizontalOptions="FillAndExpand"
-                                        Clicked="AddMoodButton_OnClicked" 
-                                        />
-                                <!--<object Margin="left,top,right,bottom"/>-->
-                            </Grid>
-                        </accordion:AccordionItem.Header>
-
-                        <accordion:AccordionItem.Content>
-                            
-                            <xForms:SfListView x:Name="MoodsListView"
-                                               AutoFitMode="DynamicHeight"
-                                               VerticalOptions="Fill"
-                                               SelectionMode="Single"
-                                               AllowSwiping="True"
-                                               IsScrollingEnabled="True"
-                                               SwipeEnded="ListView_SwipeMoodEnded"
-                                               ItemTemplate="{StaticResource ItemTemplate}"
-                                               >
-
-                                <xForms:SfListView.LeftSwipeTemplate >
-                                    <DataTemplate x:Name="LeftSwipeTemplate">
-                                        <Grid VerticalOptions="CenterAndExpand"
-                                              ColumnDefinitions="*,*"
-                                              >
-
-                                            <Grid Grid.Column="0"
-                                                  HorizontalOptions="Fill"
-                                                  VerticalOptions="Fill"
+                                    <xForms:SfListView.LeftSwipeTemplate >
+                                        <DataTemplate x:Name="LeftSwipeTemplate">
+                                            <Grid VerticalOptions="CenterAndExpand"
+                                                  ColumnDefinitions="*,*"
                                                   >
-                                                <Grid VerticalOptions="CenterAndExpand"
-                                                      HorizontalOptions="Center"
+
+                                                <Grid Grid.Column="0"
+                                                      HorizontalOptions="Fill"
+                                                      VerticalOptions="Fill"
                                                       >
-                                                    <Image x:Name="DeleteImage"
-                                                           Grid.Column="0"
-                                                           Grid.Row="0"
-                                                           BackgroundColor="Transparent"
-                                                           HeightRequest="35"
-                                                           WidthRequest="35"
-                                                           BindingContextChanged="LeftImage_DeleteMood_BindingContextChanged"
-                                                           Source="delete_black_18.png" 
-                                                           />
+                                                    <Grid VerticalOptions="CenterAndExpand"
+                                                          HorizontalOptions="Center"
+                                                          >
+                                                        <Image x:Name="DeleteImage"
+                                                               Grid.Column="0"
+                                                               Grid.Row="0"
+                                                               BackgroundColor="Transparent"
+                                                               HeightRequest="35"
+                                                               WidthRequest="35"
+                                                               BindingContextChanged="LeftImage_DeleteMood_BindingContextChanged"
+                                                               Source="delete_black_18.png" 
+                                                               />
+                                                    </Grid>
+                                                </Grid>
+                                                <Grid Grid.Column="1"
+                                                      HorizontalOptions="Fill"
+                                                      VerticalOptions="Fill"
+                                                      >
+                                                    <Grid VerticalOptions="CenterAndExpand"
+                                                          HorizontalOptions="Center"
+                                                          >
+                                                        <Image x:Name="EditImage"
+                                                               Grid.Column="0"
+                                                               Grid.Row="0"
+                                                               BackgroundColor="Transparent"
+                                                               HeightRequest="35"
+                                                               WidthRequest="35"
+                                                               BindingContextChanged="LeftImage_EditMood_BindingContextChanged"
+                                                               Source="edit_black_18.png" 
+                                                               />
+                                                    </Grid>
                                                 </Grid>
                                             </Grid>
-                                            <Grid Grid.Column="1"
-                                                  HorizontalOptions="Fill"
-                                                  VerticalOptions="Fill"
+
+                                        </DataTemplate>
+
+                                    </xForms:SfListView.LeftSwipeTemplate>
+                                </xForms:SfListView>
+
+                            </accordion:AccordionItem.Content>
+
+                        </accordion:AccordionItem>
+
+                        <accordion:AccordionItem x:Name="JournalTypesAccordionItem">
+
+                            <accordion:AccordionItem.Header>
+                                <Grid ColumnDefinitions="*,50">
+
+                                    <Label x:Name="JournalTypeLabel"
+                                           Grid.Column="0"
+                                           BackgroundColor="{StaticResource PrimaryBackColor}"
+                                           TextColor="{StaticResource PrimaryForeColor}"
+                                           Text="Journal Types"
+                                           FontAttributes="Bold"
+                                           FontSize="Medium"
+                                           HeightRequest="{StaticResource AccordionHeight}"
+                                           VerticalTextAlignment="Center"
+                                           HorizontalTextAlignment="Start" 
+                                           />
+
+                                    <Button x:Name="AddJournalTypeButton"
+                                            Grid.Column="1"
+                                            Text="+"
+                                            FontAttributes="Bold"
+                                            FontSize="Small"
+                                            Margin="0, -5, 0, 0"
+                                            HeightRequest="{StaticResource AccordionHeight}"
+                                            VerticalOptions="FillAndExpand"
+                                            HorizontalOptions="FillAndExpand"
+                                            Clicked="AddJournalTypeButton_OnClicked" 
+                                            />
+                                </Grid>
+
+                            </accordion:AccordionItem.Header>
+
+                            <accordion:AccordionItem.Content>
+                                <xForms:SfListView x:Name="JournalTypesListView"
+                                                   AutoFitMode="DynamicHeight"
+                                                   VerticalOptions="Fill"
+                                                   SelectionMode="Single"
+                                                   AllowSwiping="True"
+                                                   IsScrollingEnabled="True"
+                                                   SwipeEnded="ListView_SwipeJournalTypeEnded"
+                                                   ItemTemplate="{StaticResource JournalTypesItemTemplate}"
+                                                   >
+
+                                    <xForms:SfListView.LeftSwipeTemplate >
+                                        <DataTemplate x:Name="JournalTypeLeftSwipeTemplate">
+                                            <Grid VerticalOptions="CenterAndExpand"
+                                                  ColumnDefinitions="*,*"
                                                   >
-                                                <Grid VerticalOptions="CenterAndExpand"
-                                                      HorizontalOptions="Center"
+                                                
+                                                <Grid Grid.Column="0"
+                                                      HorizontalOptions="Fill"
+                                                      VerticalOptions="Fill"
                                                       >
-                                                    <Image x:Name="EditImage"
-                                                           Grid.Column="0"
-                                                           Grid.Row="0"
-                                                           BackgroundColor="Transparent"
-                                                           HeightRequest="35"
-                                                           WidthRequest="35"
-                                                           BindingContextChanged="LeftImage_EditMood_BindingContextChanged"
-                                                           Source="edit_black_18.png" 
-                                                           />
+                                                    <Grid VerticalOptions="CenterAndExpand"
+                                                          HorizontalOptions="Center"
+                                                          >
+                                                        <Image x:Name="DeleteImage"
+                                                               Grid.Column="0"
+                                                               Grid.Row="0"
+                                                               BackgroundColor="Transparent"
+                                                               HeightRequest="35"
+                                                               WidthRequest="35"
+                                                               BindingContextChanged="LeftImage_DeleteJournalType_BindingContextChanged"
+                                                               Source="delete_black_18.png" 
+                                                               />
+                                                    </Grid>
+                                                </Grid>
+                                                <Grid Grid.Column="1"
+                                                      HorizontalOptions="Fill"
+                                                      VerticalOptions="Fill"
+                                                      >
+                                                    <Grid VerticalOptions="CenterAndExpand"
+                                                          HorizontalOptions="Center"
+                                                          >
+                                                        <Image x:Name="EditImage"
+                                                               Grid.Column="0"
+                                                               Grid.Row="0"
+                                                               BackgroundColor="Transparent"
+                                                               HeightRequest="35"
+                                                               WidthRequest="35"
+                                                               BindingContextChanged="LeftImage_EditJournalType_BindingContextChanged"
+                                                               Source="edit_black_18.png" 
+                                                               />
+                                                    </Grid>
                                                 </Grid>
                                             </Grid>
-                                        </Grid>
 
-                                    </DataTemplate>
+                                        </DataTemplate>
 
-                                </xForms:SfListView.LeftSwipeTemplate>
-                            </xForms:SfListView>
+                                    </xForms:SfListView.LeftSwipeTemplate>
+                                </xForms:SfListView>
 
-                        </accordion:AccordionItem.Content>
+                            </accordion:AccordionItem.Content>
 
-                    </accordion:AccordionItem>
-
-                    <accordion:AccordionItem x:Name="JournalTypesAccordionItem">
-
-                        <accordion:AccordionItem.Header>
-                            <Grid ColumnDefinitions="*,50">
-
-                                <Label x:Name="JournalTypeLabel"
-                                       Grid.Column="0"
-                                       BackgroundColor="{StaticResource PrimaryBackColor}"
-                                       TextColor="{StaticResource PrimaryForeColor}"
-                                       Text="Journal Types"
-                                       FontAttributes="Bold"
-                                       FontSize="Medium"
-                                       HeightRequest="{StaticResource AccordionHeight}"
-                                       VerticalTextAlignment="Center"
-                                       HorizontalTextAlignment="Start" 
-                                       />
-
-                                <Button x:Name="AddJournalTypeButton"
-                                        Grid.Column="1"
-                                        Text="+"
-                                        FontAttributes="Bold"
-                                        FontSize="Small"
-                                        Margin="0, -5, 0, 0"
-                                        HeightRequest="{StaticResource AccordionHeight}"
-                                        VerticalOptions="FillAndExpand"
-                                        HorizontalOptions="FillAndExpand"
-                                        Clicked="AddJournalTypeButton_OnClicked" 
-                                        />
-                            </Grid>
-
-                        </accordion:AccordionItem.Header>
-
-                        <accordion:AccordionItem.Content>
-                            <xForms:SfListView x:Name="JournalTypesListView"
-                                               AutoFitMode="DynamicHeight"
-                                               VerticalOptions="Fill"
-                                               SelectionMode="Single"
-                                               AllowSwiping="True"
-                                               IsScrollingEnabled="True"
-                                               SwipeEnded="ListView_SwipeJournalTypeEnded"
-                                               ItemTemplate="{StaticResource JournalTypesItemTemplate}"
-                                               >
-
-                                <xForms:SfListView.LeftSwipeTemplate >
-                                    <DataTemplate x:Name="JournalTypeLeftSwipeTemplate">
-                                        <Grid VerticalOptions="CenterAndExpand"
-                                              ColumnDefinitions="*,*"
-                                              >
-                                            
-                                            <Grid Grid.Column="0"
-                                                  HorizontalOptions="Fill"
-                                                  VerticalOptions="Fill"
-                                                  >
-                                                <Grid VerticalOptions="CenterAndExpand"
-                                                      HorizontalOptions="Center"
-                                                      >
-                                                    <Image x:Name="DeleteImage"
-                                                           Grid.Column="0"
-                                                           Grid.Row="0"
-                                                           BackgroundColor="Transparent"
-                                                           HeightRequest="35"
-                                                           WidthRequest="35"
-                                                           BindingContextChanged="LeftImage_DeleteJournalType_BindingContextChanged"
-                                                           Source="delete_black_18.png" 
-                                                           />
-                                                </Grid>
-                                            </Grid>
-                                            <Grid Grid.Column="1"
-                                                  HorizontalOptions="Fill"
-                                                  VerticalOptions="Fill"
-                                                  >
-                                                <Grid VerticalOptions="CenterAndExpand"
-                                                      HorizontalOptions="Center"
-                                                      >
-                                                    <Image x:Name="EditImage"
-                                                           Grid.Column="0"
-                                                           Grid.Row="0"
-                                                           BackgroundColor="Transparent"
-                                                           HeightRequest="35"
-                                                           WidthRequest="35"
-                                                           BindingContextChanged="LeftImage_EditJournalType_BindingContextChanged"
-                                                           Source="edit_black_18.png" 
-                                                           />
-                                                </Grid>
-                                            </Grid>
-                                        </Grid>
-
-                                    </DataTemplate>
-
-                                </xForms:SfListView.LeftSwipeTemplate>
-                            </xForms:SfListView>
-
-                        </accordion:AccordionItem.Content>
-
-                    </accordion:AccordionItem>
-                    
-                    <accordion:AccordionItem x:Name="AdvancedAccordionItem">
+                        </accordion:AccordionItem>
                         
-                        <accordion:AccordionItem.Header>
-                            <Grid x:Name="AdvancedAccordionHeaderGrid">
+                        <accordion:AccordionItem x:Name="AdvancedAccordionItem">
+                            
+                            <accordion:AccordionItem.Header>
+                                <Grid x:Name="AdvancedAccordionHeaderGrid">
 
-                                <Label x:Name="AdvancedAccordionLabel"
-                                       Text="Advanced"
-                                       BackgroundColor="{StaticResource Primary}"
-                                       TextColor="{StaticResource PrimaryForeColor}"
-                                       FontAttributes="Bold"
-                                       FontSize="Medium"
-                                       HeightRequest="{StaticResource AccordionHeight}"
-                                       VerticalTextAlignment="Center"
-                                       HorizontalTextAlignment="Start" 
-                                       />
+                                    <Label x:Name="AdvancedAccordionLabel"
+                                           Text="Advanced"
+                                           BackgroundColor="{StaticResource Primary}"
+                                           TextColor="{StaticResource PrimaryForeColor}"
+                                           FontAttributes="Bold"
+                                           FontSize="Medium"
+                                           HeightRequest="{StaticResource AccordionHeight}"
+                                           VerticalTextAlignment="Center"
+                                           HorizontalTextAlignment="Start" 
+                                           />
 
-                            </Grid>
-                        </accordion:AccordionItem.Header>
-                        <accordion:AccordionItem.Content>
+                                </Grid>
+                            </accordion:AccordionItem.Header>
+                            <accordion:AccordionItem.Content>
 
-                            <Grid RowDefinitions="*,*,*,*,*">
+                                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
 
-                                <Button x:Name="ClearDataButton"
-                                        Grid.Row="0"
-                                        Text="Clear All Journals and their Data"
-                                        Clicked="ClearDataButton_OnClicked"
-                                        Margin="-25, 5, -25, 0"
-                                        HorizontalOptions="Center"
-                                        />
+                                    <Button x:Name="ClearDataButton"
+                                            Grid.Row="0"
+                                            Text="Clear All Journals and their Data"
+                                            Clicked="ClearDataButton_OnClicked"
+                                            Margin="-25, 5, -25, 0"
+                                            HorizontalOptions="Center"
+                                            />
 
-                                <Button x:Name="ClearApplicationDataButton"
-                                        Grid.Row="1"
-                                        Text="Clear Application Data"
-                                        Clicked="ClearApplicationDataButton_OnClicked"
-                                        Margin="0, 0, 0, 0"
-                                        HorizontalOptions="Center"
-                                        />
+                                    <Button x:Name="ClearApplicationDataButton"
+                                            Grid.Row="1"
+                                            Text="Clear Application Data"
+                                            Clicked="ClearApplicationDataButton_OnClicked"
+                                            Margin="0, 0, 0, 0"
+                                            HorizontalOptions="Center"
+                                            />
 
-                                <Button x:Name="BackUpDbButton"
-                                        Grid.Row="2"
-                                        Text="Backup Database"
-                                        Clicked="BackUpDbButton_OnClicked"
-                                        HorizontalOptions="Center"
-                                        />
-                                
-                                <Button x:Name="RestoreDbButton"
-                                        Grid.Row="3"
-                                        Text="Restore Database"
-                                        Clicked="RestoreDbButton_OnClicked"
-                                        HorizontalOptions="Center"
-                                        />
-                                <Button x:Name="FixJournalTypes"
-                                        Grid.Row="4"
-                                        Text="Fix Journal Types"
-                                        Clicked="FixJournalTypes_OnClicked"
-                                        HorizontalOptions="Center"
-                                        />
-                                <Button x:Name="CleanupMoods"
-                                        Grid.Row="5"
-                                        Text="Cleanup Moods"
-                                        Clicked="CleanupMoods_OnClicked"
-                                        HorizontalOptions="Center"
-                                        />
-                            </Grid>
+                                    <Button x:Name="BackUpDbButton"
+                                            Grid.Row="2"
+                                            Text="Backup Database"
+                                            Clicked="BackUpDbButton_OnClicked"
+                                            HorizontalOptions="Center"
+                                            />
+                                    
+                                    <Button x:Name="RestoreDbButton"
+                                            Grid.Row="3"
+                                            Text="Restore Database"
+                                            Clicked="RestoreDbButton_OnClicked"
+                                            HorizontalOptions="Center"
+                                            />
+                                    
+                                    <Button x:Name="FixJournalTypes"
+                                            Grid.Row="4"
+                                            Text="Fix Journal Types"
+                                            Clicked="FixJournalTypes_OnClicked"
+                                            HorizontalOptions="Center"
+                                            />
+                                    
+                                    <Button x:Name="CleanupMoods"
+                                            Grid.Row="5"
+                                            Text="Cleanup Moods"
+                                            Clicked="CleanupMoods_OnClicked"
+                                            HorizontalOptions="Center"
+                                            />
+                                    
+                                    <Button x:Name="AssignOriginalJournalIds"
+                                            Grid.Row="6"
+                                            Text="Assign Original Journal Ids"
+                                            Clicked="AssignOriginalJournalIds_OnClicked"
+                                            HorizontalOptions="Center"
+                                            />
 
-                        </accordion:AccordionItem.Content>
-                    </accordion:AccordionItem>
+                                </Grid>
 
-                </accordion:SfAccordion.Items>
+                            </accordion:AccordionItem.Content>
+                        </accordion:AccordionItem>
 
-            </accordion:SfAccordion>
-            
-            <ContentView x:Name="EditMoodsContentView">
+                    </accordion:SfAccordion.Items>
 
-                <Grid x:Name="EditMoodGrid"
-                      ColumnDefinitions="*,*"
-                      RowDefinitions="*,*,*"
-                      VerticalOptions="Start" 
-                      >
+                </accordion:SfAccordion>
+                
+                <ContentView x:Name="EditMoodsContentView">
 
-                    <Entry x:Name="MoodTitleEntry"
-                           Text="{Binding MoodToEdit.Title}"
-                           Placeholder="Journal Title"
-                           Grid.Column="0"
-                           Grid.ColumnSpan="2"
-                           Grid.Row="0"
-                           MinimumHeightRequest="50"
-                          />
+                    <Grid x:Name="EditMoodGrid"
+                          ColumnDefinitions="*,*"
+                          RowDefinitions="*,*,*"
+                          VerticalOptions="Start" 
+                          >
 
-                    <Entry x:Name="MoodEmojiEntry"
-                           Text="{Binding MoodToEdit.Emoji}"
-                           Grid.Column="0"
-                           Grid.Row="1"
-                           MinimumHeightRequest="50"
-                           />
-                    <Entry x:Name="MoodIdEntry"
-                           Text="{Binding MoodToEdit.Id}"
-                           Grid.Column="2"
-                           Grid.Row="1"
-                           MinimumHeightRequest="50"
-                           />
-                    <Button x:Name="DoneEditingButton"
-                            Text="Done"
-                            Clicked="DoneEditingButton_OnClicked"
-                            Grid.Row="2"
-                            MinimumHeightRequest="50"
-                            />
-                </Grid>
+                        <Entry x:Name="MoodTitleEntry"
+                               Text="{Binding MoodToEdit.Title}"
+                               Placeholder="Journal Title"
+                               Grid.Column="0"
+                               Grid.ColumnSpan="2"
+                               Grid.Row="0"
+                               MinimumHeightRequest="50"
+                              />
 
-            </ContentView>
-            
+                        <Entry x:Name="MoodEmojiEntry"
+                               Text="{Binding MoodToEdit.Emoji}"
+                               Grid.Column="0"
+                               Grid.Row="1"
+                               MinimumHeightRequest="50"
+                               />
+                        <Entry x:Name="MoodIdEntry"
+                               Text="{Binding MoodToEdit.Id}"
+                               Grid.Column="2"
+                               Grid.Row="1"
+                               MinimumHeightRequest="50"
+                               />
+                        <Button x:Name="DoneEditingButton"
+                                Text="Done"
+                                Clicked="DoneEditingButton_OnClicked"
+                                Grid.Row="2"
+                                MinimumHeightRequest="50"
+                                />
+                    </Grid>
+
+                </ContentView>
+                
         </StackLayout>
+            
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>

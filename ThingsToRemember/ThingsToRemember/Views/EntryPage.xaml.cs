@@ -10,11 +10,9 @@ using Avails.Xamarin;
 using MediaManager;
 using Plugin.Media;
 using Plugin.Media.Abstractions;
-using Syncfusion.DataSource.Extensions;
 using ThingsToRemember.ViewModels;
 using Xamarin.CommunityToolkit.Core;
 using Xamarin.Forms;
-using Xamarin.Forms.Internals;
 using Xamarin.Forms.Xaml;
 using Entry = Xamarin.Forms.Entry;
 using SelectionChangedEventArgs = Syncfusion.SfPicker.XForms.SelectionChangedEventArgs;
@@ -77,8 +75,9 @@ namespace ThingsToRemember.Views
         {
             _entryViewModel = new EntryViewModel(entryIntId);
 
-            Title = _entryViewModel.Title;
-
+            Title   = _entryViewModel.Title;
+            EntryId = _entryViewModel.Entry.Id.ToString();
+            
             SetDateTimePickers();
 
             if (_entryViewModel.Entry.EntryMood != null)
@@ -158,13 +157,13 @@ namespace ThingsToRemember.Views
             {
                 MainGrid.RowDefinitions[1] = new RowDefinition
                                              {
-                                                 Height = new GridLength(25
+                                                 Height = new GridLength(20
                                                                        , GridUnitType.Star)
                                              };
 
                 MainGrid.RowDefinitions[4] = new RowDefinition
                                              {
-                                                 Height = new GridLength(33
+                                                 Height = new GridLength(30
                                                                        , GridUnitType.Star)
                                              };
             }
@@ -172,14 +171,12 @@ namespace ThingsToRemember.Views
             {
                 MainGrid.RowDefinitions[1] = new RowDefinition
                                              {
-                                                 Height = new GridLength(28
-                                                                       , GridUnitType.Star)
+                                                 Height = GridLength.Auto
                                              };
                 
                 MainGrid.RowDefinitions[4] = new RowDefinition
                                              {
-                                                 Height = new GridLength(0
-                                                                       , GridUnitType.Star)
+                                                 Height = GridLength.Star
                                              };
             }
         }
@@ -290,10 +287,10 @@ namespace ThingsToRemember.Views
         
         private void ShowMoodPicker(bool show)
         {
-            TitleEditor.IsVisible         = ! show;
-            TextEditor.IsVisible          = ! show;
-            SaveButton.IsVisible          = ! show;
-            MoodPicker.IsVisible           = show;
+            TitleEditor.IsVisible = ! show;
+            TextEditor.IsVisible  = ! show;
+            SaveButton.IsVisible  = ! show;
+            MoodPicker.IsVisible  = show;
         }
 
         private void ShowCreateDateTimePicker(bool show)
@@ -583,6 +580,16 @@ namespace ThingsToRemember.Views
             var nextEntry = entries[nextEntryIndex]; 
             
             LoadEntry(nextEntry.Id);
+        }
+
+        private async void ExpandButton_OnClicked(object    sender
+                                                , EventArgs e)
+        {
+            PageCommunication.Instance.StringValue  = ShowTtr;
+            
+            await PageNavigation.NavigateTo(nameof(EntryTextPage)
+                                          , nameof(EntryTextPage.EntryId)
+                                          , EntryId);
         }
     }
 }

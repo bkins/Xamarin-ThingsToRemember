@@ -80,6 +80,15 @@ namespace ThingsToRemember.ViewModels
                 DataAccessLayer.DeleteMood(ref moodToDelete);
             }
         }
-        
+
+        public void AssignOriginalJournalIds()
+        {
+            var allEntries = DataAccessLayer.GetEntries();
+
+            foreach (var entry in allEntries)
+            {
+                DataAccessLayer.SaveEntry(entry, entry.JournalId);
+            }
+        }
     }
 }

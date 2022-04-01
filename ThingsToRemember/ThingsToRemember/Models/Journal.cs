@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SQLite;
 using SQLiteNetExtensions.Attributes;
+using ThingsToRemember.Services;
 
 namespace ThingsToRemember.Models
 {
@@ -37,7 +38,8 @@ namespace ThingsToRemember.Models
 
         public bool GetHasEntriesToRemember(DateTime dateTimeNow)
         {
-            return Entries.Any(fields => fields.IsTtr(dateTimeNow));
+            return JournalType.Title != SystemJournalGenerator.SystemJournalTypeTitle 
+                && Entries.Any(fields => fields.IsTtr(dateTimeNow));
         }
 
         #endregion

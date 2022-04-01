@@ -13,6 +13,8 @@ namespace ThingsToRemember
 
         private static BackupDatabase _backupDatabase;
 
+        public static string DefaultBackupFileName { get; set; } = "ThingsToRemember.db3";
+        
         public static BackupDatabase BackupDatabase
         {
             get
@@ -21,7 +23,7 @@ namespace ThingsToRemember
                 {
                     var path = Path.Combine(DependencyService.Get<IDependencyService>()
                                                              .GetExternalStorage()
-                                          , "ThingsToRemember.db3");
+                                          , DefaultBackupFileName);
                     _backupDatabase = new BackupDatabase(path, Database);
                 }
 

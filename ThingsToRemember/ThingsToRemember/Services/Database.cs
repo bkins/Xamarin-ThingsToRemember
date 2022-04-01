@@ -166,7 +166,9 @@ namespace ThingsToRemember.Services
         public void AddEntryWIthChildren(Entry entry
                                        , int   journalId)
         {
-            entry.JournalId = journalId;
+            entry.JournalId         = journalId;
+            entry.OriginalJournalId = journalId;
+            
             _database.InsertWithChildren(entry);
         }
         public int AddJournal(Journal journal)
@@ -225,6 +227,11 @@ namespace ThingsToRemember.Services
 
         public void UpdateEntry(Entry entry)
         {
+            if (entry.OriginalJournalId == 0)
+            {
+                entry.OriginalJournalId = entry.JournalId;
+            }
+            
             _database.UpdateWithChildren(entry);
         }
 

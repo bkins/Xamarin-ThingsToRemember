@@ -47,7 +47,7 @@ namespace ThingsToRemember.ViewModels
             destinationDatabase.RestoreDatabaseFromDestination();
         }
 
-        public string BackupDataFromSource()
+        public static string BackupDataFromSource()
         {
             var destinationDatabase = App.BackupDatabase;
             
@@ -56,8 +56,11 @@ namespace ThingsToRemember.ViewModels
             return destinationDatabase.GetFilePath();
         }
 
-        public void Restore()
+        public static void Restore()
         {
+            //BENDO: Give user option to choose the backed up database to restore vis:
+            // App.DefaultBackupFileName = "<backed up database name>";
+            
             var destinationDatabase = App.BackupDatabase;
             
             destinationDatabase.RestoreDatabaseFromDestination();

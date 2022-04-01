@@ -43,6 +43,10 @@
     <Compile Update="Views\AddJournalTypeView.xaml.cs">
       <DependentUpon>AddJournalTypeView.xaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\EntryTextPage.xaml.cs">
+      <DependentUpon>EntryTextPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
