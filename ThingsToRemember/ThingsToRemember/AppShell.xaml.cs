@@ -19,6 +19,7 @@ namespace ThingsToRemember
             Routing.RegisterRoute(nameof(EditJournalTypePopUp), typeof(EditJournalTypePopUp));
             Routing.RegisterRoute(nameof(AddJournalTypeView),   typeof(AddJournalTypeView));
             Routing.RegisterRoute(nameof(EntryTextPage),        typeof(EntryTextPage));
+            Routing.RegisterRoute(nameof(EntryMediaPage),       typeof(EntryMediaPage));
         }
     }
 }

@@ -1,0 +1,335 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:picker="clr-namespace:Syncfusion.SfPicker.XForms;assembly=Syncfusion.SfPicker.XForms"
+             xmlns:dateTimePicker="clr-namespace:Avails.Xamarin.Controls;assembly=Avails"
+             xmlns:ListCollection="clr-namespace:System.Collections.Generic;assembly=mscorlib"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+             xmlns:viewmodels="clr-namespace:ThingsToRemember.ViewModels;assembly=ThingsToRemember"
+             xmlns:media="clr-namespace:MediaManager.Forms;assembly=MediaManager.Forms"
+
+             x:Class="ThingsToRemember.Views.EntryPage_"
+             x:DataType="viewmodels:EntryViewModel">
+
+    <ContentPage.Resources>
+        <!--Define a visual state-->
+        <Style TargetType="StackLayout">
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal" />
+                        <VisualState x:Name="Selected">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor"
+                                        Value="{DynamicResource AppPrimaryColor}" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+        </Style>
+    </ContentPage.Resources>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="PreviousEntryToolbarItem"
+                     IconImageSource="baseline_arrow_upward_black_48.png"
+                     Clicked="PreviousEntryToolbarItem_OnClicked" />
+        <ToolbarItem x:Name="NextEntryToolbarItem"
+                     IconImageSource="baseline_arrow_downward_black_48.png"
+                     Clicked="NextEntryToolbarItem_OnClicked" />
+    </ContentPage.ToolbarItems>
+
+    <ScrollView>
+        
+        <StackLayout Margin="{DynamicResource PageMargin}">
+
+            <StackLayout Orientation="Vertical"
+                         VerticalOptions="Start">
+                <!-- top controls -->
+
+                <xct:Expander>
+                    <xct:Expander.Header>
+                        <Grid>
+                            <!-- <ScrollView HeightRequest="50"> -->
+                                <Editor x:Name="TitleEditor"
+                                        Placeholder="Title"
+                                        Text="{Binding Title}"
+                                        AutoSize="TextChanges"
+                                        MaxLength="35"
+                                        HorizontalOptions="StartAndExpand" 
+                                        >
+                                    <Editor.Keyboard >
+                                        <Keyboard x:FactoryMethod="Create">
+                                            <x:Arguments>
+                                                <KeyboardFlags>Suggestions,CapitalizeWord</KeyboardFlags>
+                                            </x:Arguments>
+                                        </Keyboard>
+                                    </Editor.Keyboard>
+                                </Editor>
+                            
+                            <Editor x:Name="TextEditorCollapsed"
+                                    Placeholder="Text"
+                                    Text="{Binding Text}"
+                                    AutoSize="TextChanges"
+                                    VerticalOptions="Start"
+                                    MaxLength="100"
+                                    >
+                                <Editor.Keyboard>
+                                    <Keyboard x:FactoryMethod="Create">
+                                        <x:Arguments>
+                                            <KeyboardFlags>Suggestions,CapitalizeSentence</KeyboardFlags>
+                                        </x:Arguments>
+                                    </Keyboard>
+                                </Editor.Keyboard>
+                            </Editor>  
+                            <Image Source="expand_18.png"
+                                   HorizontalOptions="End"
+                                   VerticalOptions="Start"
+                                   >
+                                <Image.Triggers>
+                                    <DataTrigger TargetType="Image"
+                                                 Binding="{Binding Source={RelativeSource AncestorType={x:Type xct:Expander}}, Path=IsExpanded}"
+                                                 Value="True">
+                                        <Setter Property="Source"
+                                                Value="collapse_18.png" />
+                                    </DataTrigger>
+                                </Image.Triggers>
+                            </Image>
+                        </Grid>
+                    </xct:Expander.Header>
+                    
+                    <xct:Expander.ContentTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <!-- <Image Source="expand_18.png" -->
+                                <!--        Aspect="AspectFill" -->
+                                <!--        HeightRequest="120" -->
+                                <!--        WidthRequest="120" /> -->
+                                <!--   -->
+                                <!-- HeightRequest="250" -->
+                                <ScrollView 
+                                            Grid.Row="1"
+                                            Grid.ColumnSpan="2"
+                                            IsVisible="true"
+                                            >
+                                    <!-- HeightRequest="350" -->
+                                    <Editor x:Name="TextEditorCollapsed"
+                                            Placeholder="Text"
+                                            Text="{Binding Text}"
+                                            AutoSize="TextChanges"
+                                            VerticalOptions="Start"
+                                            MaxLength="100"
+                                            >
+                                        <Editor.Keyboard>
+                                            <Keyboard x:FactoryMethod="Create">
+                                                <x:Arguments>
+                                                    <KeyboardFlags>Suggestions,CapitalizeSentence</KeyboardFlags>
+                                                </x:Arguments>
+                                            </Keyboard>
+                                        </Editor.Keyboard>
+                                    </Editor>  
+                                </ScrollView>
+                            </Grid>
+                        </DataTemplate>
+                    </xct:Expander.ContentTemplate>
+                </xct:Expander>
+
+                <!--The RowDefinitions for The media [4] are set dynamically-->
+                <!-- See ShowHideMediaGrid()-->
+                <!--                   0       1    2     3    4    5   -->
+                <!--                 Title   Text  D/T  Mood  Med  MedB -->
+                <Grid x:Name="MainGrid"
+                      RowDefinitions="Auto, 33*, *,  *, 33*, 5*"
+                      ColumnDefinitions="Auto, *">
+
+                    <!-- <Editor x:Name="TitleEditor" -->
+                    <!--         Placeholder="Title" -->
+                    <!--         Text="{Binding Title}" -->
+                    <!--         AutoSize="TextChanges" -->
+                    <!--         MaxLength="35" -->
+                    <!--         HorizontalOptions="StartAndExpand" -->
+                    <!--         Grid.Row="0" -->
+                    <!--         Grid.ColumnSpan="2" -->
+                    <!--         IsVisible="False" -->
+                    <!--         > -->
+                    <!--     <Editor.Keyboard > -->
+                    <!--         <Keyboard x:FactoryMethod="Create"> -->
+                    <!--             <x:Arguments> -->
+                    <!--                 <KeyboardFlags>Suggestions,CapitalizeWord</KeyboardFlags> -->
+                    <!--             </x:Arguments> -->
+                    <!--         </Keyboard> -->
+                    <!--     </Editor.Keyboard> -->
+                    <!-- </Editor> -->
+                    <!-- <ScrollView HeightRequest="250" -->
+                    <!--             Grid.Row="1" -->
+                    <!--             Grid.ColumnSpan="2" -->
+                    <!--             IsVisible="False" -->
+                    <!--             > -->
+                        
+                        <!-- <Editor x:Name="TextEditorCollapsed" -->
+                        <!--         Placeholder="Text" -->
+                        <!--         Text="{Binding Text}" -->
+                        <!--         AutoSize="TextChanges" -->
+                        <!--         HeightRequest="150" -->
+                        <!--         VerticalOptions="StartAndExpand" -->
+                        <!--         > -->
+                        <!--     <Editor.Keyboard> -->
+                        <!--         <Keyboard x:FactoryMethod="Create"> -->
+                        <!--             <x:Arguments> -->
+                        <!--                 <KeyboardFlags>Suggestions,CapitalizeSentence</KeyboardFlags> -->
+                        <!--             </x:Arguments> -->
+                        <!--         </Keyboard> -->
+                        <!--     </Editor.Keyboard> -->
+                        <!-- </Editor> -->
+                    <!-- </ScrollView> -->
+                    
+                    <!-- <ImageButton x:Name="ExpandButton" -->
+                    <!--              Grid.Row="1" -->
+                    <!--              Grid.Column="1" -->
+                    <!--              HorizontalOptions="End" -->
+                    <!--              VerticalOptions="Start" -->
+                    <!--              Source="expand_18.png" -->
+                    <!--              Clicked="ExpandButton_OnClicked" -->
+                    <!--              IsVisible="False" -->
+                    <!-- /> -->
+                    
+                    <DatePicker x:Name="CreateDatePicker"
+                                Date="{Binding CreateDateTime.Date}"
+                                HorizontalOptions="Start"
+                                IsVisible="True"
+                                DateSelected="CreateDatePicker_OnDateSelected"
+                                Grid.Row="2"
+                                Grid.Column="0" />
+
+                    <TimePicker x:Name="CreateTimePicker"
+                                Time="{Binding CreateDateTime.TimeOfDay}"
+                                HorizontalOptions="StartAndExpand"
+                                IsVisible="True"
+                                PropertyChanged="CreateTimePicker_OnPropertyChanged"
+                                Grid.Row="2"
+                                Grid.Column="1" />
+
+                    <Label x:Name="MoodLabel"
+                           Text="Tap here to select a Mood..."
+                           FontSize="Medium"
+                           Grid.Row="3"
+                           Grid.ColumnSpan="2">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="MoodLabel_OnTapped" />
+                        </Label.GestureRecognizers>
+
+                    </Label>
+
+                    <!-- Media Grids -->
+                    <Grid x:Name="PhotoVideoGrid"
+                          ColumnDefinitions="Auto,*,*,*"
+                          RowDefinitions="10*,5*"
+
+                          HorizontalOptions="FillAndExpand"
+                          VerticalOptions="FillAndExpand"
+                          Grid.Row="4"
+                          Grid.ColumnSpan="2">
+
+                        <Image x:Name="ImageFromCamera"
+                               IsVisible="False"
+                               VerticalOptions="EndAndExpand"
+                               Aspect="AspectFit"
+                               Grid.Row="0"
+                               Grid.Column="0"
+                               Grid.ColumnSpan="2"
+                               Grid.RowSpan="2" />
+                        <xct:MediaElement x:Name="VideoMediaElement"
+                                          VerticalOptions="End"
+                                          Grid.Row="0"
+                                          Grid.Column="2"
+                                          Grid.ColumnSpan="2" />
+
+                        <media:VideoView x:Name="VideoFromCamera"
+                                         IsVisible="False"
+                                         VerticalOptions="End"
+                                         VideoAspect="AspectFit"
+                                         Grid.Row="0"
+                                         Grid.Column="2"
+                                         Grid.ColumnSpan="2" />
+
+                        <Label x:Name="PlayLabel"
+                               Text="Play"
+                               IsVisible="False"
+                               Grid.Row="1"
+                               Grid.Column="2">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="PlayLabel_OnTapped" />
+                            </Label.GestureRecognizers>
+                        </Label>
+
+                        <Label x:Name="StopLabel"
+                               Text="Stop"
+                               IsVisible="False"
+                               Grid.Row="1"
+                               Grid.Column="3">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="StopLabel_OnTapped" />
+                            </Label.GestureRecognizers>
+                        </Label>
+
+                    </Grid>
+
+                    <Grid ColumnDefinitions="25*,75*"
+                          HorizontalOptions="End"
+                          Grid.Row="5">
+                        <ImageButton x:Name="AddImageButton"
+                                     Source="camera.png"
+                                     HeightRequest="50"
+                                     HorizontalOptions="End"
+                                     Margin="0, 0, 0, 0"
+                                     Grid.Column="0"
+                                     Clicked="AddImageButton_OnClicked" />
+                        <ImageButton x:Name="AddVideoButton"
+                                     Source="videocam_black_48.png"
+                                     HeightRequest="50"
+                                     HorizontalOptions="End"
+                                     Grid.Column="1"
+                                     Clicked="AddVideoButton_OnClicked" />
+                    </Grid>
+                </Grid>
+
+            </StackLayout>
+            <StackLayout VerticalOptions="CenterAndExpand">
+                <!-- middle controls -->
+
+                <picker:SfPicker x:Name="MoodPicker"
+                                 HorizontalOptions="StartAndExpand"
+                                 HeaderText="Moods"
+                                 ShowFooter="True"
+                                 ItemsSource="{Binding MoodEmoji}"
+                                 IsVisible="False"
+                                 OkButtonClicked="MoodPicker_OnOkButtonClicked"
+                                 CancelButtonClicked="MoodPicker_OnCancelButtonClicked"
+                                 Margin="15,0,15,0" />
+
+            </StackLayout>
+            <StackLayout Orientation="Vertical"
+                         VerticalOptions="End">
+                <!-- bottom controls -->
+                <Button x:Name="SaveButton"
+                        Text="Save"
+                        HeightRequest="50"
+                        Clicked="OnSaveButtonClicked"
+                        Grid.Row="6"
+                        Grid.ColumnSpan="2" />
+            </StackLayout>
+            <!--<object Margin="left,top,right,bottom"/>-->
+
+
+            <!--BoxView   VerticalOptions="Center"
+                         HorizontalOptions="Center"
+                         HeightRequest="1"
+                         WidthRequest="200"  
+                         Color="Gray"/>-->
+
+        </StackLayout>
+        
+    </ScrollView>
+    
+</ContentPage>

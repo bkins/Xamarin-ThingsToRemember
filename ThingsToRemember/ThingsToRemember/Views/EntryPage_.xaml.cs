@@ -23,11 +23,13 @@ namespace ThingsToRemember.Views
     [QueryProperty(nameof(JournalId), nameof(JournalId))]
     [QueryProperty(nameof(ShowTtr), nameof(ShowTtr))]
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class EntryPage : ContentPage, INotifyPropertyChanged,  IQueryAttributable
+    public partial class EntryPage_ : ContentPage, INotifyPropertyChanged,  IQueryAttributable
     {
-        public  string        EntryId        { get; set; }
-        public  bool          LeftToGetData  { get; set; }
-        public  string        ShowTtr        { get; set; }
+        public string EntryId       { get; set; }
+        public bool   LeftToGetData { get; set; }
+        public string ShowTtr       { get; set; }
+        
+
         public  string        JournalId      { get; set; }
         private MoodViewModel _moodViewModel { get; set; }
 
@@ -36,7 +38,7 @@ namespace ThingsToRemember.Views
         
         private readonly string _personalFolder = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
 
-        public EntryPage()
+        public EntryPage_()
         {
             InitializeComponent();
             BindingContext = new Entry();
@@ -86,31 +88,30 @@ namespace ThingsToRemember.Views
             BindingContext = _entryViewModel;
 
             //Load image, if one exists
-            // if (_entryViewModel.Entry.Image.Length > 0)
-            // {
-            //     //var imageStream = new MemoryStream(_entryViewModel.Entry.Image);
-            //     ImageFromCamera.Source = ImageSource.FromStream(() => new MemoryStream(_entryViewModel.Entry.Image));
-            // }
-            //
-            // ImageFromCamera.IsVisible = _entryViewModel.Entry.Image.Length > 0;
-            //
-            // if (_entryViewModel.Entry.VideoFileName.HasValue())
-            // {
-            //     VideoFromCamera.Source = MediaSource.FromFile(_entryViewModel.Entry.VideoFileName);
-            //
-            //     //VideoMediaElement.IsVisible = true;
-            //     //var videoStream = new MemoryStream(_entryViewModel.Entry.Video);
-            //     //VideoMediaElement.Source = videoStream;
-            //
-            //     //VideoFromCamera.Source = MediaManager.CrossMediaManager
-            // }
-            //
-            // VideoFromCamera.IsVisible = _entryViewModel.Entry.VideoFileName.HasValue();
-            // PlayLabel.IsVisible       = _entryViewModel.Entry.VideoFileName.HasValue();
-            // StopLabel.IsVisible       = _entryViewModel.Entry.VideoFileName.HasValue();
-            //
+            if (_entryViewModel.Entry.Image.Length > 0)
+            {
+                //var imageStream = new MemoryStream(_entryViewModel.Entry.Image);
+                ImageFromCamera.Source = ImageSource.FromStream(() => new MemoryStream(_entryViewModel.Entry.Image));
+            }
+
+            ImageFromCamera.IsVisible = _entryViewModel.Entry.Image.Length > 0;
             
-            //ShowHideMediaGrid();
+            if (_entryViewModel.Entry.VideoFileName.HasValue())
+            {
+                VideoFromCamera.Source = MediaSource.FromFile(_entryViewModel.Entry.VideoFileName);
+
+                //VideoMediaElement.IsVisible = true;
+                //var videoStream = new MemoryStream(_entryViewModel.Entry.Video);
+                //VideoMediaElement.Source = videoStream;
+
+                //VideoFromCamera.Source = MediaManager.CrossMediaManager
+            }
+            
+            VideoFromCamera.IsVisible = _entryViewModel.Entry.VideoFileName.HasValue();
+            PlayLabel.IsVisible       = _entryViewModel.Entry.VideoFileName.HasValue();
+            StopLabel.IsVisible       = _entryViewModel.Entry.VideoFileName.HasValue();
+            
+            ShowHideMediaGrid();
         }
 
         private void RefreshMoodPicker()
@@ -141,44 +142,44 @@ namespace ThingsToRemember.Views
 
             RefreshMoodPicker();
             
-            //ShowHideMediaGrid();
+            ShowHideMediaGrid();
         }
 
-        // private void ShowHideMediaGrid()
-        // {
-        //     var entryHasAnyMedia = _entryViewModel.Entry.ImageFileName.HasValue()
-        //                         || _entryViewModel.Entry.VideoFileName.HasValue();
-        //
-        //     PhotoVideoGrid.IsVisible = entryHasAnyMedia;
-        //     
-        //     //Dynamically set the size of the grid that holds the media
-        //     if (entryHasAnyMedia)
-        //     {
-        //         MainGrid.RowDefinitions[1] = new RowDefinition
-        //                                      {
-        //                                          Height = new GridLength(20
-        //                                                                , GridUnitType.Star)
-        //                                      };
-        //
-        //         MainGrid.RowDefinitions[4] = new RowDefinition
-        //                                      {
-        //                                          Height = new GridLength(30
-        //                                                                , GridUnitType.Star)
-        //                                      };
-        //     }
-        //     else
-        //     {
-        //         MainGrid.RowDefinitions[1] = new RowDefinition
-        //                                      {
-        //                                          Height = GridLength.Auto
-        //                                      };
-        //         
-        //         MainGrid.RowDefinitions[4] = new RowDefinition
-        //                                      {
-        //                                          Height = GridLength.Star
-        //                                      };
-        //     }
-        // }
+        private void ShowHideMediaGrid()
+        {
+            var entryHasAnyMedia = _entryViewModel.Entry.ImageFileName.HasValue()
+                                || _entryViewModel.Entry.VideoFileName.HasValue();
+
+            PhotoVideoGrid.IsVisible = entryHasAnyMedia;
+            
+            //Dynamically set the size of the grid that holds the media
+            if (entryHasAnyMedia)
+            {
+                MainGrid.RowDefinitions[1] = new RowDefinition
+                                             {
+                                                 Height = new GridLength(20
+                                                                       , GridUnitType.Star)
+                                             };
+
+                MainGrid.RowDefinitions[4] = new RowDefinition
+                                             {
+                                                 Height = new GridLength(30
+                                                                       , GridUnitType.Star)
+                                             };
+            }
+            else
+            {
+                MainGrid.RowDefinitions[1] = new RowDefinition
+                                             {
+                                                 Height = GridLength.Auto
+                                             };
+                
+                MainGrid.RowDefinitions[4] = new RowDefinition
+                                             {
+                                                 Height = GridLength.Star
+                                             };
+            }
+        }
 
         protected override bool OnBackButtonPressed()
         {
@@ -211,15 +212,6 @@ namespace ThingsToRemember.Views
         private async void OnSaveButtonClicked(object    sender
                                              , EventArgs e)
         {
-            var mood = _moodViewModel.GetMood(MoodLabel.Text.Split(' ')[0]
-                                            , MoodLabel.Text.Split(' ')[1]);
-
-            if (mood == null)
-            {
-                Logger.WriteLineToToastForced("Select a Mood to save the entry", Category.Warning);
-                return;
-            }
-            
             await SaveEntry();
         }
 
@@ -233,8 +225,10 @@ namespace ThingsToRemember.Views
                 {
                     SaveNewEntry(theJournalId);
                 }
-
-                UpdateExistingEntry(theJournalId);
+                else
+                {
+                    UpdateExistingEntry(theJournalId);
+                }
             }
             catch (Exception exception)
             {
@@ -244,7 +238,7 @@ namespace ThingsToRemember.Views
             }
         }
 
-        private bool UpdateExistingEntry(int theJournalId)
+        private void UpdateExistingEntry(int theJournalId)
         {
             _entryViewModel.Entry.Title          = TitleEditor.Text;
             _entryViewModel.Entry.Text           = TextEditorCollapsed.Text;
@@ -259,14 +253,12 @@ namespace ThingsToRemember.Views
                 if (newMood == null)
                 {
                     Logger.WriteLineToToastForced("Select a Mood to save the entry!", Category.Warning);
-                    return false;
+                    return;
                 }
                 _entryViewModel.Entry.EntryMood = newMood;
             }
 
             _entryViewModel.Save(theJournalId);
-
-            return true;
         }
 
         private async void SaveNewEntry(int theJournalId)
@@ -278,6 +270,12 @@ namespace ThingsToRemember.Views
             var mood = _moodViewModel.GetMood(MoodLabel.Text.Split(' ')[0]
                                             , MoodLabel.Text.Split(' ')[1]);
 
+            if (mood == null)
+            {
+                Logger.WriteLineToToastForced("Select a Mood to save the entry", Category.Warning);
+                return;
+            }
+            
             _entryViewModel.Entry.EntryMood = mood;
             _entryViewModel.Entry.MoodId    = mood.Id;
 
@@ -306,9 +304,7 @@ namespace ThingsToRemember.Views
         private void MoodLabel_OnTapped(object    sender
                                       , EventArgs e)
         {
-            //ShowMoodPicker(true);
-            MoodPicker.IsVisible = true;
-            MoodPicker.IsOpen    = true;
+            ShowMoodPicker(true);
         }
 
         private void MoodPicker_OnOkButtonClicked(object                    sender
@@ -347,62 +343,62 @@ namespace ThingsToRemember.Views
         {
             
         }
-        
-        // private async void AddImageButton_OnClicked(object    sender
-        //                                           , EventArgs e)
-        // {
-        //     //BENDO: Refactor this method
-        //     AddImageButton.IsEnabled = false;
-        //
-        //     if ( ! await ReadyToTakePicture())
-        //     {
-        //         AddImageButton.IsEnabled = true;
-        //         return;
-        //     }
-        //
-        //     try
-        //     {
-        //         var photo = await GetImage();
-        //
-        //         if (await WasFileReturnedFromCamera(photo))
-        //         {
-        //             AddImageButton.IsEnabled = true;
-        //             return; 
-        //         }
-        //
-        //         ImageFromCamera.Source = ImageSource.FromStream(() => photo.GetStream());
-        //
-        //         using (var memory = new MemoryStream())
-        //         {
-        //             var stream = photo.GetStream();
-        //             await stream.CopyToAsync(memory);
-        //             _entryViewModel.Entry.Image = memory.ToArray();
-        //         }
-        //
-        //         ImageFromCamera.IsVisible = true;
-        //
-        //         _entryViewModel.Entry.ImageFileName = $"Entry{_entryViewModel.Entry.Id}.jpg";
-        //         LeftToGetData = false;
-        //     }
-        //     catch (ObjectDisposedException disposedException)
-        //     {
-        //         await DisplayAlert("ObjectDisposedException"
-        //                          , disposedException.Message
-        //                          , "OK");
-        //     }
-        //     catch (Exception exception)
-        //     {
-        //         await DisplayAlert("Exception"
-        //                          , exception.Message
-        //                          , "OK");
-        //     }
-        //     finally
-        //     {
-        //         AddImageButton.IsEnabled = true;
-        //         
-        //         ShowHideMediaGrid();
-        //     }
-        // }
+
+        private async void AddImageButton_OnClicked(object    sender
+                                                  , EventArgs e)
+        {
+            //BENDO: Refactor this method
+            AddImageButton.IsEnabled = false;
+
+            if ( ! await ReadyToTakePicture())
+            {
+                AddImageButton.IsEnabled = true;
+                return;
+            }
+
+            try
+            {
+                var photo = await GetImage();
+
+                if (await WasFileReturnedFromCamera(photo))
+                {
+                    AddImageButton.IsEnabled = true;
+                    return; 
+                }
+
+                ImageFromCamera.Source = ImageSource.FromStream(() => photo.GetStream());
+
+                using (var memory = new MemoryStream())
+                {
+                    var stream = photo.GetStream();
+                    await stream.CopyToAsync(memory);
+                    _entryViewModel.Entry.Image = memory.ToArray();
+                }
+
+                ImageFromCamera.IsVisible = true;
+
+                _entryViewModel.Entry.ImageFileName = $"Entry{_entryViewModel.Entry.Id}.jpg";
+                LeftToGetData = false;
+            }
+            catch (ObjectDisposedException disposedException)
+            {
+                await DisplayAlert("ObjectDisposedException"
+                                 , disposedException.Message
+                                 , "OK");
+            }
+            catch (Exception exception)
+            {
+                await DisplayAlert("Exception"
+                                 , exception.Message
+                                 , "OK");
+            }
+            finally
+            {
+                AddImageButton.IsEnabled = true;
+                
+                ShowHideMediaGrid();
+            }
+        }
         
         private async Task<bool> WasFileReturnedFromCamera(MediaFile file)
         {
@@ -459,73 +455,73 @@ namespace ThingsToRemember.Views
 
             return true;
         }
-        //
-        // private async void AddVideoButton_OnClicked(object    sender
-        //                                     , EventArgs e)
-        // {
-        //     //BENDO:  Need to decide if app will support an Image and a Video. Also, should it support multiple of each? 
-        //     //BENDO: Refactor this method
-        //     AddVideoButton.IsEnabled = false;
-        //
-        //     if ( ! await ReadyToTakePicture())
-        //     {
-        //         AddImageButton.IsEnabled = true;
-        //         return;
-        //     }
-        //
-        //     try
-        //     {
-        //         var video = await GetVideo();
-        //         
-        //         if (await WasFileReturnedFromCamera(video))
-        //         {
-        //             AddImageButton.IsEnabled = true;
-        //
-        //             return; 
-        //         }
-        //
-        //         //VideoFromCamera.Source = ImageSource.FromStream(() => video.GetStream());
-        //
-        //         using (var memory = new MemoryStream())
-        //         {
-        //             var stream = video.GetStream();
-        //             await stream.CopyToAsync(memory);
-        //             
-        //             //To save to DB
-        //             //_entryViewModel.Entry.Video = memory.ToArray();
-        //
-        //             var videoPath = Path.Combine(_personalFolder
-        //                                        , $"{_entryViewModel.Entry.Title}_{_entryViewModel.Entry.Id}.mp4");
-        //
-        //             _entryViewModel.Entry.VideoFileName = videoPath;
-        //
-        //             File.WriteAllBytes(videoPath, memory.ToArray());
-        //
-        //             VideoFromCamera.Source = MediaSource.FromFile(videoPath);
-        //         }
-        //
-        //         ImageFromCamera.IsVisible = true;
-        //         LeftToGetData             = false;
-        //     }
-        //     catch (ObjectDisposedException disposedException)
-        //     {
-        //         await DisplayAlert("ObjectDisposedException"
-        //                          , disposedException.Message
-        //                          , "OK");
-        //     }
-        //     catch (Exception exception)
-        //     {
-        //         await DisplayAlert("Exception"
-        //                          , exception.Message
-        //                          , "OK");
-        //     }
-        //     finally
-        //     {
-        //         AddImageButton.IsEnabled = true;
-        //         
-        //         ShowHideMediaGrid();
-        //     }
-        // }
+
+        private async void AddVideoButton_OnClicked(object    sender
+                                            , EventArgs e)
+        {
+            //BENDO:  Need to decide if app will support an Image and a Video. Also, should it support multiple of each? 
+            //BENDO: Refactor this method
+            AddVideoButton.IsEnabled = false;
+
+            if ( ! await ReadyToTakePicture())
+            {
+                AddImageButton.IsEnabled = true;
+                return;
+            }
+
+            try
+            {
+                var video = await GetVideo();
+                
+                if (await WasFileReturnedFromCamera(video))
+                {
+                    AddImageButton.IsEnabled = true;
+
+                    return; 
+                }
+
+                //VideoFromCamera.Source = ImageSource.FromStream(() => video.GetStream());
+
+                using (var memory = new MemoryStream())
+                {
+                    var stream = video.GetStream();
+                    await stream.CopyToAsync(memory);
+                    
+                    //To save to DB
+                    //_entryViewModel.Entry.Video = memory.ToArray();
+
+                    var videoPath = Path.Combine(_personalFolder
+                                               , $"{_entryViewModel.Entry.Title}_{_entryViewModel.Entry.Id}.mp4");
+
+                    _entryViewModel.Entry.VideoFileName = videoPath;
+
+                    File.WriteAllBytes(videoPath, memory.ToArray());
+
+                    VideoFromCamera.Source = MediaSource.FromFile(videoPath);
+                }
+
+                ImageFromCamera.IsVisible = true;
+                LeftToGetData             = false;
+            }
+            catch (ObjectDisposedException disposedException)
+            {
+                await DisplayAlert("ObjectDisposedException"
+                                 , disposedException.Message
+                                 , "OK");
+            }
+            catch (Exception exception)
+            {
+                await DisplayAlert("Exception"
+                                 , exception.Message
+                                 , "OK");
+            }
+            finally
+            {
+                AddImageButton.IsEnabled = true;
+                
+                ShowHideMediaGrid();
+            }
+        }
 
         private void PlayLabel_OnTapped(object    sender
                                                  , EventArgs e)
@@ -594,23 +590,6 @@ namespace ThingsToRemember.Views
             await PageNavigation.NavigateTo(nameof(EntryTextPage)
                                           , nameof(EntryTextPage.EntryId)
                                           , EntryId);
-        }
-
-        private async void MediaButton_OnClicked(object    sender
-                                               , EventArgs e)
-        {
-            var mood = _moodViewModel.GetMood(MoodLabel.Text.Split(' ')[0]
-                                            , MoodLabel.Text.Split(' ')[1]);
-
-            if (mood == null)
-            {
-                Logger.WriteLineToToastForced("Select a Mood before adding media", Category.Warning);
-                return;
-            }
-            
-            await SaveEntry();
-            
-            await PageNavigation.NavigateTo(nameof(EntryMediaPage), nameof(EntryMediaPage.EntryId), EntryId);
         }
     }
 }

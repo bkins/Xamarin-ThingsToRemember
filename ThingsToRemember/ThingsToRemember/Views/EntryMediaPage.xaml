@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+             xmlns:media="clr-namespace:MediaManager.Forms;assembly=MediaManager.Forms"
+             x:Class="ThingsToRemember.Views.EntryMediaPage"
+             >
+    <ContentPage.Content>
+        <StackLayout>
+            <!-- Media Grids -->
+                    <Grid x:Name="PhotoVideoGrid"
+                          ColumnDefinitions="Auto,*,*,*"
+                          RowDefinitions="10*,5*"
+                          HorizontalOptions="FillAndExpand"
+                          VerticalOptions="FillAndExpand"
+                          >
+
+                        <Image x:Name="ImageFromCamera"
+                               IsVisible="False"
+                               VerticalOptions="EndAndExpand"
+                               Aspect="AspectFit"
+                               Grid.Row="0"
+                               Grid.Column="0"
+                               Grid.ColumnSpan="2"
+                               Grid.RowSpan="2" 
+                               />
+                        <xct:MediaElement x:Name="VideoMediaElement"
+                                          VerticalOptions="End"
+                                          Grid.Row="0"
+                                          Grid.Column="2"
+                                          Grid.ColumnSpan="2" 
+                                          />
+
+                        <media:VideoView x:Name="VideoFromCamera"
+                                         IsVisible="False"
+                                         VerticalOptions="End"
+                                         VideoAspect="AspectFit"
+                                         Grid.Row="0"
+                                         Grid.Column="2"
+                                         Grid.ColumnSpan="2" 
+                                         />
+
+                        <Label x:Name="PlayLabel"
+                               Text="Play"
+                               IsVisible="False"
+                               Grid.Row="1"
+                               Grid.Column="2">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="PlayLabel_OnTapped" />
+                            </Label.GestureRecognizers>
+                        </Label>
+
+                        <Label x:Name="StopLabel"
+                               Text="Stop"
+                               IsVisible="False"
+                               Grid.Row="1"
+                               Grid.Column="3">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="StopLabel_OnTapped" />
+                            </Label.GestureRecognizers>
+                        </Label>
+
+                    </Grid>
+
+                    <Grid ColumnDefinitions="25*,75*"
+                          HorizontalOptions="End"
+                          >
+                        <ImageButton x:Name="AddImageButton"
+                                     Source="camera.png"
+                                     HeightRequest="50"
+                                     HorizontalOptions="End"
+                                     Margin="0, 0, 0, 0"
+                                     Grid.Column="0"
+                                     Clicked="AddImageButton_OnClicked" />
+                        <ImageButton x:Name="AddVideoButton"
+                                     Source="videocam_black_48.png"
+                                     HeightRequest="50"
+                                     HorizontalOptions="End"
+                                     Grid.Column="1"
+                                     Clicked="AddVideoButton_OnClicked" />
+                    </Grid>
+            <Button x:Name="SaveButton"
+                    Text="Save"
+                    Clicked="SaveButton_OnClicked"/>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

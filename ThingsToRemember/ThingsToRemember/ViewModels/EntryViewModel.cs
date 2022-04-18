@@ -50,11 +50,28 @@ namespace ThingsToRemember.ViewModels
             }
         }
         
+        /// <summary>
+        /// Only for Updating the this.Entry
+        /// </summary>
+        public void Save()
+        {
+            DataAccessLayer.SaveEntry(Entry, Entry.JournalId);
+        }
+        
+        /// <summary>
+        /// Save any entry to any journal
+        /// </summary>
+        /// <param name="entry">An Entry</param>
+        /// <param name="journalId">A JournalId</param>
         public void Save(Entry entry, int journalId)
         {
             DataAccessLayer.SaveEntry(entry, journalId);
         }
-
+        
+        /// <summary>
+        /// Update this.Entry with a different JournalId
+        /// </summary>
+        /// <param name="journalId"></param>
         public void Save(int journalId)
         {
             DataAccessLayer.SaveEntry(Entry, journalId);

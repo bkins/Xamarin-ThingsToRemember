@@ -1,0 +1,9 @@
+﻿Since the ~/files/.local folder is not visiable in the Device File Explore:
+
+1) Run TtR
+2) Tap the gear in upper right toolbar menu
+3) Show Advanced
+4) Tap Backup Database
+5) A message will display the path of where the DB was backed up to
+6) In Rider navigate to this location and double click on the DB.
+7) This should add the DB to the Database tab.  You can use SQL to view the data.
