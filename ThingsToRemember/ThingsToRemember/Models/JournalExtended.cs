@@ -1,6 +1,4 @@
-﻿using SQLite;
-
-namespace ThingsToRemember.Models
+﻿namespace ThingsToRemember.Models
 {
     public class JournalExtended
     {

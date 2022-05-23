@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using Avails.D_Flat;
@@ -10,8 +9,8 @@ using Avails.Xamarin;
 using MediaManager;
 using Plugin.Media;
 using Plugin.Media.Abstractions;
+using ThingsToRemember.Models;
 using ThingsToRemember.ViewModels;
-using Xamarin.CommunityToolkit.Core;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -19,18 +18,18 @@ namespace ThingsToRemember.Views;
 
 [QueryProperty(nameof(EntryId), nameof(EntryId))]
 [XamlCompilation(XamlCompilationOptions.Compile)]
-public partial class EntryMediaPage : ContentPage, IQueryAttributable
+public partial class EntryMediaPage :  IQueryAttributable
 {
     public string EntryId       { get ; set ; }
     public bool   LeftToGetData { get;  set; }
 
     private          EntryViewModel _entryViewModel;
+    private          MediaViewModel _mediaViewModel;
     private readonly string         _personalFolder = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-
+    
     public EntryMediaPage()
     {
         InitializeComponent();
-        
     }
 
     public void ApplyQueryAttributes(IDictionary<string, string> query)
@@ -49,80 +48,21 @@ public partial class EntryMediaPage : ContentPage, IQueryAttributable
     private void LoadEntry(int entryIntId)
     {
         _entryViewModel = new EntryViewModel(entryIntId);
-
-        Title   = _entryViewModel.Title;
+        _mediaViewModel = new MediaViewModel(entryIntId);
+        
+        Title   = _mediaViewModel.MediaList.Count().ToString();
         EntryId = _entryViewModel.Entry.Id.ToString();
-            
-        BindingContext = _entryViewModel;
 
-        //Load image, if one exists
-         if (_entryViewModel.Entry.Image.Length > 0)
-         {
-             //var imageStream = new MemoryStream(_entryViewModel.Entry.Image);
-             ImageFromCamera.Source = ImageSource.FromStream(() => new MemoryStream(_entryViewModel.Entry.Image));
-         }
-        
-         ImageFromCamera.IsVisible = _entryViewModel.Entry.Image.Length > 0;
-        
-         if (_entryViewModel.Entry.VideoFileName.HasValue())
-         {
-             VideoFromCamera.Source = MediaSource.FromFile(_entryViewModel.Entry.VideoFileName);
-        
-             //VideoMediaElement.IsVisible = true;
-             //var videoStream = new MemoryStream(_entryViewModel.Entry.Video);
-             //VideoMediaElement.Source = videoStream;
-        
-             //VideoFromCamera.Source = MediaManager.CrossMediaManager
-         }
-        
-         VideoFromCamera.IsVisible = _entryViewModel.Entry.VideoFileName.HasValue();
-         PlayLabel.IsVisible       = _entryViewModel.Entry.VideoFileName.HasValue();
-         StopLabel.IsVisible       = _entryViewModel.Entry.VideoFileName.HasValue();
-        
-            
-        ShowHideMediaGrid();
+        BindingContext = _mediaViewModel;
+
+        MediaListView.ItemsSource = _mediaViewModel.MediaList;
     }
 
-    private void ShowHideMediaGrid()
-    {
-        var entryHasAnyMedia = _entryViewModel.Entry.ImageFileName.HasValue()
-                            || _entryViewModel.Entry.VideoFileName.HasValue();
-    
-        PhotoVideoGrid.IsVisible = entryHasAnyMedia;
-        
-        //Dynamically set the size of the grid that holds the media
-        // if (entryHasAnyMedia)
-        // {
-        //     MainGrid.RowDefinitions[1] = new RowDefinition
-        //                                  {
-        //                                      Height = new GridLength(20
-        //                                                            , GridUnitType.Star)
-        //                                  };
-        //
-        //     MainGrid.RowDefinitions[4] = new RowDefinition
-        //                                  {
-        //                                      Height = new GridLength(30
-        //                                                            , GridUnitType.Star)
-        //                                  };
-        // }
-        // else
-        // {
-        //     MainGrid.RowDefinitions[1] = new RowDefinition
-        //                                  {
-        //                                      Height = GridLength.Auto
-        //                                  };
-        //     
-        //     MainGrid.RowDefinitions[4] = new RowDefinition
-        //                                  {
-        //                                      Height = GridLength.Star
-        //                                  };
-        // }
-    }
-    
     private void PlayLabel_OnTapped(object    sender
                                   , EventArgs e)
     {
         CrossMediaManager.Current.Play(_entryViewModel.Entry.VideoFileName);
+        //CrossMediaManager.Current.Play(new MemoryStream(_entryViewModel.Entry.Video));
     }
 
     private void StopLabel_OnTapped(object    sender
@@ -131,86 +71,56 @@ public partial class EntryMediaPage : ContentPage, IQueryAttributable
         CrossMediaManager.Current.Stop();
     }
 
-    private async void AddImageButton_OnClicked(object    sender
-                                              , EventArgs e)
-    {
-        //BENDO: Refactor this method
-        AddImageButton.IsEnabled = false;
-
-        if ( ! await ReadyToTakePicture())
-        {
-            AddImageButton.IsEnabled = true;
-
-            return;
-        }
-
-        try
-        {
-            var photo = await GetImage();
-
-            if (await WasFileReturnedFromCamera(photo))
-            {
-                AddImageButton.IsEnabled = true;
-
-                return;
-            }
-
-            ImageFromCamera.Source = ImageSource.FromStream(() => photo.GetStream());
-
-            using var memory = new MemoryStream();
-
-            var stream = photo.GetStream();
-            await stream.CopyToAsync(memory);
-            _entryViewModel.Entry.Image = memory.ToArray();
-
-            ImageFromCamera.IsVisible = true;
-
-            _entryViewModel.Entry.ImageFileName = $"Entry{_entryViewModel.Entry.Id}.jpg";
-            LeftToGetData                       = false;
-        }
-        catch (ObjectDisposedException disposedException)
-        {
-            await DisplayAlert("ObjectDisposedException"
-                             , disposedException.Message
-                             , "OK");
-        }
-        catch (Exception exception)
-        {
-            await DisplayAlert("Exception"
-                             , exception.Message
-                             , "OK");
-        }
-        finally
-        {
-            AddImageButton.IsEnabled = true;
-
-            ShowHideMediaGrid();
-        }
-    }
-    
     private async Task<bool> WasFileReturnedFromCamera(MediaFile file)
     {
         if (file != null)
-            return false;
+            return true;
 
         await DisplayAlert("No picture/video found"
                          , "Unable to get photo/video. Please try again"
                          , "OK");
 
-        return true;
+        return false;
 
     }
     private async Task<MediaFile> GetImage()
     {
         LeftToGetData = true;
-        var file = await CrossMedia.Current
-                                   .TakePhotoAsync(new StoreCameraMediaOptions
-                                                   {
-                                                       PhotoSize = PhotoSize.Medium
-                                                     , Directory = "Entry"
-                                                     , Name      = $"Entry{_entryViewModel.Entry.Id}.jpg"
-                                                   });
-        return file;
+        var image = await CrossMedia.Current
+                                    .TakePhotoAsync(new StoreCameraMediaOptions
+                                                    {
+                                                        PhotoSize = PhotoSize.Medium
+                                                      , Directory = "Entry"
+                                                      , Name      = FormatFileName(_entryViewModel.Entry.Id
+                                                                                 , MediaType.Image)
+                                                    });
+        return image;
+    }
+
+    private async Task<MediaFile> GetVideo()
+    {
+        LeftToGetData = true;
+        var video = await CrossMedia.Current
+                                    .TakeVideoAsync(new StoreVideoOptions()
+                                                    {
+                                                        Directory = "Entry"
+                                                      , Name      = FormatFileName(_entryViewModel.Entry.Id
+                                                                                 , MediaType.Video)
+                                                    });
+            
+        return video;
+    }
+
+    private string FormatFileName(int entryId, MediaType type)
+    {
+        var extension = type switch
+        {
+            MediaType.Image => ".jpg"
+          , MediaType.Video => ".mp4"
+          , _ => string.Empty
+        };
+
+        return $"~id~Entry{type}{entryId}{extension}";
     }
 
     private async Task<bool> ReadyToTakePicture()
@@ -229,55 +139,78 @@ public partial class EntryMediaPage : ContentPage, IQueryAttributable
         return true;
     }
 
-    private async void AddVideoButton_OnClicked(object    sender
-                                              , EventArgs e)
+    private async Task<bool> ReadyToTakeVideo()
     {
-        //BENDO:  Should it support multiple images/vidoes? 
-        //BENDO: Refactor this method
-        AddVideoButton.IsEnabled = false;
-
-        if ( ! await ReadyToTakePicture())
+        //Open camera
+        if ( ! CrossMedia.Current.IsCameraAvailable
+         ||  ! CrossMedia.Current.IsTakeVideoSupported)
         {
-            AddImageButton.IsEnabled = true;
+            await DisplayAlert("No Camera"
+                             , "This feature will not work with your device."
+                             , "OK");
 
+            return false;
+        }
+
+        return true;
+    }
+
+    private async Task<bool> DeviceReadyToGetMedia(MediaType type)
+    {
+        return type switch
+        {
+            MediaType.Video => await ReadyToTakeVideo()
+          , MediaType.Image => await ReadyToTakePicture()
+          , _ => false
+        };
+    }
+    
+    private async Task<MediaFile> GetMedia(MediaType type)
+    {
+        return type switch
+        {
+            MediaType.Image => await GetImage()
+          , MediaType.Video => await GetVideo()
+          , _ => new MediaFile(string.Empty
+                             , null)
+        };
+    }
+
+    private async Task AddMedia(MediaType type)
+    {
+        var deviceReady = await DeviceReadyToGetMedia(type);
+        if ( ! deviceReady )
+        {
             return;
         }
 
         try
         {
-            var video = await GetVideo();
+            var media       = await GetMedia(type);
+            var pathToMedia = media.Path;
 
-            if (await WasFileReturnedFromCamera(video))
+            if ( ! await WasFileReturnedFromCamera(media))
             {
-                AddImageButton.IsEnabled = true;
-
                 return;
             }
 
-            VideoFromCamera.Source = ImageSource.FromStream(() => video.GetStream());
+            using var memory = new MemoryStream();
+            
+            var stream = media.GetStream();
+            await stream.CopyToAsync(memory);
 
-            using (var memory = new MemoryStream())
-            {
-                var stream = video.GetStream();
-                await stream.CopyToAsync(memory);
-                _entryViewModel.Entry.Video = memory.ToArray();
+            var fileInfo    = new FileInfo(pathToMedia);
+            var newFileName = fileInfo.Name;
+            
+            var mediaPath = Path.Combine(_personalFolder
+                                       , newFileName); 
 
-                //To save to DB
-                //_entryViewModel.Entry.Video = memory.ToArray();
+            _mediaViewModel.Save(type
+                               , memory.ToArray()
+                               , mediaPath );
+            
+            LeftToGetData = false;
 
-                var videoPath = Path.Combine(_personalFolder
-                                           , $"{_entryViewModel.Entry.Title}_{_entryViewModel.Entry.Id}.mp4");
-
-                _entryViewModel.Entry.VideoFileName = videoPath;
-
-                File.WriteAllBytes(videoPath
-                                 , memory.ToArray());
-
-                VideoFromCamera.Source = MediaSource.FromFile(videoPath);
-            }
-
-            ImageFromCamera.IsVisible = true;
-            LeftToGetData             = false;
         }
         catch (ObjectDisposedException disposedException)
         {
@@ -291,30 +224,156 @@ public partial class EntryMediaPage : ContentPage, IQueryAttributable
                              , exception.Message
                              , "OK");
         }
-        finally
-        {
-            AddImageButton.IsEnabled = true;
+    }
 
-            ShowHideMediaGrid();
+    private async Task AddImage()
+    {
+        if ( ! await ReadyToTakePicture())
+        {
+            return;
+        }
+        
+        try
+        {
+            var photo       = await GetImage();
+            var pathToMedia = photo.Path;
+        
+            if ( ! await WasFileReturnedFromCamera(photo))
+            {
+                return;
+            }
+            using var memory = new MemoryStream();
+
+            var stream = photo.GetStream();
+            await stream.CopyToAsync(memory);
+
+            var fileInfo    = new FileInfo(pathToMedia);
+            var newFileName = fileInfo.Name;
+
+            var imagePath = Path.Combine(_personalFolder
+                                       , newFileName); //, $"{_entryViewModel.Entry.Title}_{_entryViewModel.Entry.Id}.mp4");
+
+            _mediaViewModel.Save(MediaType.Image
+                               , memory.ToArray()
+                               , imagePath );
+            
+            LeftToGetData = false;
+        }
+        catch (ObjectDisposedException disposedException)
+        {
+            await DisplayAlert("ObjectDisposedException"
+                             , disposedException.Message
+                             , "OK");
+        }
+        catch (Exception exception)
+        {
+            await DisplayAlert("Exception"
+                             , exception.Message
+                             , "OK");
         }
     }
 
-    private async Task<MediaFile> GetVideo()
+    private async void AddVideo()
     {
-        LeftToGetData = true;
-            
-        var video = await CrossMedia.Current.TakeVideoAsync(new StoreVideoOptions()
-                                                            {
-                                                                Directory = "Entry"
-                                                              , Name      = $"EntryVideo{_entryViewModel.Entry.Id}.mp4"
-                                                            });
-            
-        return video;
+        if ( ! await ReadyToTakeVideo())
+        {
+            return;
+        }
+        
+        try
+        {
+            var video       = await GetVideo();
+            var pathToMedia = video.Path;
+            if ( ! await WasFileReturnedFromCamera(video))
+            {
+                return;
+            }
+        
+            using (var memory = new MemoryStream())
+            {
+                var stream = video.GetStream();
+                await stream.CopyToAsync(memory);
+
+                var fileInfo    = new FileInfo(pathToMedia);
+                var newFileName = fileInfo.Name;
+
+                var videoPath = Path.Combine(_personalFolder
+                                           , newFileName); //, $"{_entryViewModel.Entry.Title}_{_entryViewModel.Entry.Id}.mp4");
+
+                File.WriteAllBytes(videoPath
+                                 , memory.ToArray());
+                
+                //Save Entry with Media to DB
+                _mediaViewModel.Save(MediaType.Video
+                                   , memory.ToArray()
+                                   , videoPath);
+
+            }
+        
+            LeftToGetData = false;
+        }
+        catch (ObjectDisposedException disposedException)
+        {
+            await DisplayAlert("ObjectDisposedException"
+                             , disposedException.Message
+                             , "OK");
+        }
+        catch (Exception exception)
+        {
+            await DisplayAlert("Exception"
+                             , exception.Message
+                             , "OK");
+        }
     }
 
-    private void SaveButton_OnClicked(object    sender
-                                    , EventArgs e)
+    private async void MediaTypePicker_OnSelectedIndexChanged(object    sender
+                                                            , EventArgs e)
     {
-        _entryViewModel.Save();
+        var picker        = (Picker)sender;
+        int selectedIndex = picker.SelectedIndex;
+
+        if (selectedIndex == -1)
+            return;
+
+        var selection = (string)picker.ItemsSource[selectedIndex];
+        
+        switch (selection)
+        {
+            case "Image":
+
+                await AddMedia(MediaType.Image);
+                
+                break;
+
+            case "Video":
+
+                await AddMedia(MediaType.Video);
+                
+                break;
+        }
+
+        await PageNavigation.NavigateBackwards();
+        MediaTypePicker.SelectedItem = null;
+    }
+
+    private async void VideoCell_OnTapped(object sender
+                                        , EventArgs e)
+    {
+       
+        // var label   = (Label)sender;
+        // var mediaId = label.Text;
+
+        // await PageNavigation.NavigateTo(nameof(MediaPage)
+        //                               , nameof(MediaPage.EntryId)
+        //                               , EntryId
+        //                               , nameof(MediaPage.MediaId)
+        //                               , mediaId);
+    }
+
+    private void ImageCell_OnTapped(object sender
+                                         , EventArgs e)
+    {
+        
     }
 }
+

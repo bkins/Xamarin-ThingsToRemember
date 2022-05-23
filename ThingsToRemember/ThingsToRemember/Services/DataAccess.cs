@@ -99,6 +99,11 @@ namespace ThingsToRemember.Services
             Database.AddJournal(journal);
         }
 
+        public void AddMedia(Media media, int entryId)
+        {
+            Database.SaveMedia(media, entryId);
+        }
+        
         public void SaveEntry(Entry entry
                             , int   journalId)
         {
@@ -159,11 +164,26 @@ namespace ThingsToRemember.Services
             Database.AddJournalType(journalType);
         }
 
+        public void UpdateMedia(Media media)
+        {
+            Database.UpdateMedia(media);
+        }
+
+        public void SaveMedia(Media media, int entryId)
+        {
+            Database.SaveMedia(media, entryId);
+        }
+        
         public IEnumerable<Entry> GetEntries()
         {
             return Database.GetEntries();
         }
 
+        public IEnumerable<Media> GetMediaByEntry(int entryId)
+        {
+            return Database.GetMedia(entryId);
+        }
+        
         public Mood GetMood(string moodTitle)
         {
             return Database.GetMoods()
@@ -210,6 +230,12 @@ namespace ThingsToRemember.Services
                            .ToList();
         }
 
+        public List<Media> GetAllMedia()
+        {
+            return Database.GetAllMedia()
+                           .ToList();
+        }
+        
         public Mood AddMood(string moodTitle
                           , string moodEmoji)
         {
@@ -345,6 +371,5 @@ namespace ThingsToRemember.Services
             Database.Close();
         }
 
-        
     }
 }

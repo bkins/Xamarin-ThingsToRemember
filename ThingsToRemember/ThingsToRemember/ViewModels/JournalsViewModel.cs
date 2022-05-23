@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Avails.D_Flat;
 using ThingsToRemember.Models;
 
 namespace ThingsToRemember.ViewModels
@@ -38,8 +37,16 @@ namespace ThingsToRemember.ViewModels
 
         public void RefreshListOfJournals()
         {
-            Journals = DataAccessLayer.GetJournals()
-                                      .ToList();
+            var allJournals = DataAccessLayer.GetJournals()
+                                             .ToList();
+
+            var sortedJournals = allJournals.OrderByDescending(fields => fields.HasEntriesToRemember)
+                                            .ThenByDescending(fields => fields.EntriesToRememberCount)
+                                            .ThenByDescending(fields => fields.EntriesCount);
+
+            Journals = sortedJournals;
+            
+            //BENDO: Investigate why this is necessary, or if it still is needed.
             JournalsToMoveTo = GetJournalsToMove();
             
             //SetExtensionProperties();

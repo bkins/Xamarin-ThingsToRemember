@@ -2,6 +2,7 @@
 using Avails.D_Flat;
 using SQLite;
 using SQLiteNetExtensions.Attributes;
+using Xamarin.Forms.PlatformConfiguration.TizenSpecific;
 
 namespace ThingsToRemember.Models
 {
@@ -43,6 +44,24 @@ namespace ThingsToRemember.Models
             //return CreateDateTime.Date  <  DateTime.Today
             //    && CreateDateTime.Month == DateTime.Today.Month 
             //    && CreateDateTime.Day   == DateTime.Today.Day;
+        }
+
+        public bool HasMedia()
+        {
+            return HasImage()
+                || HasVideo();
+        }
+
+        public bool HasImage()
+        {
+            return Image is { Length: > 0 }
+                || ImageFileName is { Length: > 0 };
+        }
+
+        public bool HasVideo()
+        {
+            return Video is { Length: > 0 }
+                || VideoFileName is { Length: > 0 };
         }
     }
 }

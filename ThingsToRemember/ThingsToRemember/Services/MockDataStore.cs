@@ -319,6 +319,11 @@ namespace ThingsToRemember.Services
         {
             throw new NotImplementedException();
         }
+        public void SaveMedia(Media media
+                            , int   entryId)
+        {
+            throw new NotImplementedException();
+        }
 
         public void SaveMood(Mood mood)
         {
@@ -430,6 +435,9 @@ namespace ThingsToRemember.Services
             return _entries;
         }
 
+        public IEnumerable<Media> GetMedia(int entryId) => throw new NotImplementedException();
+        public IEnumerable<Media> GetAllMedia() => throw new NotImplementedException();
+
         public IEnumerable GetEntriesWithMood(int moodId)
         {
             return _entries.Where(fields => fields.EntryMood.Id == moodId);
@@ -481,6 +489,11 @@ namespace ThingsToRemember.Services
         }
 
         public string GetFileName()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UpdateMedia(Media media)
         {
             throw new NotImplementedException();
         }

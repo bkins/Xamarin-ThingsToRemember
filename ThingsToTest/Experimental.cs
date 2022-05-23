@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using ApplicationExceptions;
 using ThingsToRemember.Models;
 using Xunit;
 using ThingsToRemember.Services;
@@ -18,7 +17,8 @@ namespace ThingsToTest
         private static   Database          _database;
         private static readonly string     DbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
                                                                       , "WorkoutDatabase_test.db3");
-        public static Database Database { get; set; }//=> _database ?? new Database(DbPath);
+
+        private static Database Database { get; set; }//=> _database ?? new Database(DbPath);
 
         public Experimental(ITestOutputHelper testOutputHelper)
         {

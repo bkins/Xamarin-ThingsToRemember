@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -11,7 +10,6 @@ using MediaManager;
 using Plugin.Media;
 using Plugin.Media.Abstractions;
 using ThingsToRemember.ViewModels;
-using Xamarin.CommunityToolkit.Core;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Entry = Xamarin.Forms.Entry;
@@ -609,8 +607,10 @@ namespace ThingsToRemember.Views
             }
             
             await SaveEntry();
-            
-            await PageNavigation.NavigateTo(nameof(EntryMediaPage), nameof(EntryMediaPage.EntryId), EntryId);
+
+            await PageNavigation.NavigateTo(nameof(EntryMediaPage)
+                                          , nameof(EntryMediaPage.EntryId)
+                                          , _entryViewModel.Entry.Id.ToString());
         }
     }
 }

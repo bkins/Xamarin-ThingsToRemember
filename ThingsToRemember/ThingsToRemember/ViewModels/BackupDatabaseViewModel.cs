@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
+using System.Threading.Tasks;
 using Avails.D_Flat;
 using Avails.Xamarin;
 using ThingsToRemember.Services;
@@ -30,40 +28,22 @@ namespace ThingsToRemember.ViewModels
                                                      , BackupLocation);
         }
 
-        public string Backup()
+        public string BackupDataFromSource()
         {
-            //DataAccessLayer.BackupDatabase();
-            
-            var backedUpFileNameAndPath = BackupRestorer.Backup(DatabaseName);
+            var databaseBackerUpper = new BackupDatabase(App.BackupDatabase
+                                                       , App.Database);
+            databaseBackerUpper.Backup();
+            databaseBackerUpper.ValidateBackup();
 
-            return backedUpFileNameAndPath;
+            return databaseBackerUpper.GetDestinationDatabasePath();
         }
 
-        public void Restore(string fileToRestoreFileName)
+        public void Restore()
         {
-            //BackupRestorer.Restore(fileToRestoreFileName);
-            var destinationDatabase = App.BackupDatabase;
-            
-            destinationDatabase.RestoreDatabaseFromDestination();
-        }
-
-        public static string BackupDataFromSource()
-        {
-            var destinationDatabase = App.BackupDatabase;
-            
-            destinationDatabase.BackupDatabaseFromSource();
-
-            return destinationDatabase.GetFilePath();
-        }
-
-        public static void Restore()
-        {
-            //BENDO: Give user option to choose the backed up database to restore vis:
-            // App.DefaultBackupFileName = "<backed up database name>";
-            
-            var destinationDatabase = App.BackupDatabase;
-            
-            destinationDatabase.RestoreDatabaseFromDestination();
+            var databaseBackerUpper = new BackupDatabase(App.Database
+                                                       , App.BackupDatabase);
+            databaseBackerUpper.Backup();
+            databaseBackerUpper.ValidateBackup();
         }
     }
 }

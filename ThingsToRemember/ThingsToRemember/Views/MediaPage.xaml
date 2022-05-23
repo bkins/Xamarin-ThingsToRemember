@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="http://xamarin.com/schemas/2020/toolkit"
+             xmlns:helpers="clr-namespace:ThingsToRemember.Views.Helpers;assembly=ThingsToRemember"
+             x:Class="ThingsToRemember.Views.MediaPage">
+    <ContentPage.Resources>
+        
+        <ResourceDictionary>
+            
+            <DataTemplate x:Key="ImageTemplate">
+                <ViewCell>
+                    
+                        <Image x:Name="ImageCell" 
+                               Source="{Binding Image}"
+                               >
+                        </Image>
+                    
+                </ViewCell>
+            </DataTemplate>
+            
+            <DataTemplate x:Key="VideoTemplate">
+                
+                <ViewCell>
+                
+                    <views:MediaElement x:Name="VideoCell" 
+                                     Source="{Binding Video}"
+                                      VerticalOptions="FillAndExpand"
+                                      HeightRequest="200"
+                                      >
+                        <!-- <views:MediaElement.GestureRecognizers> -->
+                        <!--     <TapGestureRecognizer Tapped="VideoCell_OnTapped" /> -->
+                        <!-- </views:MediaElement.GestureRecognizers> -->
+                    </views:MediaElement>
+                    
+                </ViewCell>
+            </DataTemplate>
+            
+            <helpers:UrlTemplateSelector x:Key="MediaUrlTemplateSelector" 
+                                         ImageTemplate="{StaticResource ImageTemplate}" 
+                                         VideoTemplate="{StaticResource VideoTemplate}"
+                                         />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    
+    <StackLayout Margin="20">
+
+        <ListView x:Name="MediaListView"
+                  Margin="0,0,0,0"
+                  ItemTemplate="{StaticResource MediaUrlTemplateSelector}"
+                  VerticalScrollBarVisibility="Default"
+                  VerticalOptions="FillAndExpand"
+                  HasUnevenRows="True"
+        />
+        
+    </StackLayout>
+    
+</ContentPage>

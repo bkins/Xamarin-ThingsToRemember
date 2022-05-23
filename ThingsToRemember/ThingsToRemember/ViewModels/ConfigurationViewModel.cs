@@ -1,6 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
+using ApplicationExceptions;
+using Avails.D_Flat;
+using Syncfusion.DataSource.Extensions;
 using ThingsToRemember.Models;
 
 namespace ThingsToRemember.ViewModels
@@ -89,6 +93,113 @@ namespace ThingsToRemember.ViewModels
             {
                 DataAccessLayer.SaveEntry(entry, entry.JournalId);
             }
+        }
+
+        public void MoveMediaToNewSchema()
+        {
+            var entriesWithMediaBeforeMove = DataAccessLayer.GetEntries().Where(fields => fields.HasMedia());
+            var countOfMediaBeforeMove     = DataAccessLayer.GetAllMedia().Count;
+
+            var newMediaCount = 0;
+            
+            foreach (var entry in entriesWithMediaBeforeMove)
+            {
+                if(entry.HasVideo())
+                {
+                    MoveVideo(entry);
+                    newMediaCount++;
+                }
+
+                if(entry.HasImage())
+                {
+                    MoveImage(entry);
+                    newMediaCount++;
+                }
+            }
+            
+            //Validate
+            ValidateEntriesWithMediaAfterMove();
+            ValidateNumberNewMediaRecords(countOfMediaBeforeMove
+                                        , newMediaCount);
+        }
+
+        private void ValidateNumberNewMediaRecords(int countOfMediaBeforeMove
+                                                 , int newMediaCount)
+        {
+            var mediaAfterMove     = DataAccessLayer.GetAllMedia();
+            var mediaAfterMoveList = mediaAfterMove.ToList();
+
+            if (countOfMediaBeforeMove + newMediaCount != mediaAfterMoveList.Count)
+            {
+                throw new FailedMediaMoveException(
+                    $"There should be {countOfMediaBeforeMove + newMediaCount} records in the Media table, but there are {mediaAfterMoveList.Count}.");
+            }
+        }
+
+        private void ValidateEntriesWithMediaAfterMove()
+        {
+            var entriesWithMediaAfterMove = DataAccessLayer.GetEntries()
+                                                           .Where(fields => fields.HasMedia());
+
+            var entriesWithMediaAfterMoveList = entriesWithMediaAfterMove.ToList();
+
+            if (entriesWithMediaAfterMoveList.Any())
+            {
+                var message = new StringBuilder();
+
+                message.AppendLine("Not all Images and/or Videos were moved out of the Entry table:");
+
+                foreach (var entry in entriesWithMediaAfterMoveList)
+                {
+                    var journal = DataAccessLayer.GetJournal(entry.JournalId);
+                    message.AppendLine($"The Entry titled '{entry.Title}' in the Journal '{journal.Title}' did not get moved.");
+                }
+
+                throw new FailedMediaMoveException(message.ToString());
+            }
+        }
+
+        private void MoveImage(Entry entry)
+        {
+            if (entry.Image is not null
+             && entry.Image.Length != 0
+             || entry.ImageFileName.HasValue())
+            {
+                var media = new Media
+                            {
+                                Type          = MediaType.Image
+                              , MediaBytes    = entry.Image
+                              , MediaFileName = entry.ImageFileName
+                            };
+
+                entry.Image         = null;
+                entry.ImageFileName = null;
+
+                DataAccess.SaveEntry(entry
+                                   , entry.JournalId);
+
+                DataAccessLayer.AddMedia(media
+                                       , entry.Id);
+            }
+        }
+
+        private void MoveVideo(Entry entry)
+        {
+            var media = new Media
+                        {
+                            Type          = MediaType.Video
+                          , MediaBytes    = entry.Video
+                          , MediaFileName = entry.VideoFileName
+                        };
+
+            entry.Video         = null;
+            entry.VideoFileName = null;
+
+            DataAccess.SaveEntry(entry
+                               , entry.JournalId);
+
+            DataAccessLayer.AddMedia(media
+                                   , entry.Id);
         }
     }
 }

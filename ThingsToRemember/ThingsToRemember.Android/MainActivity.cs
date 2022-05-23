@@ -3,14 +3,11 @@ using Android.App;
 using Android.Content.PM;
 using Android.Runtime;
 using Android.OS;
-using AndroidX.Core.App;
 using AndroidX.Core.Content;
 using Avails.Xamarin.Interfaces;
 using MediaManager;
-using MediaManager.Forms.Platforms.Android;
 using ThingsToRemember.Droid.Utilities;
 using ActivityCompat = AndroidX.Core.App.ActivityCompat;
-using TaskStackBuilder = Android.Support.V4.App.TaskStackBuilder;
 
 namespace ThingsToRemember.Droid
 {
@@ -31,6 +28,10 @@ namespace ThingsToRemember.Droid
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
+            //ExternalStorageDirectory
+            bool isReadonly  = Environment.MediaMountedReadOnly.Equals(Environment.ExternalStorageState);
+            bool isWriteable = Environment.MediaMounted.Equals(Environment.ExternalStorageState);
+            
             if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
             {
                 if ( ! (CheckPermissionGranted(Manifest.Permission.ReadExternalStorage) 
@@ -81,12 +82,7 @@ namespace ThingsToRemember.Droid
         public bool CheckPermissionGranted(string permissions)
         {
             // Check if the permission is already available.
-            if (ContextCompat.CheckSelfPermission(this, permissions) != Permission.Granted)
-            {
-                return false;
-            }
-
-            return true;
+            return ContextCompat.CheckSelfPermission(this, permissions) == Permission.Granted;
         }
 
         //private void CreateNotificationChannel()

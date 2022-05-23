@@ -26,6 +26,14 @@ namespace ThingsToRemember.Views
         private async void SaveButton_OnClicked(object    sender
                                         , EventArgs e)
         {
+            if (MoodTitleEntry.Text.Contains(" "))
+            {
+                await DisplayAlert("Only One Word"
+                                 , "Mood titles can only have one word."
+                                 , "OK");
+                return;
+            }
+            
             var mood = new Mood
                        {
                            Title = MoodTitleEntry.Text

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 using Avails.Xamarin;
 using Avails.Xamarin.Interfaces;
 using ThingsToRemember.Services;
@@ -11,11 +12,11 @@ namespace ThingsToRemember
     {
         #region "Properties"
 
-        private static BackupDatabase _backupDatabase;
-
         public static string DefaultBackupFileName { get; set; } = "ThingsToRemember.db3";
         
-        public static BackupDatabase BackupDatabase
+        private static Database _backupDatabase;
+
+        public static Database BackupDatabase
         {
             get
             {
@@ -24,7 +25,21 @@ namespace ThingsToRemember
                     var path = Path.Combine(DependencyService.Get<IDependencyService>()
                                                              .GetExternalStorage()
                                           , DefaultBackupFileName);
-                    _backupDatabase = new BackupDatabase(path, Database);
+
+                    var fileInfo    = new FileInfo(path);
+
+                    var isReadyOnly = fileInfo.IsReadOnly;
+                    var dirExists   = fileInfo.Directory is
+                    {
+                        Exists: true
+                    };
+                    
+                    if ( ! File.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                        File.Create(path);
+                    }
+                    _backupDatabase = new Database(path);
                 }
 
                 return _backupDatabase;
@@ -39,7 +54,13 @@ namespace ThingsToRemember
                 if (_database == null)
                 {
                     var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
-                                          , "ThingsToRemember.db3");
+                                          , DefaultBackupFileName);
+                    
+                    if ( ! File.Exists(path))
+                    {
+                        File.Create(path);
+                    }
+                    
                     _database = new Database(path);
                 }
 
@@ -47,7 +68,7 @@ namespace ThingsToRemember
             }
         }
 
-        public static MockDataStore MockData => new MockDataStore();
+        public static  MockDataStore MockData => new MockDataStore();
 
         #endregion
 

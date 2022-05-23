@@ -11,6 +11,7 @@ using Xamarin.Forms.Xaml;
 using SwipeEndedEventArgs = Syncfusion.ListView.XForms.SwipeEndedEventArgs;
 using StringBuilder = System.Text.StringBuilder;
 
+
 namespace ThingsToRemember.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
@@ -21,34 +22,27 @@ namespace ThingsToRemember.Views
 
         public  Mood        MoodToEdit        { get; set; }
         public  JournalType JournalTypeToEdit { get; set; }
-
-        private ConfigurationViewModel  ViewModel      { get; set; }
-        private BackupDatabaseViewModel BackupViewModel { get; set; }
-
-        public string BackupFolderPath => GetBackupDestinationPath();
-
-        private static string GetBackupDestinationPath()
-        {
-            var backupFolder = Path.Combine("storage"
-                                          , "emulated"
-                                          , "0"
-                                          , "Downloads"
-                                          , "BackupDb");
-
-            if ( ! Directory.Exists(backupFolder))
-            {
-                //Directory.CreateDirectory(backupFolder);
-            }
-
-            return backupFolder;
-        }
-
+        
+        private ConfigurationViewModel  ViewModel { get; set; }
+        private BackupDatabaseViewModel _backupDatabaseViewModel;
+        
+        private string _destinationPath;
+        
+        private readonly string _initialBackupButtonText;
+        private readonly string _initialRestoreButtonText;
+        
+        private readonly Color _initialButtonBackColor;
+        
         public ConfigurationView()
         {
             InitializeComponent();
+            ViewModel                = new ConfigurationViewModel();
+            _backupDatabaseViewModel = new BackupDatabaseViewModel();
+            
+            _initialBackupButtonText  = BackUpDbButton.Text;
+            _initialRestoreButtonText = RestoreDbButton.Text;
+            _initialButtonBackColor   = BackUpDbButton.BackgroundColor;
 
-            ViewModel       = new ConfigurationViewModel();
-            BackupViewModel = new BackupDatabaseViewModel(string.Empty); //(BackupFolderPath);
         }
         
         protected override void OnAppearing()
@@ -342,21 +336,168 @@ namespace ThingsToRemember.Views
     
             return null;
         }
-
-        private async void BackupDatabase()
+        private void BackupDbWork()
         {
-            var destinationPath = BackupDatabaseViewModel.BackupDataFromSource();
+            //Start work
+            _destinationPath = _backupDatabaseViewModel.BackupDataFromSource();
+            
+            //Finish up
+            Device.BeginInvokeOnMainThread(AfterBackupWorkAction);
+        }
+        
+        private async void AfterBackupWorkAction()
+        {
+            //Work is done
+            SetActivityIndicator(activity: false);
+            BackUpDbButton.Text            = _initialBackupButtonText;
+            BackUpDbButton.BackgroundColor = _initialButtonBackColor;
+            RestoreDbButton.IsEnabled      = true;
 
             await DisplayAlert("Backup Complete"
-                             , GetBackedUpMessageText(destinationPath)
+                             , GetBackedUpMessageText(_destinationPath)
                              , "OK");
+        }
+        
+        private async void BackupDatabase()
+        {
+            try
+            {
+                BackUpDbButton.Text = "...backing up DB...";
+                BackUpDbButton.BackgroundColor = Color.Red;
 
-            // var backedUpFileNameAndPath = BackupViewModel.Backup();
-            //
-            // await DisplayAlert("DB Backed Up"
-            //                  , GetBackedUpMessageText(backedUpFileNameAndPath)
-            //                  , "OK");
+                RestoreDbButton.IsEnabled = false;
+                
+                SetActivityIndicator(activity: true);
 
+                await Task.Run(BackupDbWork);
+            }
+            catch (BackupValidationException e)
+            {
+                SetActivityIndicator(activity: false);
+                var userChoice = await DisplayAlert("Backup Validation Failed!"
+                                                  , GetValidationMessage()
+                                                  , "Yes"
+                                                  , "No");
+                if (userChoice) // == Yes
+                {
+                    await DisplayAlert("Logs"
+                                     , e.LogContents
+                                     , "OK");
+                }
+            }
+            catch (Exception e)
+            {
+                SetActivityIndicator(activity: false);
+                
+                var choseYes = await DisplayAlert("Unknown Error"
+                                                , UnknownErrorMessage(e.Message)
+                                                , "Yes"
+                                                , "No");
+                if (choseYes)
+                {
+                    await DisplayAlert("StackTrace"
+                                     , e.StackTrace
+                                     , "OK");
+                }
+            }
+        }
+
+        private async void RestoreDatabase()
+        {
+            try
+            {
+                RestoreDbButton.Text            = "...restoring DB...";
+                RestoreDbButton.BackgroundColor = Color.Red;
+
+                BackUpDbButton.IsEnabled = false;
+
+                SetActivityIndicator(activity: true);
+
+                await Task.Run(RestoreDbWork);
+            }
+            catch (BackupValidationException e)
+            {
+                ActivityIndicator.IsRunning = false;
+                var userChoice = await DisplayAlert("Restore Validation Failed!"
+                                                  , GetValidationMessage()
+                                                  , "Yes"
+                                                  , "No");
+                if (userChoice) // == Yes
+                {
+                    await DisplayAlert("Logs"
+                                     , e.LogContents
+                                     , "OK");
+                }
+            }
+            catch (Exception e)
+            {
+                SetActivityIndicator(activity: false);
+                
+                var choseYes = await DisplayAlert("Unknown Error"
+                                                , UnknownErrorMessage(e.Message)
+                                                , "Yes"
+                                                , "No");
+                if (choseYes)
+                {
+                    await DisplayAlert("StackTrace"
+                                     , e.StackTrace
+                                     , "OK");
+                    
+                }
+            }
+            
+        }
+
+        private void RestoreDbWork()
+        {
+            //Work
+            _backupDatabaseViewModel.Restore();
+            
+            //Finish up
+            Device.BeginInvokeOnMainThread(AfterRestoreDbWork);
+        }
+
+        private async void AfterRestoreDbWork()
+        {
+            //Work is done
+            SetActivityIndicator(activity: false);
+            
+            RestoreDbButton.Text            = _initialRestoreButtonText;
+            RestoreDbButton.BackgroundColor = _initialButtonBackColor;
+            
+            BackUpDbButton.IsEnabled = true;
+            
+
+            await DisplayAlert("Restore Complete"
+                             , "Restore has successfully completed."
+                             , "OK");
+        }
+        
+        private void SetActivityIndicator(bool activity)
+        {
+            ActivityIndicator.IsRunning = activity;
+            ActivityIndicator.IsVisible = activity;
+            ActivityIndicator.IsEnabled = activity;
+        }
+
+        private static string UnknownErrorMessage(string exceptionMessage)
+        {
+            var message = new StringBuilder();
+            message.AppendLine("The following error occurred:");
+            message.AppendLine(exceptionMessage);
+            message.AppendLine("Would you like more information?");
+
+            return message.ToString();
+        }
+
+        private static string GetValidationMessage()
+        {
+            var message = new StringBuilder();
+            message.AppendLine("There was a mismatch while comparing the data in the databases.");
+            message.Append("Please review logs and try again.");
+            message.AppendLine("Would you like to view the log file?");
+
+            return message.ToString();
         }
 
         private static string GetBackedUpMessageText(string backedUpFileNameAndPath)
@@ -367,45 +508,15 @@ namespace ThingsToRemember.Views
             
             return message.ToString();
         }
-
-        private async void RestoreDatabase()
-        {
-            var restoreOk = await DisplayAlert("Database Restore"
-                                             , GetRestoredMessageText()
-                                             , "OK"
-                                             , "Cancel");
-
-            if ( ! restoreOk)
-                return;
-
-            // var fileToRestore = await PickAndShow(PickOptions.Default);
-            //
-            // if ( ! await GetPermissions())
-            // {
-            //     return;
-            // }
-
-            try
-            {
-                // BackupViewModel.Restore(fileToRestore);
-                BackupDatabaseViewModel.Restore();
-            }
-            catch (UnauthorizedAccessException  accessException)
-            {
-                await DisplayAlert("Error"
-                                 , accessException.Message
-                                 , "OK");
-            }
-        }
-
+        
         private string GetRestoredMessageText()
         {
             var message = new StringBuilder();
-            message.AppendLine($"The restore process will remove all data in your working database and replace it the backup.");
-            message.AppendLine("This application only knows about two locations then dealing with the databases:");
-            message.AppendLine("  * The working database");
-            message.AppendLine("  * THe backed up database");
+            message.AppendLine("The restore process will remove all data in your working database and replace it with the backup.");
             message.AppendLine("There is no way to undo this process.");
+            message.AppendLine("");
+            message.AppendLine("Do NOT make any changes to Journals, Entries, Moods, or Journal Types during this process.");
+            message.AppendLine("");
             message.AppendLine("Tap Cancel to cancel the restore process");
 
             return message.ToString();
@@ -436,15 +547,34 @@ namespace ThingsToRemember.Views
             return status;
         }
 
-        private void BackUpDbButton_OnClicked(object    sender
-                                            , EventArgs e)
+        private async void BackUpDbButton_OnClicked(object    sender
+                                                  , EventArgs e)
         {
+            await DisplayAlert("Database Restore"
+                             , GetBackupMessageText()
+                             , "OK");
             BackupDatabase();
         }
 
-        private void RestoreDbButton_OnClicked(object    sender
-                                             , EventArgs e)
+        private string GetBackupMessageText()
         {
+            var message = new StringBuilder();
+            message.AppendLine("This will back up your database.");
+            message.AppendLine("Do NOT make any changes to Journals, Entries, Moods, or Journal Types during this process.");
+
+            return message.ToString();
+        }
+
+        private async void RestoreDbButton_OnClicked(object    sender
+                                                   , EventArgs e)
+        {
+            var continueToRestore = await DisplayAlert("Database Restore"
+                                                     , GetRestoredMessageText()
+                                                     , "OK"
+                                                     , "Cancel");
+            if ( ! continueToRestore)
+                return;
+
             RestoreDatabase();
         }
 
@@ -464,6 +594,12 @@ namespace ThingsToRemember.Views
                                                       , EventArgs e)
         {
             ViewModel.AssignOriginalJournalIds();
+        }
+
+        private void MoveMediaToNewSchema_OnClicked(object    sender
+                                                  , EventArgs e)
+        {
+            ViewModel.MoveMediaToNewSchema();
         }
     }
 }

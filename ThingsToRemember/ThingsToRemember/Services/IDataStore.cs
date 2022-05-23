@@ -19,11 +19,12 @@ namespace ThingsToRemember.Services
         void UpdateJournal    (Journal     journal);
         int UpdateMood        (Mood        mood);
         int UpdateJournalType (JournalType journalType);
+        void UpdateMedia      (Media       media);
         void UpdateEntry      (Entry       entry);
-                   
-        void SaveJournalType(JournalType journalType);
-        void SaveJournal    (Journal     journal);
-        void SaveMood       (Mood        mood);
+        void SaveMedia        (Media       media, int entryId);
+        void SaveJournalType  (JournalType journalType );
+        void SaveJournal      (Journal     journal);
+        void SaveMood         (Mood        mood);
 
         int  DeleteMood        (ref Mood        mood);
         int  DeleteJournalType (ref JournalType journalType);
@@ -39,6 +40,8 @@ namespace ThingsToRemember.Services
         IEnumerable<JournalType> GetJournalTypes            (bool forceRefresh = false);
         Entry                    GetEntry                   (int  id);
         IEnumerable<Entry>       GetEntries                 (bool forceRefresh = false);
+        IEnumerable<Media>       GetMedia                   (int entryId);
+        IEnumerable<Media>       GetAllMedia                ();
         IEnumerable              GetEntriesWithMood         (int  moodId);
         IEnumerable              GetJournalsWithJournalTYpe (int  journalTypeId);
 
@@ -51,6 +54,5 @@ namespace ThingsToRemember.Services
         string GetFilePath();
         void   Close();
         string GetFileName();
-        
     }
 }

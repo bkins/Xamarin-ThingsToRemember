@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:listview="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfListView.XForms"
+             xmlns:sfListview="clr-namespace:Syncfusion.ListView.XForms;assembly=Syncfusion.SfListView.XForms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:ThingsToRemember.ViewModels;assembly=ThingsToRemember"
              xmlns:views="clr-namespace:ThingsToRemember.Views;assembly=ThingsToRemember"
@@ -96,7 +96,7 @@
 
     <StackLayout Margin="{DynamicResource PageMargin}">
 
-        <listview:SfListView x:Name="ListView"
+        <sfListview:SfListView x:Name="ListView"
                              AutoFitMode="DynamicHeight"
                              VerticalOptions="Fill"
                              SelectionMode="Single"
@@ -106,7 +106,7 @@
                              SwipeStarted="ListView_OnSwipeStarted"
                              ItemTemplate="{StaticResource ItemTemplate}"
         >
-            <listview:SfListView.LeftSwipeTemplate >
+            <sfListview:SfListView.LeftSwipeTemplate >
                 <DataTemplate x:Name="LeftSwipeTemplate">
                     <Grid ColumnDefinitions="*,*,*"
                           VerticalOptions="CenterAndExpand"
@@ -171,8 +171,8 @@
 
                     </Grid>
                 </DataTemplate>
-            </listview:SfListView.LeftSwipeTemplate>
-        </listview:SfListView>
+            </sfListview:SfListView.LeftSwipeTemplate>
+        </sfListview:SfListView>
         
         <Picker x:Name="SelectJournalToMoveToPicker"
                 Title="Choose a Journal to Move this Entry to:"

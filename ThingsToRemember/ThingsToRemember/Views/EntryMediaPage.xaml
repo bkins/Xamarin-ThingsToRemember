@@ -3,86 +3,152 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
-             xmlns:media="clr-namespace:MediaManager.Forms;assembly=MediaManager.Forms"
+             xmlns:helpers="clr-namespace:ThingsToRemember.Views.Helpers;assembly=ThingsToRemember"
              x:Class="ThingsToRemember.Views.EntryMediaPage"
              >
-    <ContentPage.Content>
-        <StackLayout>
-            <!-- Media Grids -->
-                    <Grid x:Name="PhotoVideoGrid"
-                          ColumnDefinitions="Auto,*,*,*"
-                          RowDefinitions="10*,5*"
-                          HorizontalOptions="FillAndExpand"
-                          VerticalOptions="FillAndExpand"
-                          >
-
-                        <Image x:Name="ImageFromCamera"
-                               IsVisible="False"
-                               VerticalOptions="EndAndExpand"
-                               Aspect="AspectFit"
-                               Grid.Row="0"
-                               Grid.Column="0"
-                               Grid.ColumnSpan="2"
-                               Grid.RowSpan="2" 
-                               />
-                        <xct:MediaElement x:Name="VideoMediaElement"
-                                          VerticalOptions="End"
-                                          Grid.Row="0"
-                                          Grid.Column="2"
-                                          Grid.ColumnSpan="2" 
-                                          />
-
-                        <media:VideoView x:Name="VideoFromCamera"
-                                         IsVisible="False"
-                                         VerticalOptions="End"
-                                         VideoAspect="AspectFit"
-                                         Grid.Row="0"
-                                         Grid.Column="2"
-                                         Grid.ColumnSpan="2" 
+    <ContentPage.Resources>
+        
+        <ResourceDictionary>
+            
+            <DataTemplate x:Key="ImageTemplate">
+                <ViewCell>
+                    
+                    <Image x:Name="ImageCell" 
+                           Source="{Binding Image}"
+                           >
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="ImageCell_OnTapped"/>
+                        </Image.GestureRecognizers>
+                    </Image>
+                    
+                </ViewCell>
+            </DataTemplate>
+            
+            <DataTemplate x:Key="VideoTemplate">
+                
+                <ViewCell>
+                    <xct:MediaElement x:Name="VideoCell" 
+                                      Source="{Binding Video}"
+                                      VerticalOptions="FillAndExpand"
+                                      HeightRequest="200"
+                                      >
+                        <xct:MediaElement.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="VideoCell_OnTapped" />
+                        </xct:MediaElement.GestureRecognizers>
+                    </xct:MediaElement>
+                    
+                </ViewCell>
+            </DataTemplate>
+            
+            <helpers:UrlTemplateSelector x:Key="MediaUrlTemplateSelector" 
+                                         ImageTemplate="{StaticResource ImageTemplate}" 
+                                         VideoTemplate="{StaticResource VideoTemplate}"
                                          />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    
+    <StackLayout Margin="20">
+        
+        <Picker x:Name="MediaTypePicker"
+                Title="Add New Media..."
+                IsVisible="True"
+                SelectedIndexChanged="MediaTypePicker_OnSelectedIndexChanged"
+                >
+            <Picker.ItemsSource>
+                <x:Array Type="{x:Type x:String}">
+                    <x:String>Image</x:String>
+                    <x:String>Video</x:String>
+                </x:Array>
+            </Picker.ItemsSource>
+        </Picker>
 
-                        <Label x:Name="PlayLabel"
-                               Text="Play"
-                               IsVisible="False"
-                               Grid.Row="1"
-                               Grid.Column="2">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="PlayLabel_OnTapped" />
-                            </Label.GestureRecognizers>
-                        </Label>
-
-                        <Label x:Name="StopLabel"
-                               Text="Stop"
-                               IsVisible="False"
-                               Grid.Row="1"
-                               Grid.Column="3">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="StopLabel_OnTapped" />
-                            </Label.GestureRecognizers>
-                        </Label>
-
-                    </Grid>
-
-                    <Grid ColumnDefinitions="25*,75*"
-                          HorizontalOptions="End"
-                          >
-                        <ImageButton x:Name="AddImageButton"
-                                     Source="camera.png"
-                                     HeightRequest="50"
-                                     HorizontalOptions="End"
-                                     Margin="0, 0, 0, 0"
-                                     Grid.Column="0"
-                                     Clicked="AddImageButton_OnClicked" />
-                        <ImageButton x:Name="AddVideoButton"
-                                     Source="videocam_black_48.png"
-                                     HeightRequest="50"
-                                     HorizontalOptions="End"
-                                     Grid.Column="1"
-                                     Clicked="AddVideoButton_OnClicked" />
-                    </Grid>
-            <Button x:Name="SaveButton"
-                    Text="Save"
-                    Clicked="SaveButton_OnClicked"/>
-        </StackLayout>
-    </ContentPage.Content>
+        <ListView x:Name="MediaListView"
+                  Margin="0,0,0,0"
+                  ItemTemplate="{StaticResource MediaUrlTemplateSelector}"
+                  VerticalScrollBarVisibility="Default"
+                  VerticalOptions="FillAndExpand"
+                  HasUnevenRows="True"
+                  />
+        
+    </StackLayout>
+    
+    <!-- <ContentPage.Content> -->
+    <!--     <StackLayout> -->
+    <!--         ~1~ Media Grids @1@ -->
+    <!--                 <Grid x:Name="PhotoVideoGrid" -->
+    <!--                       ColumnDefinitions="Auto,*,*,*" -->
+    <!--                       RowDefinitions="10*,5*" -->
+    <!--                       HorizontalOptions="FillAndExpand" -->
+    <!--                       VerticalOptions="FillAndExpand" -->
+    <!--                       > -->
+    <!-- -->
+    <!--                     <Image x:Name="ImageFromCamera" -->
+    <!--                            IsVisible="False" -->
+    <!--                            VerticalOptions="EndAndExpand" -->
+    <!--                            Aspect="AspectFit" -->
+    <!--                            Grid.Row="0" -->
+    <!--                            Grid.Column="0" -->
+    <!--                            Grid.ColumnSpan="2" -->
+    <!--                            Grid.RowSpan="2"  -->
+    <!--                            /> -->
+    <!--                     <xct:MediaElement x:Name="VideoMediaElement" -->
+    <!--                                       VerticalOptions="End" -->
+    <!--                                       Grid.Row="0" -->
+    <!--                                       Grid.Column="2" -->
+    <!--                                       Grid.ColumnSpan="2"  -->
+    <!--                                       /> -->
+    <!-- -->
+    <!--                     <media:VideoView x:Name="VideoFromCamera" -->
+    <!--                                      IsVisible="False" -->
+    <!--                                      VerticalOptions="End" -->
+    <!--                                      VideoAspect="AspectFit" -->
+    <!--                                      Grid.Row="0" -->
+    <!--                                      Grid.Column="2" -->
+    <!--                                      Grid.ColumnSpan="2"  -->
+    <!--                                      /> -->
+    <!-- -->
+    <!--                     <Label x:Name="PlayLabel" -->
+    <!--                            Text="Play" -->
+    <!--                            IsVisible="False" -->
+    <!--                            Grid.Row="1" -->
+    <!--                            Grid.Column="2"> -->
+    <!--                         <Label.GestureRecognizers> -->
+    <!--                             <TapGestureRecognizer Tapped="PlayLabel_OnTapped" /> -->
+    <!--                         </Label.GestureRecognizers> -->
+    <!--                     </Label> -->
+    <!-- -->
+    <!--                     <Label x:Name="StopLabel" -->
+    <!--                            Text="Stop" -->
+    <!--                            IsVisible="False" -->
+    <!--                            Grid.Row="1" -->
+    <!--                            Grid.Column="3"> -->
+    <!--                         <Label.GestureRecognizers> -->
+    <!--                             <TapGestureRecognizer Tapped="StopLabel_OnTapped" /> -->
+    <!--                         </Label.GestureRecognizers> -->
+    <!--                     </Label> -->
+    <!-- -->
+    <!--                 </Grid> -->
+    <!-- -->
+    <!--                 <Grid ColumnDefinitions="25*,75*" -->
+    <!--                       HorizontalOptions="End" -->
+    <!--                       > -->
+    <!--                     <ImageButton x:Name="AddImageButton" -->
+    <!--                                  Source="camera.png" -->
+    <!--                                  HeightRequest="50" -->
+    <!--                                  HorizontalOptions="End" -->
+    <!--                                  Margin="0, 0, 0, 0" -->
+    <!--                                  Grid.Column="0" -->
+    <!--                                  Clicked="AddImageButton_OnClicked" /> -->
+    <!--                     <ImageButton x:Name="AddVideoButton" -->
+    <!--                                  Source="videocam_black_48.png" -->
+    <!--                                  HeightRequest="50" -->
+    <!--                                  HorizontalOptions="End" -->
+    <!--                                  Grid.Column="1" -->
+    <!--                                  Clicked="AddVideoButton_OnClicked" /> -->
+    <!--                 </Grid> -->
+    <!--         <Button x:Name="SaveButton" -->
+    <!--                 Text="Save" -->
+    <!--                 Clicked="SaveButton_OnClicked"/> -->
+    <!--     </StackLayout> -->
+    <!-- </ContentPage.Content> -->
 </ContentPage>

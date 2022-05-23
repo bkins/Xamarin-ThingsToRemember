@@ -48,16 +48,17 @@
     </ContentPage.Resources>
 
     <ContentPage.Content>
+        
         <ScrollView>
             
             <StackLayout>
-
+                
                 <accordion:SfAccordion x:Name="Accordion"
                                        ExpandMode="SingleOrNone"
                                        VerticalOptions="StartAndExpand"
                                        DynamicSizeMode="Content"
                                        Margin="0, 10, 0, 0"
-                                       >
+                >
 
                     <accordion:SfAccordion.Items>
 
@@ -274,8 +275,17 @@
                             </accordion:AccordionItem.Header>
                             <accordion:AccordionItem.Content>
 
-                                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+                                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto, Auto">
 
+                                    <ActivityIndicator x:Name="ActivityIndicator"
+                                                       VerticalOptions="CenterAndExpand"
+                                                       HorizontalOptions="Fill" 
+                                                       Color="Red"
+                                                       IsVisible="False"
+                                                       IsEnabled="False"
+                                                       IsRunning="False"
+                                                       />
+                                    
                                     <Button x:Name="ClearDataButton"
                                             Grid.Row="0"
                                             Text="Clear All Journals and their Data"
@@ -291,7 +301,7 @@
                                             Margin="0, 0, 0, 0"
                                             HorizontalOptions="Center"
                                             />
-
+                                    <!--  -->
                                     <Button x:Name="BackUpDbButton"
                                             Grid.Row="2"
                                             Text="Backup Database"
@@ -304,7 +314,7 @@
                                             Text="Restore Database"
                                             Clicked="RestoreDbButton_OnClicked"
                                             HorizontalOptions="Center"
-                                            />
+                                    />
                                     
                                     <Button x:Name="FixJournalTypes"
                                             Grid.Row="4"
@@ -327,6 +337,12 @@
                                             HorizontalOptions="Center"
                                             />
 
+                                    <Button x:Name="MoveMediaToNewSchema"
+                                            Grid.Row="7"
+                                            Text="Move Media To New Schema"
+                                            Clicked="MoveMediaToNewSchema_OnClicked"
+                                            HorizontalOptions="Center"
+                                    />
                                 </Grid>
 
                             </accordion:AccordionItem.Content>

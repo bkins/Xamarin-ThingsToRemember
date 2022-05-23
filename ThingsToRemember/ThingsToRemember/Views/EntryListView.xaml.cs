@@ -179,6 +179,9 @@ namespace ThingsToRemember.Views
 
             if (userChoice)
             {
+                //BENDO: Instead of actually deleting, give option to either:
+                // * Move to Trash, or
+                // * Move to Archive
                 var itemDeleted = DeleteSwipedItem(entryToDelete);
 
                 ListView.ItemsSource = _entriesViewModel.GetObservableEntries(DateTime.Parse(DateTimeNow));

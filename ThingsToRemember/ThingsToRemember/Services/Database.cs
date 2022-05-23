@@ -6,6 +6,7 @@ using System.Linq;
 using SQLite;
 using ThingsToRemember.Models;
 using ApplicationExceptions;
+using Avails.Xamarin;
 using SQLiteNetExtensions.Extensions;
 
 namespace ThingsToRemember.Services
@@ -17,13 +18,17 @@ namespace ThingsToRemember.Services
 
     public class Database : IDataStore
     {
+        private const SQLiteOpenFlags Flags = SQLiteOpenFlags.ReadWrite
+                                            | SQLiteOpenFlags.Create      // create the database if it doesn't exist
+                                            | SQLiteOpenFlags.SharedCache // enable multi-threaded database access
+                                            ;
         private readonly SQLiteConnection _database;
-        private readonly string           _path;
+        public           string           Path { get; }
 
         public Database(string dbPath)
         {
-            _database = new SQLiteConnection(dbPath);
-            _path     = dbPath;
+            _database = new SQLiteConnection(dbPath, Flags);
+            Path      = dbPath;
 
             CreateUserTables();
             CreateAppTables();
@@ -38,14 +43,14 @@ namespace ThingsToRemember.Services
 
         public int GetSizeFromFileInfo()
         {
-            var size = (int) new FileInfo(_path).Length;
+            var size = (int) new FileInfo(Path).Length;
 
             return size;
         }
 
         public string GetFilePath()
         {
-            return _path;
+            return Path;
         }
 
         public void Close()
@@ -55,7 +60,7 @@ namespace ThingsToRemember.Services
 
         public string GetFileName()
         {
-            var fileName = new FileInfo(_path).Name;
+            var fileName = new FileInfo(Path).Name;
 
             return fileName;
         }
@@ -70,6 +75,7 @@ namespace ThingsToRemember.Services
         {
             _database.CreateTable<Journal>();
             _database.CreateTable<Entry>();
+            _database.CreateTable<Media>();
         }
 
         public void CreateAppTables()
@@ -82,6 +88,7 @@ namespace ThingsToRemember.Services
         {
             _database.DropTable<Journal>();
             _database.DropTable<Entry>();
+            _database.DropTable<Media>();
         }
 
         public void DropAppTables()
@@ -126,6 +133,20 @@ namespace ThingsToRemember.Services
             }
         }
 
+        public void SaveMedia(Media media
+                            , int   entryId)
+        {
+            if (media.Id == 0)
+            {
+                AddMediaWithChildren(media
+                                   , entryId);
+            }
+            else
+            {
+                UpdateMedia(media);
+            }
+        }
+
         public void SaveMood(Mood mood)
         {
             if (mood.Id == 0)
@@ -162,6 +183,11 @@ namespace ThingsToRemember.Services
         {
             _database.Insert(entry);
         }
+
+        public void AddMedia(Media media)
+        {
+            _database.Insert(media);
+        }
         
         public void AddEntryWIthChildren(Entry entry
                                        , int   journalId)
@@ -171,6 +197,15 @@ namespace ThingsToRemember.Services
             
             _database.InsertWithChildren(entry);
         }
+        
+        private void AddMediaWithChildren(Media media
+                                        , int   entryId)
+        {
+            media.EntryId = entryId;
+            
+            _database.InsertWithChildren(media);
+        }
+
         public int AddJournal(Journal journal)
         {
             return _database.Insert(journal);
@@ -233,6 +268,11 @@ namespace ThingsToRemember.Services
             }
             
             _database.UpdateWithChildren(entry);
+        }
+
+        public void UpdateMedia(Media media)
+        {
+            _database.UpdateWithChildren(media);
         }
 
         #endregion
@@ -320,6 +360,21 @@ namespace ThingsToRemember.Services
             }
         }
 
+        public Journal GetJournal(string title)
+        {
+            try
+            {
+                var journal = _database.GetAllWithChildren<Journal>()
+                                       .FirstOrDefault(fields => fields.Title == title);
+                SetJournalsEntriesWithMoods(journal);
+                
+                return journal;
+            }
+            catch (InvalidOperationException invalidE)
+            {
+                throw new SequenceContainsNoElementsException($"Record could not be found. No record with an {nameof(title)} of {title}", nameof(Journal), invalidE);
+            }
+        }
         public IEnumerable<Journal>  GetJournals(bool forceRefresh = false)
         {
             try
@@ -373,6 +428,28 @@ namespace ThingsToRemember.Services
             }
         }
 
+        public Entry GetEntry(string title, string text, DateTime createdOn)
+        {
+            try
+            {
+                return _database.GetAllWithChildren<Entry>()
+                                .FirstOrDefault(fields => fields.Title == title
+                                                       && fields.Text == text
+                                                       && fields.CreateDateTime == createdOn);
+            }
+            catch (InvalidOperationException invalidE)
+            {
+                throw new SequenceContainsNoElementsException("Record could not be found.", nameof(Entry), invalidE);
+            }
+            catch (Exception e)
+            {
+                
+                Console.WriteLine(e);
+
+                throw;
+            }
+        }
+        
         public IEnumerable<Entry> GetEntries(bool forceRefresh = false)
         {
             try
@@ -387,6 +464,21 @@ namespace ThingsToRemember.Services
             }
         }
 
+        public IEnumerable<Media> GetMedia (int entryId)
+        {
+            try
+            {
+                return _database.GetAllWithChildren<Media>()
+                                .Where(fields => fields.EntryId == entryId);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+
+                throw;
+            }
+        }
+        
         public IEnumerable GetEntriesWithMood(int moodId)
         {
             return _database.GetAllWithChildren<Entry>(fields => fields              != null && 
@@ -418,6 +510,28 @@ namespace ThingsToRemember.Services
             }
         }
 
+        public Mood GetMood(string title
+                          , string emoji)
+        {
+            try
+            {
+                return _database.GetAllWithChildren<Mood>()
+                                .FirstOrDefault(fields => fields.Title == title 
+                                                       && fields.Emoji == emoji);
+            }
+            catch (InvalidOperationException invalidE)
+            {
+                throw new SequenceContainsNoElementsException("Record could not be found.", nameof(Mood), invalidE);
+            }
+            catch (Exception e)
+            {
+                
+                Console.WriteLine(e);
+
+                throw;
+            }
+        }
+        
         public IEnumerable<Mood> GetMoods(bool forceRefresh = false)
         {
             try
@@ -450,6 +564,26 @@ namespace ThingsToRemember.Services
                 throw;
             }
         }
+        public JournalType GetJournalType(string title)
+        {
+            try
+            {
+                return _database.GetAllWithChildren<JournalType>()
+                                .FirstOrDefault(fields => fields.Title == title);
+            }
+            catch (InvalidOperationException invalidE)
+            {
+                throw new SequenceContainsNoElementsException($"Record could not be found with the {nameof(title)} of {title}"
+                                                            , nameof(JournalType), invalidE);
+            }
+            catch (Exception e)
+            {
+                
+                Console.WriteLine(e);
+
+                throw;
+            }
+        }
         
         public IEnumerable<JournalType> GetJournalTypes(bool forceRefresh = false)
         {
@@ -465,11 +599,20 @@ namespace ThingsToRemember.Services
             }
         }
 
+        public IEnumerable<Media> GetAllMedia()
+        {
+            try
+            {
+                return _database.GetAllWithChildren<Media>();
+            }
+            catch (Exception e)
+            {
+                Logger.WriteLine(e.Message, Category.Error, e);
+
+                throw;
+            }
+        }
     #endregion
 
-        public void BackupDatabase()
-        {
-            
-        }
     }
 }
